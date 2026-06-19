@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complex / Allegiance Report · Vol. 01 · MMXXVI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0B0B0C;
+      --bone:#E9E2D0;
+      --acid:#D4FF1E;
+      --blood:#D8311C;
+      --shade:#1E1E20;
+      --ease:cubic-bezier(0.16, 1, 0.3, 1);
+      --gauge-ease:cubic-bezier(0.6, 0, 0.1, 1);
+      --pad:48px;
+      --gutter:16px;
+    }
+
+    *{box-sizing:border-box}
+    html{background:#0B0B0C; color:#E9E2D0; scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:#0B0B0C;
+      color:#E9E2D0;
+      font-family:'Fraunces', serif;
+      font-weight:300;
+      font-size:16px;
+      line-height:1.5;
+      font-variation-settings:'opsz' 14;
+      overflow-x:hidden;
+      cursor:auto;
+    }
+
+    body.cursor-live{cursor:none}
+
+    .grain{
+      position:fixed;
+      inset:0;
+      background-image:url("asset://grain-halftone");
+      background-size:cover;
+      opacity:0.08;
+      mix-blend-mode:screen;
+      pointer-events:none;
+      z-index:999;
+    }
+    .grain::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.7' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='0.58'/%3E%3C/svg%3E");
+      background-size:180px 180px;
+    }
+
+    .cursor-dot,
+    .cursor-ring{
+      position:fixed;
+      top:0;
+      left:0;
+      pointer-events:none;
+      z-index:1000;
+      mix-blend-mode:difference;
+      opacity:0;
+      transform:translate3d(-50%,-50%,0);
+    }
+    .cursor-dot{
+      width:8px;
+      height:8px;
+      background:#D4FF1E;
+      border-radius:2px;
+    }
+    .cursor-ring{
+      width:32px;
+      height:32px;
+      border:1px solid #E9E2D0;
+      border-radius:2px;
+    }
+    @media (pointer:fine){
+      .cursor-dot,.cursor-ring{opacity:1}
+    }
+
+    .ink-filter-source{
+      position:absolute;
+      width:0;
+      height:0;
+      overflow:hidden;
+    }
+
+    .page{
+      max-width:1440px;
+      margin:0 auto;
+      padding:0 var(--pad);
+      position:relative;
+    }
+
+    .grid-rules{
+      position:fixed;
+      inset:0 var(--pad);
+      max-width:1344px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:var(--gutter);
+      pointer-events:none;
+      z-index:0;
+      opacity:0.15;
+    }
+    .grid-rules span{
+      border-left:1px solid #E9E2D0;
+      min-height:100vh;
+    }
+
+    .masthead{
+      height:80px;
+      display:grid;
+      grid-template-columns:5fr 7fr;
+      gap:var(--gutter);
+      align-items:center;
+      border-top:1px solid #E9E2D0;
+      position:sticky;
+      top:0;
+      z-index:50;
+      background:#0B0B0C;
+    }
+    .wordmark{
+      font-family:'Archivo Black', sans-serif;
+      font-weight:900;
+      font-size:14px;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      filter:url(#inkbleed);
+      white-space:nowrap;
+    }
+    .ticker{
+      overflow:hidden;
+      border-left:1px solid #E9E2D0;
+      height:32px;
+      display:flex;
+      align-items:center;
+      opacity:0.92;
+    }
+    .ticker-track{
+      display:flex;
+      width:max-content;
+      will-change:transform;
+      animation:ticker 32s linear infinite;
+    }
+    .ticker span{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:10px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      padding-right:48px;
+      white-space:nowrap;
+    }
+    .ticker strong{
+      font-weight:700;
+    }
+    @keyframes ticker{
+      from{transform:translate3d(0,0,0)}
+      to{transform:translate3d(-50%,0,0)}
+    }
+
+    .section{
+      position:relative;
+      z-index:2;
+      border-top:1px solid #E9E2D0;
+      padding:44px 0 64px;
+    }
+
+    .fig-label{
+      display:flex;
+      gap:12px;
+      align-items:flex-end;
+      margin-bottom:18px;
+      min-height:24px;
+    }
+    .fig-glyph{
+      width:76px;
+      height:24px;
+      object-fit:contain;
+      object-position:left bottom;
+    }
+    .fig-fallback{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:10px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:#E9E2D0;
+    }
+    .mono{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:10px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+    }
+    .mono strong{font-weight:700}
+
+    .fig-title{
+      font-family:'Archivo Black', sans-serif;
+      font-weight:900;
+      font-size:clamp(48px, 11vw, 184px);
+      line-height:0.88;
+      letter-spacing:-0.02em;
+      text-transform:uppercase;
+      filter:url(#inkbleed);
+      margin:0;
+    }
+
+    .data-figure{
+      font-family:'Archivo Black', sans-serif;
+      font-weight:900;
+      font-size:clamp(96px, 18vw, 280px);
+      line-height:0.82;
+      font-variant-numeric:tabular-nums;
+      letter-spacing:-0.06em;
+      margin:0;
+    }
+
+    .pull{
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-weight:600;
+      font-size:clamp(22px, 2.4vw, 32px);
+      line-height:1.25;
+      font-variation-settings:'opsz' 60;
+      margin:0;
+    }
+    .bodycopy{
+      font-family:'Fraunces', serif;
+      font-weight:300;
+      font-size:16px;
+      line-height:1.5;
+      font-variation-settings:'opsz' 14;
+      margin:0;
+      max-width:680px;
+    }
+
+    .fig01{
+      min-height:calc(100vh - 80px);
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:var(--gutter);
+      padding-top:54px;
+    }
+    .fig01-left{
+      grid-column:1 / span 7;
+      align-self:start;
+    }
+    .fig01-right{
+      grid-column:8 / span 5;
+      align-self:end;
+      padding-bottom:42px;
+      border-left:1px solid #E9E2D0;
+      padding-left:var(--gutter);
+    }
+    .char{
+      display:inline-block;
+      clip-path:inset(0 100% 0 0);
+      will-change:clip-path;
+    }
+    .char.revealed{
+      clip-path:inset(0 0 0 0);
+      transition:clip-path 1200ms var(--ease);
+    }
+    .fig01 .pull{
+      margin-top:26px;
+      max-width:820px;
+    }
+    .hero-rule{
+      width:100%;
+      height:1px;
+      background:#E9E2D0;
+      transform-origin:left center;
+      transform:scaleX(0);
+      margin:28px 0 22px;
+    }
+    .hero-rule.drawn{
+      transform:scaleX(1);
+      transition:transform 1400ms var(--ease);
+    }
+    .spark-wrap{
+      margin-top:24px;
+      border-top:1px solid #E9E2D0;
+      padding-top:18px;
+    }
+    .sparkline path{
+      fill:none;
+      stroke:#D4FF1E;
+      stroke-width:2;
+      stroke-linecap:square;
+      stroke-dasharray:620;
+      stroke-dashoffset:620;
+    }
+    .sparkline path.drawn{
+      stroke-dashoffset:0;
+      transition:stroke-dashoffset 1800ms var(--ease);
+    }
+    .sparkline .axis{
+      stroke:#E9E2D0;
+      stroke-width:1;
+      opacity:0.7;
+    }
+
+    .price-strip{
+      margin-top:34px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:0;
+      border-top:1px solid #E9E2D0;
+      border-bottom:1px solid #E9E2D0;
+    }
+    .price-cell{
+      padding:12px 10px 14px;
+      border-left:1px solid #E9E2D0;
+      min-height:88px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .price-cell:first-child{border-left:0}
+    .mini-price{
+      font-family:'Archivo Black', sans-serif;
+      font-size:26px;
+      line-height:1;
+      letter-spacing:-0.04em;
+    }
+    .tier-btn{
+      appearance:none;
+      border:1px solid #E9E2D0;
+      background:#0B0B0C;
+      color:#E9E2D0;
+      border-radius:2px;
+      padding:10px 12px;
+      min-height:44px;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:10px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:transform 100ms var(--ease), opacity 100ms var(--ease);
+    }
+    .tier-btn.primary{
+      background:#D4FF1E;
+      color:#0B0B0C;
+      border-color:#D4FF1E;
+    }
+    .tier-btn:active{transform:translateY(1px)}
+    .signal{
+      min-height:16px;
+      margin-top:12px;
+      opacity:0.82;
+    }
+
+    .gauge-section{
+      min-height:80vh;
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:var(--gutter);
+      align-items:center;
+      padding-top:48px;
+      padding-bottom:78px;
+    }
+    .gauge-stage{
+      grid-column:1 / span 7;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      position:relative;
+      min-height:620px;
+    }
+    .gauge-copy{
+      grid-column:8 / span 5;
+      border-left:1px solid #E9E2D0;
+      padding-left:var(--gutter);
+    }
+    .gauge-svg{
+      width:560px;
+      height:560px;
+      max-width:100%;
+      overflow:visible;
+    }
+    .gauge-number{
+      text-align:center;
+      margin-bottom:18px;
+    }
+    .gauge-caption{
+      max-width:420px;
+    }
+    .tick-minor{
+      stroke:#E9E2D0;
+      stroke-width:1;
+      opacity:0.38;
+    }
+    .tick-major{
+      stroke:#E9E2D0;
+      stroke-width:1.5;
+      opacity:0.92;
+    }
+    .dial-arc{
+      fill:none;
+      stroke:#E9E2D0;
+      stroke-width:1;
+      stroke-dasharray:3 8;
+      opacity:0.72;
+    }
+    .needle{
+      stroke:#D4FF1E;
+      stroke-width:4;
+      stroke-linecap:square;
+    }
+    .needle-trail{
+      stroke:#D4FF1E;
+      stroke-width:1;
+      stroke-dasharray:5 9;
+      opacity:0.7;
+    }
+
+    .fig03{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:var(--gutter);
+    }
+    .fig03-head{
+      grid-column:1 / span 12;
+    }
+    .pricing-chart-wrap{
+      grid-column:1 / span 8;
+      border-left:1px solid #E9E2D0;
+      padding-left:var(--gutter);
+      margin-top:22px;
+      position:relative;
+    }
+    .pricing-art{
+      grid-column:9 / span 4;
+      margin-top:22px;
+      border-top:1px solid #E9E2D0;
+      padding-top:14px;
+      align-self:start;
+    }
+    .member-img{
+      width:100%;
+      max-width:380px;
+      aspect-ratio:1.6 / 1;
+      object-fit:cover;
+      border:1px solid #E9E2D0;
+      border-radius:2px;
+      display:block;
+    }
+    .asset-fallback{
+      width:100%;
+      max-width:380px;
+      aspect-ratio:1.6 / 1;
+      border:1px solid #E9E2D0;
+      border-radius:2px;
+      background:#1E1E20;
+      display:none;
+      padding:18px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:10px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      position:relative;
+    }
+    .asset-fallback::after{
+      content:"№ 00,014,221";
+      position:absolute;
+      left:18px;
+      bottom:18px;
+    }
+    .asset-fallback::before{
+      content:"";
+      position:absolute;
+      right:18px;
+      bottom:18px;
+      width:52px;
+      height:8px;
+      background:#D4FF1E;
+    }
+    .pricing-svg{
+      width:100%;
+      height:auto;
+      overflow:visible;
+    }
+    .price-rect{
+      transform-box:fill-box;
+      transform-origin:bottom;
+      transform:scaleY(0);
+      transition:transform 800ms var(--ease);
+    }
+    .price-rect.live{transform:scaleY(1)}
+    .benefit-list{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+    .benefit-col{
+      border-top:1px solid #E9E2D0;
+      padding-top:12px;
+    }
+    .benefit-col p{
+      margin:8px 0 0;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:10px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      line-height:1.55;
+    }
+
+    .support-grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:var(--gutter);
+    }
+    .fig04-left{grid-column:1 / span 4}
+    .fig04-right{grid-column:5 / span 8}
+    .drop-grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      grid-template-rows:repeat(5,58px);
+      gap:8px;
+      border-left:1px solid #E9E2D0;
+      padding-left:var(--gutter);
+      margin-top:18px;
+    }
+    .drop-cell{
+      border-top:1px solid #E9E2D0;
+      position:relative;
+      overflow:hidden;
+    }
+    .drop-cell::after{
+      content:"";
+      position:absolute;
+      left:0;
+      bottom:0;
+      width:100%;
+      height:var(--h);
+      background:#D4FF1E;
+      transform:scaleY(0);
+      transform-origin:bottom;
+      transition:transform 700ms var(--ease);
+    }
+    .drop-cell.live::after{transform:scaleY(1)}
+    .drop-cell.alert::before{
+      content:"021 LOST CARTS";
+      position:absolute;
+      top:6px;
+      left:4px;
+      color:#D8311C;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:8px;
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+      z-index:2;
+    }
+
+    .node-section{
+      min-height:720px;
+      overflow:hidden;
+    }
+    .node-bg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:0.4;
+      mix-blend-mode:screen;
+      pointer-events:none;
+    }
+    .node-map{
+      width:100%;
+      height:560px;
+      margin-top:24px;
+      border-left:1px solid #E9E2D0;
+      overflow:visible;
+    }
+    .node{
+      opacity:0;
+      transform-origin:center;
+      transform-box:fill-box;
+      transform:scale(0);
+      transition:opacity 420ms var(--ease), transform 420ms var(--ease);
+    }
+    .node.live{
+      opacity:1;
+      transform:scale(1);
+    }
+    .edge{
+      stroke:#E9E2D0;
+      stroke-width:1;
+      opacity:0.32;
+    }
+
+    .manifesto{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:var(--gutter);
+    }
+    .manifesto .fig-label{grid-column:1 / span 12}
+    .manifesto .fig-title{grid-column:1 / span 7}
+    .manifesto .editor-note{
+      grid-column:4 / span 7;
+      margin-top:32px;
+      border-left:1px solid #E9E2D0;
+      padding-left:var(--gutter);
+    }
+    .editor-note p{
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-weight:600;
+      font-size:clamp(22px, 2.4vw, 32px);
+      line-height:1.25;
+      font-variation-settings:'opsz' 60;
+      margin:0 0 26px;
+    }
+
+    .faq-table{
+      margin-top:22px;
+      border-top:1px solid #E9E2D0;
+    }
+    .faq-row{
+      display:grid;
+      grid-template-columns:1fr 4fr 7fr;
+      gap:var(--gutter);
+      border-top:1px solid #E9E2D0;
+      padding:18px 0;
+    }
+    .faq-row:first-child{border-top:0}
+    .faq-q{
+      font-family:'Archivo Black', sans-serif;
+      font-size:26px;
+      line-height:1;
+      text-transform:uppercase;
+    }
+
+    .final-cta{
+      margin-left:calc(var(--pad) * -1);
+      margin-right:calc(var(--pad) * -1);
+      padding:58px var(--pad) 72px;
+      background:#D4FF1E;
+      color:#0B0B0C;
+      position:relative;
+      overflow:hidden;
+      border-top:1px solid #E9E2D0;
+    }
+    .final-title{
+      font-family:'Archivo Black', sans-serif;
+      font-size:clamp(96px, 18vw, 280px);
+      line-height:0.82;
+      letter-spacing:-0.06em;
+      margin:0;
+      text-transform:uppercase;
+      text-align:center;
+      filter:url(#inkbleed);
+    }
+    .final-grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:var(--gutter);
+      align-items:end;
+      margin-top:20px;
+    }
+    .final-copy{
+      grid-column:1 / span 5;
+    }
+    .final-card-wrap{
+      grid-column:6 / span 7;
+      position:relative;
+      transform:translateY(-20vh) rotate(-2deg);
+      opacity:0;
+      transition:transform 1600ms var(--ease), opacity 200ms var(--ease);
+    }
+    .final-card-wrap.live{
+      transform:translateY(0) rotate(0);
+      opacity:1;
+    }
+    .final-card{
+      width:100%;
+      max-width:720px;
+      aspect-ratio:1.6 / 1;
+      object-fit:cover;
+      border:1px solid #0B0B0C;
+      border-radius:2px;
+      display:block;
+    }
+    .stamp{
+      position:absolute;
+      top:20px;
+      right:28px;
+      width:180px;
+      height:180px;
+      opacity:0.85;
+      transform:rotate(-8deg);
+      mix-blend-mode:multiply;
+      z-index:3;
+    }
+    .final-btn{
+      appearance:none;
+      background:#0B0B0C;
+      color:#D4FF1E;
+      border:1px solid #0B0B0C;
+      border-radius:2px;
+      padding:18px 24px;
+      min-height:54px;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:10px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      cursor:pointer;
+      margin-top:22px;
+      transition:transform 100ms var(--ease);
+    }
+    .final-btn:active{transform:translateY(1px)}
+    .serial{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:10px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      min-height:18px;
+      margin-top:18px;
+    }
+
+    .colophon{
+      padding:36px 0 64px;
+      border-top:1px solid #E9E2D0;
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:var(--gutter);
+    }
+    .colophon p{
+      margin:0;
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-weight:600;
+      font-size:10px;
+      line-height:1.65;
+      font-variation-settings:'opsz' 14;
+    }
+    .colophon .tag{
+      grid-column:1 / span 6;
+      font-family:'Archivo Black', sans-serif;
+      font-style:normal;
+      font-size:28px;
+      line-height:0.98;
+      letter-spacing:-0.02em;
+      text-transform:uppercase;
+    }
+    .colophon .sources{grid-column:8 / span 5}
+
+    .controls{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:80;
+      display:flex;
+      gap:8px;
+    }
+    .controls button{
+      appearance:none;
+      border:1px solid #E9E2D0;
+      background:#0B0B0C;
+      color:#E9E2D0;
+      border-radius:2px;
+      padding:10px 12px;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:10px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      cursor:pointer;
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        animation-duration:200ms!important;
+        transition-duration:200ms!important;
+        scroll-behavior:auto!important;
+      }
+      .ticker-track{animation-duration:60s!important}
+      .char{clip-path:inset(0 0 0 0)}
+      .hero-rule{transform:scaleX(1)}
+      .sparkline path{stroke-dashoffset:0}
+      .price-rect{transform:scaleY(1)}
+      .drop-cell::after{transform:scaleY(1)}
+      .node{opacity:1; transform:scale(1)}
+      .final-card-wrap{opacity:1; transform:translateY(0) rotate(0)}
+    }
+
+    @media (max-width:720px){
+      :root{--pad:20px; --gutter:12px}
+      .grid-rules{
+        inset:0 var(--pad);
+        grid-template-columns:repeat(4,1fr);
+      }
+      .grid-rules span:nth-child(n+5){display:none}
+      .masthead{
+        height:auto;
+        min-height:84px;
+        grid-template-columns:1fr;
+        padding:14px 0;
+        gap:10px;
+      }
+      .ticker{border-left:0; border-top:1px solid #E9E2D0}
+      .fig01,
+      .gauge-section,
+      .fig03,
+      .support-grid,
+      .manifesto,
+      .final-grid,
+      .colophon{
+        grid-template-columns:repeat(4,1fr);
+      }
+      .fig01-left,.fig01-right,.fig03-head,.pricing-chart-wrap,.pricing-art,
+      .fig04-left,.fig04-right,.manifesto .fig-label,.manifesto .fig-title,
+      .manifesto .editor-note,.final-copy,.final-card-wrap,.colophon .tag,.colophon .sources{
+        grid-column:1 / span 4;
+      }
+      .fig01-right,.gauge-copy,.pricing-chart-wrap,.manifesto .editor-note{
+        border-left:0;
+        padding-left:0;
+      }
+      .price-strip{grid-template-columns:1fr}
+      .price-cell{border-left:0; border-top:1px solid #E9E2D0}
+      .price-cell:first-child{border-top:0}
+      .gauge-stage,.gauge-copy{grid-column:1 / span 4}
+      .gauge-stage{min-height:340px}
+      .gauge-svg{width:280px;height:280px}
+      .pricing-svg{transform:rotate(0deg)}
+      .benefit-list{grid-template-columns:1fr}
+      .drop-grid{
+        grid-column:1 / span 4;
+        grid-template-rows:repeat(5,42px);
+        gap:6px;
+      }
+      .faq-row{grid-template-columns:1fr;gap:8px}
+      .stamp{width:118px;height:118px;right:16px;top:16px}
+      .controls{display:none}
+    }
+  </style>
+</head>
+
+<body>
+  <svg class="ink-filter-source" aria-hidden="true">
+    <filter id="inkbleed"><feTurbulence baseFrequency="0.9" numOctaves="2"/><feDisplacementMap in="SourceGraphic" scale="0.6"/></filter>
+  </svg>
+
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <div class="grid-rules" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="page">
+    <header class="masthead">
+      <div class="wordmark">COMPLEX / ALLEGIANCE REPORT · VOL. 01 · MMXXVI</div>
+      <div class="ticker" aria-label="Live report ticker">
+        <div class="ticker-track">
+          <span><strong>14,000,000 MEMBERS</strong> · 421 MEMBER-ONLY DROPS · 96s MEDIAN SELL-OUT · CANCEL ANYTIME · FOUNDING RATE LOCKED FOREVER ·</span>
+          <span><strong>14,000,000 MEMBERS</strong> · 421 MEMBER-ONLY DROPS · 96s MEDIAN SELL-OUT · CANCEL ANYTIME · FOUNDING RATE LOCKED FOREVER ·</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="section fig01" id="fig01">
+        <div class="fig01-left">
+          <div class="fig-label">
+            <img class="fig-glyph" src="asset://figure-key-glyph" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span class="fig-fallback" style="display:none">FIG. 01</span>
+            <span class="mono">Membership growth, 2019—2026</span>
+          </div>
+          <h1 class="fig-title clip-headline" data-text="BELONGING, QUANTIFIED.">BELONGING, QUANTIFIED.</h1>
+          <div class="hero-rule" id="heroRule"></div>
+          <p class="pull">“Belonging, quantified. 14,000,000 of you. One median sell-out: ninety-six seconds.”</p>
+
+          <div class="price-strip" aria-label="Membership tier quick index">
+            <div class="price-cell">
+              <span class="mono"><strong>REGULAR</strong> / $0</span>
+              <span class="mini-price">$0</span>
+              <button class="tier-btn" data-tier="REGULAR">Hold position</button>
+            </div>
+            <div class="price-cell">
+              <span class="mono"><strong>OBSESSED</strong> / $9/MO</span>
+              <span class="mini-price">$9/MO</span>
+              <button class="tier-btn primary" data-tier="OBSESSED">Claim founding rate</button>
+            </div>
+            <div class="price-cell">
+              <span class="mono"><strong>FAMILY</strong> / $29/MO</span>
+              <span class="mini-price">$29/MO</span>
+              <button class="tier-btn" data-tier="FAMILY">Seat the crew</button>
+            </div>
+          </div>
+          <div class="signal mono" id="signal">Awaiting member position.</div>
+        </div>
+
+        <div class="fig01-right">
+          <p class="mono">Total indexed members</p>
+          <p class="data-figure" id="memberCount">14,000,000</p>
+          <div class="spark-wrap">
+            <p class="mono">Sparkline — Complex membership index, normalized</p>
+            <svg class="sparkline" viewBox="0 0 520 150" role="img" aria-label="Membership growth sparkline">
+              <line class="axis" x1="0" y1="130" x2="520" y2="130"></line>
+              <line class="axis" x1="0" y1="18" x2="0" y2="130"></line>
+              <path id="sparkPath" d="M0 126 C42 118 54 112 86 104 C126 90 138 96 176 77 C226 52 240 64 278 49 C322 31 350 46 392 24 C440 5 474 18 520 10"></path>
+              <text x="0" y="148" fill="#E9E2D0" class="mono">2019</text>
+              <text x="458" y="148" fill="#E9E2D0" class="mono">2026</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="section gauge-section" id="fig02">
+        <div class="gauge-stage">
+          <svg class="gauge-svg" viewBox="0 0 560 560" role="img" aria-label="Median seconds to sell-out gauge">
+            <g transform="translate(280 280)">
+              <circle class="dial-arc" r="226" cx="0" cy="0" stroke-dasharray="3 8"></circle>
+              <path d="M -210 88 A 228 228 0 1 1 210 88" fill="none" stroke="#E9E2D0" stroke-width="1" stroke-dasharray="1 9" opacity="0.9"></path>
+              <g id="gaugeTicks"></g>
+              <text x="-232" y="116" fill="#E9E2D0" class="mono">600S</text>
+              <text x="202" y="116" fill="#E9E2D0" class="mono">0S</text>
+              <g id="needleGroup" transform="rotate(-130)">
+                <line class="needle-trail" x1="-74" y1="0" x2="178" y2="0"></line>
+                <line class="needle" x1="-22" y1="0" x2="210" y2="0"></line>
+              </g>
+              <circle r="8" fill="#D4FF1E"></circle>
+              <circle r="18" fill="none" stroke="#E9E2D0" stroke-width="1" stroke-dasharray="2 5"></circle>
+            </g>
+          </svg>
+        </div>
+        <div class="gauge-copy">
+          <div class="fig-label">
+            <img class="fig-glyph" src="asset://figure-key-glyph" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span class="fig-fallback" style="display:none">FIG. 02</span>
+            <span class="mono">The Gauge</span>
+          </div>
+          <p class="data-figure gauge-number" id="gaugeNum">96.0</p>
+          <p class="mono gauge-caption">FIG. 02 — MEDIAN SECONDS TO SELL-OUT, MEMBER DROPS, 2026</p>
+          <p class="bodycopy" style="margin-top:18px">The instrument reads the room: faster drops, tighter windows, fewer second chances. Allegiance converts timing into access.</p>
+        </div>
+      </section>
+
+      <section class="section fig03" id="fig03">
+        <div class="fig03-head">
+          <div class="fig-label">
+            <img class="fig-glyph" src="asset://figure-key-glyph" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span class="fig-fallback" style="display:none">FIG. 03</span>
+            <span class="mono">Pricing as position</span>
+          </div>
+          <h2 class="fig-title">THREE POSITIONS.</h2>
+        </div>
+
+        <div class="pricing-chart-wrap">
+          <p class="mono">Y-axis: $ / mo · X-axis: benefit density</p>
+          <svg class="pricing-svg" viewBox="0 0 1000 640" role="img" aria-label="Stacked bar membership tier comparison">
+            <line x1="80" y1="560" x2="940" y2="560" stroke="#E9E2D0" stroke-width="1"></line>
+            <line x1="80" y1="56" x2="80" y2="560" stroke="#E9E2D0" stroke-width="1"></line>
+
+            <text x="20" y="70" fill="#E9E2D0" class="mono" transform="rotate(-90 20 70)">$/MO</text>
+            <text x="850" y="598" fill="#E9E2D0" class="mono">X-AXIS / ACCESS</text>
+
+            <rect class="price-rect" data-final-y="556" data-final-h="4" x="145" y="556" width="150" height="4" fill="#E9E2D0"></rect>
+            <line x1="295" y1="556" x2="404" y2="500" stroke="#E9E2D0" stroke-width="1"></line>
+            <text x="410" y="498" fill="#E9E2D0" class="mono">REGULAR · $0</text>
+            <text x="410" y="518" fill="#E9E2D0" class="mono">+ DAILY CULTURE BRIEF</text>
+            <text x="410" y="538" fill="#E9E2D0" class="mono">+ OPEN ARCHIVE</text>
+
+            <rect class="price-rect" data-final-y="80" data-final-h="480" x="430" y="80" width="260" height="480" fill="#D4FF1E"></rect>
+            <line x1="690" y1="138" x2="808" y2="94" stroke="#E9E2D0" stroke-width="1"></line>
+            <line x1="690" y1="318" x2="808" y2="318" stroke="#E9E2D0" stroke-width="1"></line>
+            <line x1="690" y1="510" x2="808" y2="548" stroke="#E9E2D0" stroke-width="1"></line>
+            <text x="816" y="92" fill="#E9E2D0" class="mono">OBSESSED · $9/MO</text>
+            <text x="816" y="112" fill="#E9E2D0" class="mono">+ FIRST DIBS ON EVERY DROP</text>
+            <text x="816" y="316" fill="#E9E2D0" class="mono">+ MEMBER-ONLY PRICES</text>
+            <text x="816" y="546" fill="#E9E2D0" class="mono">+ DROP REMINDERS</text>
+
+            <rect class="price-rect" data-final-y="320" data-final-h="240" x="730" y="320" width="150" height="240" fill="#D8311C"></rect>
+            <line x1="730" y1="352" x2="604" y2="244" stroke="#E9E2D0" stroke-width="1"></line>
+            <text x="420" y="238" fill="#E9E2D0" class="mono">FAMILY · $29/MO</text>
+            <text x="420" y="258" fill="#E9E2D0" class="mono">+ EVERYTHING IN OBSESSED</text>
+            <text x="420" y="278" fill="#E9E2D0" class="mono">+ 4 LINKED ACCOUNTS</text>
+
+            <text x="145" y="594" fill="#E9E2D0" class="mono">REGULAR</text>
+            <text x="430" y="594" fill="#E9E2D0" class="mono">OBSESSED</text>
+            <text x="730" y="594" fill="#E9E2D0" class="mono">FAMILY</text>
+          </svg>
+
+          <div class="benefit-list">
+            <div class="benefit-col">
+              <span class="mono"><strong>REGULAR</strong> · $0</span>
+              <p>+ Daily Complex briefing<br>+ Open archive reads<br>+ Public drop calendar<br>+ Community comment access</p>
+              <button class="tier-btn" data-tier="REGULAR">Hold position</button>
+            </div>
+            <div class="benefit-col">
+              <span class="mono"><strong>OBSESSED</strong> · $9/MO</span>
+              <p>+ First dibs on every drop<br>+ Member-only prices<br>+ Early event windows<br>+ Drop reminders by text<br>+ Private buying guides<br>+ Founding rate locked</p>
+              <button class="tier-btn primary" data-tier="OBSESSED">Claim founding rate</button>
+            </div>
+            <div class="benefit-col">
+              <span class="mono"><strong>FAMILY</strong> · $29/MO</span>
+              <p>+ Everything in OBSESSED<br>+ Four linked accounts<br>+ Shared drop queue<br>+ Family event allocation<br>+ Concierge issue routing<br>+ Priority seat holds</p>
+              <button class="tier-btn" data-tier="FAMILY">Seat the crew</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="pricing-art">
+          <p class="mono">Specimen card, indexed to featured tier</p>
+          <img class="member-img" src="asset://member-card-specimen" alt="Complex Allegiance black membership card specimen" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <div class="asset-fallback">COMPLEX ALLEGIANCE</div>
+        </aside>
+      </section>
+
+      <section class="section support-grid" id="fig04">
+        <div class="fig04-left">
+          <div class="fig-label">
+            <img class="fig-glyph" src="asset://figure-key-glyph" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <span class="fig-fallback" style="display:none">FIG. 04</span>
+            <span class="mono">Drop density</span>
+          </div>
+          <h2 class="fig-title">421 DROPS.</h2>
+          <p class="bodycopy">Twelve months plotted across five intensity bands. The loud months were not louder; they were shorter.</p>
+        </div>
+        <div class="fig04-right">
+          <div class="drop-grid" id="dropGrid" aria-label="Sparkbar grid showing 421 drops"></div>
+        </div>
+      </section>
+
+      <section class="section node-section" id="fig05">
+        <img class="node-bg" src="asset://node-network-bg" alt="" onerror="this.style.display='none';">
+        <div class="fig-label">
+          <img class="fig-glyph" src="asset://figure-key-glyph" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+          <span class="fig-fallback" style="display:none">FIG. 05</span>
+          <span class="mono">Node map — members / drops / events</span>
+        </div>
+        <h2 class="fig-title">THE NETWORK.</h2>
+        <svg class="node-map" id="nodeMap" viewBox="0 0 1200 560" role="img" aria-label="Node network map of members drops and events"></svg>
+      </section>
+
+      <section class="section manifesto" id="fig06">
+        <div class="fig-label">
+          <img class="fig-glyph" src="asset://figure-key-glyph" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+          <span class="fig-fallback" style="display:none">FIG. 06</span>
+          <span class="mono">The manifesto</span>
+        </div>
+        <h2 class="fig-title">EDITOR'S NOTE.</h2>
+        <div class="editor-note">
+          <p>Access is not a velvet rope. It is a clock. It is the ninety-six seconds between wanting the thing and watching the thing disappear.</p>
+          <p>Complex Allegiance exists for the reader who already knows the language: the archive tab left open, the release calendar annotated, the friend who texts “link?” before the post finishes loading.</p>
+          <p>Membership does not make you earlier to culture. It admits what was already true: you were paying attention first.</p>
+        </div>
+      </section>
+
+      <section class="section" id="fig07">
+        <div class="fig-label">
+          <img class="fig-glyph" src="asset://figure-key-glyph" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+          <span class="fig-fallback" style="display:none">FIG. 07</span>
+          <span class="mono">Intel FAQ</span>
+        </div>
+        <h2 class="fig-title">FIELD NOTES.</h2>
+        <div class="faq-table">
+          <div class="faq-row">
+            <div class="mono">07.01</div>
+            <div class="faq-q">Can I cancel?</div>
+            <div class="bodycopy">Yes. Cancel anytime. Your rate stays attached to the active position you hold.</div>
+          </div>
+          <div class="faq-row">
+            <div class="mono">07.02</div>
+            <div class="faq-q">What drops?</div>
+            <div class="bodycopy">Member-only capsules, early commerce windows, event allocations, culture objects, and archive-led releases curated by Complex editors.</div>
+          </div>
+          <div class="faq-row">
+            <div class="mono">07.03</div>
+            <div class="faq-q">Why Family?</div>
+            <div class="bodycopy">Because carts are social. Family links four accounts, one shared drop queue, and priority routing when the window gets thin.</div>
+          </div>
+          <div class="faq-row">
+            <div class="mono">07.04</div>
+            <div class="faq-q">What is locked?</div>
+            <div class="bodycopy">Founding members keep the sign-up rate for as long as the membership remains active.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="final-cta" id="fig08">
+        <img class="stamp" src="asset://enlist-stamp" alt="Enlist Complex Allegiance stamp" onerror="this.style.display='none';">
+        <div class="fig-label">
+          <img class="fig-glyph" src="asset://figure-key-glyph" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+          <span class="fig-fallback" style="display:none">FIG. 08</span>
+          <span class="mono">Final allocation</span>
+        </div>
+        <h2 class="final-title">ENLIST.</h2>
+        <div class="final-grid">
+          <div class="final-copy">
+            <p class="pull">“Founding members locked at sign-up rate. Forever.”</p>
+            <button class="final-btn" id="finalCta">Print membership number</button>
+            <div class="serial" id="serialOut">№ 00,014,221</div>
+          </div>
+          <div class="final-card-wrap" id="finalCardWrap">
+            <img class="final-card" src="asset://member-card-specimen" alt="Complex Allegiance membership card final specimen" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <div class="asset-fallback">COMPLEX ALLEGIANCE</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="colophon" id="colophon">
+      <p class="tag">ALLEGIANCE IS NOT A SUBSCRIPTION. IT'S A POSITION.</p>
+      <div class="sources">
+        <p>Data: Complex internal, 2026. Pricing tiers: Regular $0, Obsessed $9/MO, Family $29/MO. Drop density includes member-only commerce, event allocations, archive releases, and editorial unlock windows.</p>
+        <p>© MMXXVI Complex Allegiance. Report Vol. 01. All figures are living instruments; all windows close.</p>
+      </div>
+    </footer>
+  </div>
+
+  <div class="controls" aria-label="Animation controls">
+    <button id="playBtn">Play</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <script id="pricing_tiers" type="application/json">
+    [
+      {"name":"REGULAR","price":"$0","benefits":["Daily Complex briefing","Open archive reads","Public drop calendar","Community comment access"],"cta_button":"Hold position","is_featured":false},
+      {"name":"OBSESSED","price":"$9/MO","benefits":["First dibs on every drop","Member-only prices","Early event windows","Drop reminders by text","Private buying guides","Founding rate locked"],"cta_button":"Claim founding rate","is_featured":true},
+      {"name":"FAMILY","price":"$29/MO","benefits":["Everything in OBSESSED","Four linked accounts","Shared drop queue","Family event allocation","Concierge issue routing","Priority seat holds"],"cta_button":"Seat the crew","is_featured":false}
+    ]
+  </script>
+  <script id="supporting_sections" type="application/json">
+    [
+      {"section_purpose":"Drop density","content":"Sparkbar grid: 12 months × 5 rows showing 421 member-only drops."},
+      {"section_purpose":"Node map","content":"Pre-computed network positions connect members, drops, and events into a culture-access diagram."}
+    ]
+  </script>
+
+  <script>
+    (function(){
+      const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const $ = (s, r=document) => r.querySelector(s);
+      const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+      function splitHeadline(){
+        const h = $('.clip-headline');
+        if(!h) return;
+        const text = h.getAttribute('data-text') || h.textContent;
+        h.textContent = '';
+        text.split('').forEach(ch => {
+          const span = document.createElement('span');
+          span.className = 'char';
+          span.textContent = ch === ' ' ? '\u00A0' : ch;
+          h.appendChild(span);
+        });
+      }
+
+      function revealHeadline(){
+        $$('.char').forEach((c,i)=>{
+          setTimeout(()=>c.classList.add('revealed'), reduced ? 0 : i * 18);
+        });
+      }
+
+      function easeOut(t){ return 1 - Math.pow(1 - t, 4); }
+      function gaugeEase(t){
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+
+      function countTo(el, from, to, duration, decimals){
+        if(!el) return;
+        if(reduced){
+          el.textContent = decimals ? to.toFixed(decimals) : Math.round(to).toLocaleString('en-US');
+          return;
+        }
+        const start = performance.now();
+        function frame(now){
+          const p = Math.min(1, (now - start) / duration);
+          const v = from + (to - from) * easeOut(p);
+          el.textContent = decimals ? v.toFixed(decimals) : Math.round(v).toLocaleString('en-US');
+          if(p < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      function buildGaugeTicks(){
+        const g = $('#gaugeTicks');
+        if(!g) return;
+        const total = 120;
+        for(let i=0;i<total;i++){
+          const isMajor = i % 5 === 0;
+          const angle = -130 + (260 * i / (total - 1));
+          const r1 = isMajor ? 202 : 212;
+          const r2 = 226;
+          const rad = angle * Math.PI / 180;
+          const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+          line.setAttribute('x1', (Math.cos(rad)*r1).toFixed(2));
+          line.setAttribute('y1', (Math.sin(rad)*r1).toFixed(2));
+          line.setAttribute('x2', (Math.cos(rad)*r2).toFixed(2));
+          line.setAttribute('y2', (Math.sin(rad)*r2).toFixed(2));
+          line.setAttribute('class', isMajor ? 'tick-major' : 'tick-minor');
+          g.appendChild(line);
+        }
+      }
+
+      let gaugeBaseAngle = 88.4;
+      let gaugeStartTime = null;
+      function animateGauge(){
+        const needle = $('#needleGroup');
+        if(!needle) return;
+        const target = 88.4;
+        const initial = -130;
+        const dur = reduced ? 1 : 2600;
+        gaugeStartTime = performance.now();
+
+        function frame(now){
+          let p = Math.min(1, (now - gaugeStartTime) / dur);
+          gaugeBaseAngle = initial + (target - initial) * gaugeEase(p);
+          const jitter = Math.sin(performance.now() * 0.001) * 2;
+          needle.setAttribute('transform', 'rotate(' + (gaugeBaseAngle + jitter).toFixed(2) + ')');
+          if(p < 1) requestAnimationFrame(frame);
+          else liveJitter();
+        }
+        requestAnimationFrame(frame);
+      }
+
+      let jittering = false;
+      function liveJitter(){
+        if(jittering) return;
+        jittering = true;
+        const needle = $('#needleGroup');
+        function frame(){
+          if(!needle) return;
+          const jitter = Math.sin(performance.now() * 0.001) * 2;
+          needle.setAttribute('transform', 'rotate(' + (gaugeBaseAngle + jitter).toFixed(2) + ')');
+          requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      function buildDrops(){
+        const grid = $('#dropGrid');
+        if(!grid) return;
+        const vals = [18,42,66,31,78,54,91,28,73,44,86,61,25,58,82,36,69,47,96,33,76,52,88,40,21,63,72,49,84,57,93,38,68,45,80,55,29,60,87,35,71,50,98,41,74,59,90,46,24,64,79,53,85,37,70,48,92,34,77,56];
+        vals.forEach((v,i)=>{
+          const d = document.createElement('div');
+          d.className = 'drop-cell' + (i === 42 ? ' alert' : '');
+          d.style.setProperty('--h', v + '%');
+          grid.appendChild(d);
+        });
+      }
+
+      function buildNodeMap(){
+        const svg = $('#nodeMap');
+        if(!svg) return;
+        const nodes = [
+          [120,260,'m'],[190,170,'d'],[230,360,'e'],[310,120,'m'],[350,280,'d'],[420,420,'m'],
+          [500,190,'e'],[560,310,'m'],[620,90,'d'],[670,390,'m'],[735,230,'e'],[805,140,'m'],
+          [850,330,'d'],[930,250,'m'],[1010,105,'e'],[1080,360,'m'],[150,470,'d'],[270,505,'m'],
+          [460,70,'m'],[710,500,'d'],[980,475,'m'],[1120,220,'d'],[75,105,'e'],[380,520,'e'],
+          [585,485,'m'],[760,55,'m'],[900,65,'d'],[1045,505,'e'],[530,250,'m'],[650,260,'d']
+        ];
+        const edges = [[0,1],[0,2],[1,3],[2,4],[3,6],[4,5],[4,8],[5,9],[6,10],[7,10],[8,11],[9,12],[10,13],[11,14],[12,15],[16,17],[17,5],[18,6],[19,24],[20,27],[21,15],[22,0],[23,17],[24,19],[25,11],[26,14],[28,7],[28,29],[29,10],[13,21],[15,27],[3,18],[7,12],[10,29],[14,26],[1,22]];
+        edges.forEach(e=>{
+          const a = nodes[e[0]], b = nodes[e[1]];
+          const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+          line.setAttribute('class','edge');
+          line.setAttribute('x1',a[0]); line.setAttribute('y1',a[1]);
+          line.setAttribute('x2',b[0]); line.setAttribute('y2',b[1]);
+          svg.appendChild(line);
+        });
+        nodes.forEach((n,i)=>{
+          const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+          c.setAttribute('class','node');
+          c.setAttribute('cx',n[0]); c.setAttribute('cy',n[1]);
+          c.setAttribute('r', n[2] === 'd' ? 5 : n[2] === 'e' ? 7 : 3.5);
+          c.setAttribute('fill', n[2] === 'd' ? '#D4FF1E' : '#E9E2D0');
+          c.dataset.delay = i * 40;
+          svg.appendChild(c);
+        });
+      }
+
+      function setPricingInitial(){
+        $$('.price-rect').forEach(r=>{
+          const bottom = 560;
+          r.setAttribute('y', bottom);
+          r.setAttribute('height', 0);
+        });
+      }
+
+      function animatePricing(){
+        $$('.price-rect').forEach((r,i)=>{
+          setTimeout(()=>{
+            r.setAttribute('y', r.dataset.finalY);
+            r.setAttribute('height', r.dataset.finalH);
+            r.classList.add('live');
+          }, i * 180);
+        });
+      }
+
+      function observe(){
+        const io = new IntersectionObserver((entries)=>{
+          entries.forEach(entry=>{
+            if(!entry.isIntersecting) return;
+            const t = entry.target;
+            if(t.id === 'fig03') animatePricing();
+            if(t.id === 'fig04'){
+              $$('.drop-cell').forEach((c,i)=>setTimeout(()=>c.classList.add('live'), i*18));
+            }
+            if(t.id === 'fig05'){
+              $$('.node').forEach(n=>setTimeout(()=>n.classList.add('live'), Number(n.dataset.delay || 0)));
+            }
+            if(t.id === 'fig08'){
+              $('#finalCardWrap') && $('#finalCardWrap').classList.add('live');
+              printSerial();
+            }
+            io.unobserve(t);
+          });
+        }, {threshold:0.6});
+        ['fig03','fig04','fig05','fig08'].forEach(id=>{ const el = document.getElementById(id); if(el) io.observe(el); });
+      }
+
+      function bootSequence(){
+        $('#heroRule') && $('#heroRule').classList.remove('drawn');
+        $('#sparkPath') && $('#sparkPath').classList.remove('drawn');
+        $$('.char').forEach(c=>c.classList.remove('revealed'));
+        if(!reduced) setPricingInitial();
+
+        setTimeout(()=> $('#heroRule') && $('#heroRule').classList.add('drawn'), reduced ? 0 : 200);
+        setTimeout(revealHeadline, reduced ? 0 : 400);
+        setTimeout(()=> countTo($('#memberCount'), 0, 14000000, 2400, 0), reduced ? 0 : 1200);
+        setTimeout(()=> $('#sparkPath') && $('#sparkPath').classList.add('drawn'), reduced ? 0 : 1600);
+        setTimeout(()=>{
+          animateGauge();
+          countTo($('#gaugeNum'), 600, 96, 2600, 1);
+        }, reduced ? 0 : 2200);
+      }
+
+      function bindButtons(){
+        $$('.tier-btn').forEach(btn=>{
+          btn.addEventListener('click', ()=>{
+            const tier = btn.getAttribute('data-tier');
+            const signal = $('#signal');
+            if(signal) signal.textContent = tier + ' position recorded. See FIG. 08 for membership print.';
+            document.getElementById('fig08').scrollIntoView({behavior: reduced ? 'auto' : 'smooth'});
+          });
+        });
+        $('#finalCta') && $('#finalCta').addEventListener('click', printSerial);
+        $('#playBtn') && $('#playBtn').addEventListener('click', ()=>{
+          window.scrollTo({top:0, behavior:reduced ? 'auto' : 'smooth'});
+          setTimeout(bootSequence, reduced ? 0 : 300);
+        });
+        $('#resetBtn') && $('#resetBtn').addEventListener('click', ()=>{
+          $('#memberCount').textContent = '14,000,000';
+          $('#gaugeNum').textContent = '96.0';
+          $('#serialOut').textContent = '№ 00,014,221';
+          $$('.price-rect').forEach(r=>{ r.classList.add('live'); r.setAttribute('y', r.dataset.finalY); r.setAttribute('height', r.dataset.finalH); });
+          $$('.drop-cell,.node').forEach(el=>el.classList.add('live'));
+          $('#finalCardWrap') && $('#finalCardWrap').classList.add('live');
+        });
+      }
+
+      function printSerial(){
+        const el = $('#serialOut');
+        if(!el) return;
+        const s = '№ 00,014,221';
+        el.textContent = '';
+        s.split('').forEach((ch,i)=>{
+          setTimeout(()=>{ el.textContent += ch; }, reduced ? 0 : i * 45);
+        });
+      }
+
+      function cursor(){
+        if(!window.matchMedia || !window.matchMedia('(pointer:fine)').matches) return;
+        document.body.classList.add('cursor-live');
+        const dot = $('.cursor-dot'), ring = $('.cursor-ring');
+        let x=0,y=0,rx=0,ry=0;
+        window.addEventListener('pointermove', e=>{ x=e.clientX; y=e.clientY; if(dot) dot.style.transform='translate3d('+(x-4)+'px,'+(y-4)+'px,0)'; });
+        function frame(){
+          rx += (x-rx)*0.18;
+          ry += (y-ry)*0.18;
+          if(ring) ring.style.transform='translate3d('+(rx-16)+'px,'+(ry-16)+'px,0)';
+          requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      splitHeadline();
+      buildGaugeTicks();
+      buildDrops();
+      buildNodeMap();
+      bindButtons();
+      cursor();
+      observe();
+
+      if(reduced){
+        $$('.price-rect').forEach(r=>{ r.classList.add('live'); r.setAttribute('y', r.dataset.finalY); r.setAttribute('height', r.dataset.finalH); });
+        $$('.drop-cell,.node').forEach(el=>el.classList.add('live'));
+        $('#finalCardWrap') && $('#finalCardWrap').classList.add('live');
+      }
+
+      bootSequence();
+    })();
+  </script>
+</body>
+</html>

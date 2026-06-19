@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>COMPLEX · ALLEGIANCE — № 00,421 / 14,000,000</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Spectral:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ────────────────────────────────────────────────────────────────
+   COMPLEX · ALLEGIANCE  —  "THE VAULT"
+   Palette (locked, no gradients between palette colors):
+     #08070A  VAULT          page background
+     #121012  VAULT_RAISED   surfaces
+     #E8DCC0  BONE           foil + primary text
+     #C9C2B5  BONE_BODY      body copy
+     #E5392C  STAMP          single accent
+     #3A3437  HAIRLINE       1px dividers
+   ──────────────────────────────────────────────────────────────── */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#08070A;color:#E8DCC0;font-family:'Spectral',serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{min-height:100vh;cursor:none}
+::selection{background:#E5392C;color:#E8DCC0}
+
+/* ===== INLINE SVG ASSET PROXIES (no external URLs allowed) =====
+   Hard asset constraint forbids external images. These data: SVGs
+   are the inline substitutes for the asset:// slugs in the contract.
+*/
+:root{
+  --vault-atmosphere:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'><defs><radialGradient id='g' cx='14%25' cy='8%25' r='62%25'><stop offset='0%25' stop-color='%23E8DCC0' stop-opacity='0.55'/><stop offset='28%25' stop-color='%23E8DCC0' stop-opacity='0.12'/><stop offset='100%25' stop-color='%23E8DCC0' stop-opacity='0'/></radialGradient><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0.91 0 0 0 0 0.86 0 0 0 0 0.75 0 0 0 0.18 0'/></filter></defs><rect width='1920' height='1080' fill='%23000'/><rect width='1920' height='1080' fill='url(%23g)'/><rect width='1920' height='1080' filter='url(%23n)' opacity='0.4'/></svg>");
+
+  --card-foil-surface:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1080 680'><defs><filter id='brush'><feTurbulence type='turbulence' baseFrequency='0.012 0.9' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.86 0 0 0 0 0.78 0 0 0 0 0.62 0 0 0 0.22 0'/></filter><filter id='specks'><feTurbulence type='fractalNoise' baseFrequency='2.4' numOctaves='1' seed='12'/><feColorMatrix values='0 0 0 0 0.12 0 0 0 0 0.10 0 0 0 0 0.08 0 0 0 0.18 0'/></filter></defs><rect width='1080' height='680' fill='%23E8DCC0'/><rect width='1080' height='680' filter='url(%23brush)'/><rect width='1080' height='680' filter='url(%23specks)' opacity='0.6'/></svg>");
+
+  --page-grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='256' height='256' filter='url(%23n)'/></svg>");
+
+  --tier-card-back:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 800'><defs><filter id='fiber'><feTurbulence type='turbulence' baseFrequency='0.7 0.04' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0.04 0 0 0 0 0.03 0 0 0 0 0.04 0 0 0 0.55 0'/></filter></defs><rect width='600' height='800' fill='%23121012'/><rect width='600' height='800' filter='url(%23fiber)' opacity='0.7'/></svg>");
+}
+
+/* ===== Fixed grain overlay (REQUIRED) ===== */
+.grain-overlay{
+  position:fixed;inset:0;pointer-events:none;z-index:9999;
+  mix-blend-mode:overlay;opacity:0;
+  background:var(--page-grain);
+  background-size:256px 256px;
+  will-change:opacity;
+  animation:grain-in 600ms 80ms cubic-bezier(0.16,1,0.3,1) forwards;
+}
+@keyframes grain-in{to{opacity:0.18}}
+
+/* ===== Vault atmosphere (REQUIRED) ===== */
+.vault-atmos{
+  position:absolute;inset:0;pointer-events:none;
+  background:var(--vault-atmosphere) center/cover no-repeat,#08070A;
+  mix-blend-mode:screen;opacity:0.4;
+  z-index:0;
+}
+
+/* ===== Custom cursor ===== */
+.cursor{position:fixed;top:0;left:0;width:14px;height:14px;border:1px solid #E8DCC0;border-radius:50%;pointer-events:none;z-index:10000;mix-blend-mode:difference;transform:translate(-50%,-50%);transition:width .25s cubic-bezier(.16,1,.3,1),height .25s cubic-bezier(.16,1,.3,1),background .2s linear}
+.cursor.hot{width:34px;height:34px;background:#E5392C;border-color:#E5392C}
+@media(max-width:900px){body{cursor:auto}.cursor{display:none}}
+
+/* ───────── NAV ───────── */
+.nav{
+  position:relative;z-index:5;
+  height:64px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 80px;
+  border-bottom:1px solid #3A3437;
+  font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.18em;
+  color:#C9C2B5;text-transform:uppercase;
+}
+.nav__brand{display:flex;align-items:center;gap:14px;color:#E8DCC0}
+.nav__brand .dot{width:4px;height:4px;background:#E5392C;border-radius:50%}
+.nav__right{display:flex;align-items:center;gap:24px}
+.nav__right .num{color:#E8DCC0}
+.nav__join{
+  padding:8px 16px;border:1px solid #3A3437;color:#E8DCC0;
+  text-decoration:none;border-radius:2px;
+  transition:border-color .3s cubic-bezier(.16,1,.3,1),color .3s cubic-bezier(.16,1,.3,1);
+}
+.nav__join:hover{border-color:#E5392C;color:#E5392C}
+
+/* ───────── HERO ───────── */
+.hero{
+  position:relative;height:880px;
+  padding:0 80px;
+  display:grid;grid-template-columns:55fr 45fr;align-items:center;gap:60px;
+  overflow:hidden;
+}
+.hero__left{position:relative;z-index:3}
+.wordmark{
+  font-family:'Anton',sans-serif;
+  font-size:184px;line-height:.86;letter-spacing:-0.02em;
+  color:#E8DCC0;text-transform:uppercase;
+}
+.wordmark .line{display:block;opacity:0;transform:translateY(-40px);letter-spacing:0.04em;will-change:transform,opacity,letter-spacing}
+.wordmark .line.in{opacity:1;transform:translateY(0);letter-spacing:-0.02em;transition:opacity 700ms cubic-bezier(.16,1,.3,1),transform 700ms cubic-bezier(.16,1,.3,1),letter-spacing 700ms cubic-bezier(.16,1,.3,1)}
+.wordmark .line:nth-child(1){font-size:184px}
+.wordmark .line:nth-child(2){font-size:180px}
+.wordmark .line:nth-child(3){font-size:187px}
+.wordmark .line:nth-child(4){font-size:176px}
+
+.hero__sub{
+  margin-top:32px;
+  font-family:'Spectral',serif;font-weight:400;font-style:italic;
+  font-size:28px;line-height:1.4;color:#C9C2B5;max-width:520px;
+}
+.hero__sub .sig{font-style:normal;font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px;letter-spacing:.12em;color:#E8DCC0;display:block;margin-top:16px;text-transform:uppercase}
+.hero__cta{
+  display:inline-flex;align-items:center;gap:10px;margin-top:40px;
+  padding:18px 28px;
+  background:#E8DCC0;color:#08070A;text-decoration:none;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.18em;
+  text-transform:uppercase;border-radius:4px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(0,0,0,.35),0 1px 0 rgba(0,0,0,.6);
+  transition:transform .25s cubic-bezier(.16,1,.3,1),color .25s cubic-bezier(.16,1,.3,1);
+}
+.hero__cta:hover{transform:translateY(-1px);color:#E5392C}
+.hero__cta .arrow{color:#E5392C;font-size:16px}
+
+/* Hero right — 3D card stage */
+.stage{
+  position:relative;
+  perspective:1200px;
+  height:680px;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* perspective floor SVG (REQUIRED — inline SVG, not gradient) */
+.floor{
+  position:absolute;left:50%;bottom:60px;
+  width:720px;height:270px;
+  transform:translateX(-50%) rotateX(70deg) translateZ(-1px);
+  transform-origin:center bottom;
+  pointer-events:none;z-index:0;
+}
+.floor svg{width:100%;height:100%;display:block}
+.floor .ln{stroke:#E5392C;stroke-width:1;fill:none;opacity:.08;
+  stroke-dasharray:1200;stroke-dashoffset:1200;
+  animation:draw 600ms cubic-bezier(.16,1,.3,1) forwards}
+.floor .ln:nth-child(1){animation-delay:100ms}
+.floor .ln:nth-child(2){animation-delay:150ms}
+.floor .ln:nth-child(3){animation-delay:200ms}
+.floor .ln:nth-child(4){animation-delay:250ms}
+.floor .ln:nth-child(5){animation-delay:300ms}
+.floor .ln:nth-child(6){animation-delay:350ms}
+.floor .ln:nth-child(7){animation-delay:400ms}
+.floor .ln:nth-child(8){animation-delay:450ms}
+.floor .ln.radial:nth-child(n+9){animation-delay:200ms}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* hero card */
+.card{
+  --rx:0deg;--ry:0deg;
+  position:relative;
+  width:540px;height:340px;
+  background:var(--card-foil-surface) center/cover,#E8DCC0;
+  color:#3A3437;
+  border:1px solid #3A3437;border-radius:4px;
+  transform-style:preserve-3d;
+  transform:rotateX(var(--rx)) rotateY(var(--ry)) translateZ(-400px);
+  opacity:0;
+  filter:grayscale(1);
+  will-change:transform,opacity,filter;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.35),
+    0 1px 0 rgba(0,0,0,0.6);
+  z-index:2;
+  padding:24px 28px;
+  display:grid;grid-template-rows:auto 1fr auto;
+}
+.card.live{
+  opacity:1;
+  transform:rotateX(var(--rx)) rotateY(var(--ry)) translateZ(0);
+  filter:grayscale(0);
+  transition:transform 1200ms cubic-bezier(.16,1,.3,1),opacity 1200ms cubic-bezier(.16,1,.3,1),filter 800ms 400ms linear;
+}
+.card__top{display:flex;justify-content:space-between;align-items:flex-start}
+.card__serial{
+  font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px;letter-spacing:.12em;
+  color:#3A3437;text-transform:uppercase;
+}
+.card__serial .num{
+  color:#E8DCC0;font-weight:700;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.45),
+     1px  1px 0 rgba(255,255,255,0.25);
+}
+.card__stamp{
+  width:36px;height:36px;border-radius:50%;
+  background:#E5392C;color:#E8DCC0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Spectral',serif;font-weight:500;font-size:20px;
+  transform:rotate(-8deg);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),inset 0 -1px 0 rgba(0,0,0,.5);
+}
+.card__title{
+  align-self:center;text-align:center;
+  font-family:'Spectral',serif;font-style:italic;font-weight:500;
+  font-size:56px;letter-spacing:.02em;color:#E8DCC0;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.45),
+     1px  1px 0 rgba(255,255,255,0.30);
+}
+.card__strip{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:14px;border-top:1px solid #3A3437}
+.card__strip .mag{flex:1;height:6px;background:#3A3437;border-radius:2px}
+.card__strip .meta{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.18em;color:#3A3437;text-transform:uppercase}
+
+/* specular highlight strip */
+.card__shine{
+  position:absolute;top:0;left:0;width:2px;height:100%;
+  background:#FFFFFF;opacity:.55;
+  transform:translateX(var(--shineX,160px)) skewX(-22deg);
+  pointer-events:none;mix-blend-mode:overlay;
+}
+
+/* ───────── TICKER ───────── */
+.ticker{
+  position:relative;z-index:4;
+  height:56px;background:#121012;
+  border-top:1px solid #3A3437;border-bottom:1px solid #3A3437;
+  overflow:hidden;display:flex;align-items:center;
+}
+.ticker__track{
+  display:flex;gap:48px;white-space:nowrap;
+  animation:ticker 38s linear infinite;
+  font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.18em;
+  color:#C9C2B5;text-transform:uppercase;padding-left:80px;
+}
+.ticker__track span{display:inline-flex;align-items:center;gap:16px}
+.ticker__dot{width:8px;height:8px;background:#E5392C;border-radius:50%;display:inline-block;
+  animation:pulse 1400ms ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes ticker{to{transform:translateX(-50%)}}
+
+/* ───────── MANIFESTO ───────── */
+.manifesto{
+  position:relative;z-index:2;
+  min-height:480px;padding:160px 80px;
+  display:flex;align-items:center;
+}
+.manifesto__inner{max-width:920px}
+.manifesto__label{
+  font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.18em;
+  color:#E5392C;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:10px;
+}
+.manifesto__label::before{content:"";width:24px;height:1px;background:#E5392C}
+.manifesto__body{
+  font-family:'Spectral',serif;font-weight:400;font-size:56px;line-height:1.05;
+  color:#E8DCC0;
+}
+.manifesto__body .ch{display:inline-block;opacity:0;transform:translateY(8px);will-change:opacity,transform}
+.manifesto.in .manifesto__body .ch{
+  animation:char-in 180ms cubic-bezier(.16,1,.3,1) forwards;
+  animation-delay:calc(var(--i) * 12ms);
+}
+@keyframes char-in{to{opacity:1;transform:translateY(0)}}
+.manifesto__sig{
+  margin-top:40px;
+  font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.18em;
+  color:#C9C2B5;text-transform:uppercase;
+}
+
+/* ───────── TIER DECK ───────── */
+.section-rule{border-top:1px solid #3A3437}
+.tiers{
+  position:relative;height:920px;
+  padding:120px 80px 60px;
+  perspective:1400px;
+  display:flex;align-items:center;justify-content:center;
+}
+.tiers__head{
+  position:absolute;top:80px;left:80px;
+  font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.18em;
+  color:#C9C2B5;text-transform:uppercase;display:flex;align-items:center;gap:12px;
+}
+.tiers__head::before{content:"";width:32px;height:1px;background:#3A3437}
+.tiers__stage{
+  position:relative;width:100%;max-width:1280px;height:560px;
+  transform-style:preserve-3d;
+  display:flex;align-items:center;justify-content:center;
+}
+.tier{
+  --tz:0px;--tx:0px;--sc:1;
+  position:absolute;left:50%;top:50%;
+  transform:translate(calc(-50% + var(--tx)),-50%) translateZ(var(--tz)) scale(var(--sc));
+  background:var(--tier-card-back) center/cover,#121012;
+  border:1px solid #3A3437;border-radius:4px;
+  padding:32px 28px;
+  display:flex;flex-direction:column;gap:18px;
+  color:#C9C2B5;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -1px 0 rgba(0,0,0,0.55),
+    0 1px 0 rgba(0,0,0,0.6);
+  opacity:0;
+  transition:transform 900ms cubic-bezier(.16,1,.3,1),opacity 700ms cubic-bezier(.16,1,.3,1);
+  will-change:transform,opacity;
+}
+.tier.in{opacity:1}
+.tier--I{width:320px;height:460px;--tx:-380px;--tz:-80px}
+.tier--II{width:360px;height:500px;--tx:0px;--tz:60px;--sc:1;
+  background:var(--card-foil-surface) center/cover,#E8DCC0;
+  color:#3A3437;border-color:#3A3437;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.20),
+    inset 0 -1px 0 rgba(0,0,0,0.30),
+    0 1px 0 rgba(0,0,0,0.6);
+}
+.tier--II.in{--sc:1.04;transition:transform 900ms cubic-bezier(.16,1,.3,1),opacity 700ms cubic-bezier(.16,1,.3,1)}
+.tier--III{width:320px;height:460px;--tx:380px;--tz:-40px}
+
+.tier__roman{
+  font-family:'Anton',sans-serif;font-size:96px;line-height:.86;
+  letter-spacing:-0.02em;color:#E8DCC0;
+}
+.tier--II .tier__roman{color:#3A3437;
+  text-shadow:-1px -1px 0 rgba(0,0,0,0.45),1px 1px 0 rgba(255,255,255,0.25)}
+.tier__name{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.18em;
+  text-transform:uppercase;color:#E8DCC0;
+}
+.tier--II .tier__name{color:#3A3437}
+.tier__price{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;
+  color:#E8DCC0;
+  padding-bottom:14px;border-bottom:1px solid #3A3437;
+}
+.tier--II .tier__price{color:#08070A}
+.tier__benefits{list-style:none;display:flex;flex-direction:column;gap:10px;flex:1}
+.tier__benefits li{
+  font-family:'Spectral',serif;font-size:14px;line-height:1.4;color:#C9C2B5;
+  padding-left:14px;position:relative;
+}
+.tier__benefits li::before{content:"—";position:absolute;left:0;color:#E5392C}
+.tier--II .tier__benefits li{color:#3A3437}
+.tier--II .tier__benefits li::before{color:#E5392C}
+
+.tier__cta{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 16px;border-radius:4px;cursor:none;
+  text-decoration:none;text-transform:uppercase;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;letter-spacing:.18em;
+  border:1px solid #3A3437;background:transparent;color:#E8DCC0;
+  transition:border-color .3s cubic-bezier(.16,1,.3,1),color .3s cubic-bezier(.16,1,.3,1),background .3s cubic-bezier(.16,1,.3,1);
+}
+.tier__cta:hover{border-color:#E5392C;color:#E5392C}
+.tier--II .tier__cta{background:#E5392C;color:#E8DCC0;border-color:#E5392C}
+.tier--II .tier__cta:hover{background:#08070A;color:#E5392C;border-color:#E5392C}
+
+/* wax seal — single instance on OBSESSED card */
+.wax{
+  position:absolute;top:-16px;right:-16px;width:80px;height:80px;
+  transform:rotate(-8deg);
+  z-index:3;
+}
+.wax svg{width:100%;height:100%;display:block;filter:drop-shadow(0 1px 0 rgba(0,0,0,0.6))}
+
+/* ───────── STATS STRIP ───────── */
+.stats{
+  border-top:1px solid #3A3437;border-bottom:1px solid #3A3437;
+  height:180px;padding:0 80px;
+  display:grid;grid-template-columns:repeat(4,1fr);align-items:center;
+}
+.stats__cell{border-left:1px solid #3A3437;padding-left:24px;height:100%;display:flex;flex-direction:column;justify-content:center}
+.stats__cell:first-child{border-left:none;padding-left:0}
+.stats__num{
+  font-family:'Anton',sans-serif;font-size:128px;line-height:.86;letter-spacing:-0.02em;
+  color:#E8DCC0;
+}
+.stats__num .accent{color:#E5392C}
+.stats__lbl{
+  font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.18em;
+  color:#C9C2B5;text-transform:uppercase;margin-top:8px;
+}
+
+/* ───────── FINAL CTA BAND ───────── */
+.final{
+  position:relative;height:640px;
+  background:#E5392C;
+  overflow:hidden;
+  clip-path:inset(0 100% 0 0);
+  will-change:clip-path;
+}
+.final.in{clip-path:inset(0 0 0 0);transition:clip-path 700ms cubic-bezier(.16,1,.3,1)}
+.final__leak{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 80% at 20% 30%, rgba(232,220,192,0.18) 0%, rgba(232,220,192,0) 60%),
+    radial-gradient(ellipse 40% 60% at 80% 70%, rgba(8,7,10,0.45) 0%, rgba(8,7,10,0) 65%);
+  mix-blend-mode:screen;opacity:0.55;pointer-events:none;
+}
+.final__inner{
+  position:relative;z-index:2;
+  height:100%;padding:0 80px;
+  display:flex;flex-direction:column;justify-content:center;gap:40px;
+  max-width:1280px;margin:0 auto;
+}
+.final__head{
+  font-family:'Anton',sans-serif;font-size:184px;line-height:.86;letter-spacing:-0.02em;
+  color:#E8DCC0;text-transform:uppercase;
+}
+.final__head .line{display:block;opacity:0;transform:translateY(-40px);will-change:opacity,transform}
+.final.in .final__head .line{opacity:1;transform:translateY(0);transition:opacity 700ms cubic-bezier(.16,1,.3,1),transform 700ms cubic-bezier(.16,1,.3,1)}
+.final.in .final__head .line:nth-child(1){transition-delay:300ms}
+.final.in .final__head .line:nth-child(2){transition-delay:380ms}
+.final__row{display:flex;align-items:center;gap:24px;opacity:0;transform:translateY(20px);will-change:opacity,transform}
+.final.in .final__row{opacity:1;transform:translateY(0);transition:opacity 500ms 700ms cubic-bezier(.16,1,.3,1),transform 500ms 700ms cubic-bezier(.16,1,.3,1)}
+.final__pill{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:22px 32px;background:#E8DCC0;color:#08070A;
+  border:none;border-radius:4px;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;letter-spacing:.18em;
+  text-transform:uppercase;text-decoration:none;cursor:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(0,0,0,.35),0 1px 0 rgba(0,0,0,.6);
+  transition:transform .25s cubic-bezier(.16,1,.3,1);
+}
+.final__pill:hover{transform:translateY(-1px)}
+.final__sub{
+  font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px;letter-spacing:.18em;
+  color:#E8DCC0;text-transform:uppercase;
+}
+
+/* ───────── FOOTER ───────── */
+.footer{
+  height:96px;padding:0 80px;
+  border-top:1px solid #3A3437;
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;letter-spacing:.18em;
+  color:#C9C2B5;text-transform:uppercase;
+}
+.footer__tag{font-family:'Spectral',serif;font-style:italic;font-weight:400;font-size:14px;letter-spacing:0;text-transform:none;color:#E8DCC0}
+
+/* ───────── MOBILE ───────── */
+@media(max-width:900px){
+  .nav{padding:0 24px;height:56px}
+  .nav__brand .sep,.nav__right .num{display:none}
+  .hero{grid-template-columns:1fr;height:auto;padding:48px 24px 64px;gap:40px}
+  .wordmark .line:nth-child(1){font-size:80px}
+  .wordmark .line:nth-child(2){font-size:78px}
+  .wordmark .line:nth-child(3){font-size:82px}
+  .wordmark .line:nth-child(4){font-size:76px}
+  .hero__sub{font-size:18px}
+  .hero__sub .sig{font-size:11px}
+  .stage{height:auto;min-height:420px}
+  .card{width:88vw;height:55vw;max-height:340px}
+  .floor{width:90vw;height:160px;bottom:20px}
+  .manifesto{padding:80px 24px;min-height:auto}
+  .manifesto__body{font-size:28px}
+  .tiers{height:auto;padding:80px 24px;perspective:none}
+  .tiers__stage{flex-direction:column;height:auto;gap:24px;perspective:none;transform-style:flat}
+  .tier{position:relative;left:auto;top:auto;transform:translate(0,0) translateZ(0) scale(1);width:100%;height:auto;min-height:380px}
+  .tier--II{border:1px solid #E5392C}
+  .tier--II.in{--sc:1}
+  .stats{grid-template-columns:repeat(2,1fr);height:auto;padding:32px 24px;gap:24px}
+  .stats__cell{border-left:none;padding-left:0}
+  .stats__num{font-size:72px}
+  .final{height:auto;min-height:480px}
+  .final__inner{padding:80px 24px}
+  .final__head{font-size:72px}
+  .final__row{flex-direction:column;align-items:flex-start;gap:16px}
+  .final__pill{font-size:13px;padding:16px 20px}
+  .footer{height:auto;padding:24px;flex-direction:column;gap:12px;align-items:flex-start}
+  .grain-overlay{animation:none;opacity:.12}
+}
+</style>
+</head>
+<body class="grain">
+
+<div class="grain-overlay" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<!-- ───────── NAV ───────── -->
+<nav class="nav">
+  <div class="nav__brand">
+    <span>COMPLEX</span><span class="sep">·</span><span class="dot"></span><span class="sep">·</span><span>ALLEGIANCE</span>
+  </div>
+  <div class="nav__right">
+    <span class="num">№ 00,421 / 14,000,000</span>
+    <a class="nav__join" href="#join" data-hot>▸ JOIN</a>
+  </div>
+</nav>
+
+<!-- ───────── HERO ───────── -->
+<section class="hero" id="hero">
+  <div class="vault-atmos" aria-hidden="true"></div>
+
+  <div class="hero__left">
+    <h1 class="wordmark" aria-label="ALLEGIANCE">
+      <span class="line">ALLEGIANCE</span>
+      <span class="line">ALLEGIANCE</span>
+      <span class="line">ALLEGIANCE</span>
+      <span class="line">ALLEGIANCE</span>
+    </h1>
+    <p class="hero__sub">
+      Allegiance is not a subscription. It's a number.
+      <span class="sig">— 00 / 21</span>
+    </p>
+    <a class="hero__cta" href="#join" data-hot><span class="arrow">▸</span> JOIN</a>
+  </div>
+
+  <div class="stage" id="stage">
+    <!-- perspective floor SVG (inline, draws on load) -->
+    <div class="floor" aria-hidden="true">
+      <svg viewBox="0 0 720 270" preserveAspectRatio="none">
+        <!-- horizontal hairlines -->
+        <line class="ln" x1="0"   y1="270" x2="720" y2="270"/>
+        <line class="ln" x1="40"  y1="234" x2="680" y2="234"/>
+        <line class="ln" x1="80"  y1="200" x2="640" y2="200"/>
+        <line class="ln" x1="118" y1="168" x2="602" y2="168"/>
+        <line class="ln" x1="156" y1="138" x2="564" y2="138"/>
+        <line class="ln" x1="194" y1="110" x2="526" y2="110"/>
+        <line class="ln" x1="232" y1="84"  x2="488" y2="84"/>
+        <line class="ln" x1="270" y1="60"  x2="450" y2="60"/>
+        <!-- radial hairlines to vanishing point at (360,0) -->
+        <line class="ln radial" x1="0"   y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="60"  y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="120" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="180" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="240" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="300" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="360" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="420" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="480" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="540" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="600" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="660" y1="270" x2="360" y2="0"/>
+        <line class="ln radial" x1="720" y1="270" x2="360" y2="0"/>
+      </svg>
+    </div>
+
+    <article class="card" id="card">
+      <div class="card__shine" aria-hidden="true"></div>
+      <header class="card__top">
+        <div class="card__serial">
+          № <span class="num">00,421</span> / 14,000,000
+        </div>
+        <div class="card__stamp" aria-hidden="true">C</div>
+      </header>
+      <div class="card__title">ALLEGIANCE</div>
+      <footer class="card__strip">
+        <div class="mag" aria-hidden="true"></div>
+        <div class="meta">COMPLEX · OBSESSED</div>
+      </footer>
+    </article>
+  </div>
+</section>
+
+<!-- ───────── TICKER ───────── -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker__track">
+    <span><span class="ticker__dot"></span>LIVE — 421 DROPS SHIPPED · 96s MEDIAN SELL-OUT · 14M MEMBERS · FOUNDING RATE LOCKED FOREVER · CANCEL ANYTIME ·</span>
+    <span><span class="ticker__dot"></span>LIVE — 421 DROPS SHIPPED · 96s MEDIAN SELL-OUT · 14M MEMBERS · FOUNDING RATE LOCKED FOREVER · CANCEL ANYTIME ·</span>
+  </div>
+</div>
+
+<!-- ───────── MANIFESTO ───────── -->
+<section class="manifesto" id="manifesto">
+  <div class="manifesto__inner">
+    <div class="manifesto__label">Manifesto / № 01</div>
+    <p class="manifesto__body" id="manifestoBody">Most of you will read Complex for free forever. That is the deal. We invented it. The card is for the other 0.003%.</p>
+    <div class="manifesto__sig">— THE EDITORS · COMPLEX HQ · 2026</div>
+  </div>
+</section>
+
+<!-- ───────── TIER DECK ───────── -->
+<section class="tiers section-rule" id="tiers">
+  <div class="tiers__head">Tiers / Pledge your number</div>
+  <div class="tiers__stage" id="tiersStage">
+
+    <article class="tier tier--I">
+      <div class="tier__roman">I</div>
+      <div class="tier__name">REGULAR</div>
+      <div class="tier__price">FREE</div>
+      <ul class="tier__benefits">
+        <li>Read every Complex story, forever</li>
+        <li>Daily drops, reviews & culture briefings</li>
+        <li>Sneaker, music, food, sports — the whole table</li>
+        <li>No paywall. No catch. That's the deal.</li>
+      </ul>
+      <a class="tier__cta" href="#regular" data-hot>KEEP READING</a>
+    </article>
+
+    <article class="tier tier--II">
+      <div class="wax" aria-hidden="true">
+        <svg viewBox="0 0 80 80">
+          <defs>
+            <filter id="wax-edge">
+              <feTurbulence type="turbulence" baseFrequency="0.18" numOctaves="2" seed="3"/>
+              <feDisplacementMap in="SourceGraphic" scale="3"/>
+            </filter>
+          </defs>
+          <circle cx="40" cy="40" r="34" fill="#E5392C" filter="url(#wax-edge)"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="#08070A" stroke-width="0.6" opacity="0.4" filter="url(#wax-edge)"/>
+          <text x="40" y="52" text-anchor="middle" font-family="Spectral, serif" font-size="38" font-weight="500" font-style="italic" fill="#E8DCC0" style="text-shadow:-1px -1px 0 rgba(0,0,0,0.5)">C</text>
+          <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="tier__roman">II</div>
+      <div class="tier__name">OBSESSED · MOST PLEDGED</div>
+      <div class="tier__price">$9 / MO</div>
+      <ul class="tier__benefits">
+        <li>First dibs on every drop — 24-hour member window</li>
+        <li>The hand-numbered Allegiance card, foil-stamped, shipped to you</li>
+        <li>Members-only newsletter from the editors, every Friday</li>
+        <li>Founding rate locked forever — even when we raise it</li>
+        <li>Vault access: full archive, every issue, every interview</li>
+        <li>Invites to private drops, listening rooms, screenings</li>
+      </ul>
+      <a class="tier__cta" href="#obsessed" data-hot>▸ PLEDGE</a>
+    </article>
+
+    <article class="tier tier--III">
+      <div class="tier__roman">III</div>
+      <div class="tier__name">FAMILY</div>
+      <div class="tier__price">$29 / MO</div>
+      <ul class="tier__benefits">
+        <li>Everything in OBSESSED</li>
+        <li>Up to 4 cards under one household number</li>
+        <li>+1 to every IRL Complex event, no questions</li>
+        <li>Annual Family drop: numbered, household-exclusive</li>
+        <li>Direct line to the desk that runs the column you like</li>
+      </ul>
+      <a class="tier__cta" href="#family" data-hot>▸ ENLIST</a>
+    </article>
+
+  </div>
+</section>
+
+<!-- ───────── STATS STRIP ───────── -->
+<section class="stats" id="stats">
+  <div class="stats__cell">
+    <div class="stats__num">421</div>
+    <div class="stats__lbl">/ drops shipped</div>
+  </div>
+  <div class="stats__cell">
+    <div class="stats__num">14M</div>
+    <div class="stats__lbl">/ members reading</div>
+  </div>
+  <div class="stats__cell">
+    <div class="stats__num">96s</div>
+    <div class="stats__lbl">/ median sell-out</div>
+  </div>
+  <div class="stats__cell">
+    <div class="stats__num"><span class="accent">∞</span></div>
+    <div class="stats__lbl">/ cancel anytime</div>
+  </div>
+</section>
+
+<!-- ───────── FINAL CTA ───────── -->
+<section class="final" id="final">
+  <div class="final__leak" aria-hidden="true"></div>
+  <div class="vault-atmos" style="opacity:.25" aria-hidden="true"></div>
+  <div class="final__inner">
+    <h2 class="final__head">
+      <span class="line">PLEDGE</span>
+      <span class="line">ALLEGIANCE</span>
+    </h2>
+    <div class="final__row">
+      <a class="final__pill" href="#join" id="joinBtn" data-hot>I AM MEMBER №_________</a>
+      <span class="final__sub">Founding rate locked · Cancel anytime · 14M and counting</span>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── FOOTER ───────── -->
+<footer class="footer">
+  <div>COMPLEX © 2026</div>
+  <div class="footer__tag">"the card is for the other 0.003%"</div>
+  <div>№ 00,421 / 14,000,000</div>
+</footer>
+
+<script type="module">
+/* ───────── Custom cursor ───────── */
+const cursor = document.getElementById('cursor');
+let cx=0,cy=0,tx=0,ty=0;
+window.addEventListener('mousemove',e=>{tx=e.clientX;ty=e.clientY});
+(function loop(){
+  cx += (tx-cx)*0.22; cy += (ty-cy)*0.22;
+  cursor.style.transform = `translate(${cx}px,${cy}px) translate(-50%,-50%)`;
+  requestAnimationFrame(loop);
+})();
+document.querySelectorAll('[data-hot]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cursor.classList.add('hot'));
+  el.addEventListener('mouseleave',()=>cursor.classList.remove('hot'));
+});
+
+/* ───────── Phase 1: wordmark drop ───────── */
+const wmLines = document.querySelectorAll('.wordmark .line');
+wmLines.forEach((ln,i)=>{ setTimeout(()=>ln.classList.add('in'), 400 + i*80); });
+
+/* ───────── Phase 2: hero card materialize ───────── */
+const card = document.getElementById('card');
+setTimeout(()=>card.classList.add('live'), 1100);
+
+/* ───────── Phase 3: card alive (mouse tilt + specular highlight) ───────── */
+const stage = document.getElementById('stage');
+let trx=0,try_=0,crx=0,cry=0,shineTargetX=160,shineX=160;
+stage.addEventListener('mousemove',e=>{
+  const r = stage.getBoundingClientRect();
+  const nx = ((e.clientX - r.left)/r.width - 0.5)*2;   // -1..1
+  const ny = ((e.clientY - r.top )/r.height - 0.5)*2;
+  try_ = nx * 12;          // rotateY ±12
+  trx = -ny * 8;           // rotateX ±8
+  // specular highlight moves at 0.6x tilt
+  shineTargetX = 270 + nx * 270 * 0.6;
+});
+stage.addEventListener('mouseleave',()=>{try_=0;trx=0;shineTargetX=270});
+(function tilt(){
+  crx += (trx-crx)*0.08;
+  cry += (try_-cry)*0.08;
+  shineX += (shineTargetX-shineX)*0.10;
+  card.style.setProperty('--rx', crx.toFixed(2)+'deg');
+  card.style.setProperty('--ry', cry.toFixed(2)+'deg');
+  card.style.setProperty('--shineX', shineX.toFixed(1)+'px');
+  requestAnimationFrame(tilt);
+})();
+
+/* deviceorientation fallback (mobile) */
+if(window.DeviceOrientationEvent && /Mobi|Android|iPhone/i.test(navigator.userAgent)){
+  window.addEventListener('deviceorientation',e=>{
+    const g = Math.max(-6,Math.min(6,(e.gamma||0)));
+    const b = Math.max(-6,Math.min(6,((e.beta||0)-30)/3));
+    try_ = g; trx = -b;
+  });
+}
+
+/* ───────── Phase 5a: manifesto char reveal ───────── */
+const manifesto = document.getElementById('manifesto');
+const mBody = document.getElementById('manifestoBody');
+const mText = mBody.textContent;
+mBody.textContent = '';
+let idx = 0;
+for(const ch of mText){
+  const s = document.createElement('span');
+  s.className = 'ch';
+  s.textContent = ch === ' ' ? '\u00A0' : ch;
+  s.style.setProperty('--i', idx++);
+  mBody.appendChild(s);
+}
+
+/* ───────── Phase 5b: tier deck reveal ───────── */
+function revealTiers(){
+  document.querySelectorAll('.tier').forEach((t,i)=>{
+    setTimeout(()=>t.classList.add('in'), i*80);
+  });
+}
+
+/* ───────── Phase 6: final CTA wipe ───────── */
+function revealFinal(){
+  document.getElementById('final').classList.add('in');
+}
+
+/* ───────── IntersectionObserver ───────── */
+const io = new IntersectionObserver((entries,obs)=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    if(e.target.id === 'manifesto'){ e.target.classList.add('in'); obs.unobserve(e.target); }
+    if(e.target.id === 'tiers'){ revealTiers(); obs.unobserve(e.target); }
+    if(e.target.id === 'final'){ revealFinal(); obs.unobserve(e.target); }
+  });
+},{rootMargin:'-15% 0px'});
+io.observe(document.getElementById('manifesto'));
+io.observe(document.getElementById('tiers'));
+io.observe(document.getElementById('final'));
+
+/* ───────── Click handlers (interaction contract) ───────── */
+document.querySelectorAll('a[data-hot]').forEach(a=>{
+  a.addEventListener('click',ev=>{
+    ev.preventDefault();
+    const t = a.textContent.trim();
+    if(t.includes('PLEDGE') || t.includes('ENLIST') || t.includes('MEMBER №') || t.includes('JOIN')){
+      a.style.transition='transform .15s cubic-bezier(.16,1,.3,1)';
+      a.style.transform='translateY(-2px) scale(0.98)';
+      setTimeout(()=>{a.style.transform=''},180);
+    }
+  });
+});
+</script>
+</body>
+</html>
