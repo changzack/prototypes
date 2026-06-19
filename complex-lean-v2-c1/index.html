@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <title>THE COMPLEX INDEX — Now Trading: Allegiance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --terminal-black:#08110A;
+      --phosphor:#B8FF3D;
+      --bone:#EDE6D3;
+      --blood:#FF3B1F;
+      --dust:#6B6E5E;
+      --grid:#141B14;
+      --top-speed:60;
+      --bottom-speed:40;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:#08110A}
+    body{
+      margin:0;
+      background:#08110A;
+      color:#EDE6D3;
+      font-family:'JetBrains Mono', monospace;
+      overflow-x:hidden;
+      cursor:url('asset://crosshair-cursor') 16 16, crosshair;
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:50;
+      background:repeating-linear-gradient(0deg, transparent 0 2px, rgba(8,17,10,0.35) 2px 3px);
+      mix-blend-mode:multiply;
+      opacity:0.6;
+      transition:opacity 300ms ease;
+    }
+
+    body.booting::after{opacity:0}
+
+    a, button, select, input, .bubble{cursor:url('asset://crosshair-cursor') 16 16, crosshair}
+
+    .phosphor{
+      color:#B8FF3D;
+      text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35);
+    }
+
+    .label, label{
+      text-transform:uppercase;
+      letter-spacing:0.18em;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:11px;
+    }
+
+    .num, .price, .axis-price, .serial, .clock, .market-num{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+    }
+
+    .grain-svg{
+      position:fixed;
+      inset:0;
+      width:100vw;
+      height:100vh;
+      pointer-events:none;
+      z-index:3;
+      mix-blend-mode:overlay;
+      opacity:0.08;
+    }
+
+    .asset-scanline{
+      position:fixed;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      opacity:0.30;
+      mix-blend-mode:multiply;
+      background-image:url('asset://crt-scanline-noise'), repeating-linear-gradient(0deg, rgba(8,17,10,0.05) 0 9px, rgba(184,255,61,0.06) 10px 11px, transparent 12px 24px);
+      background-size:1080px 1080px, 100% 24px;
+    }
+
+    .asset-grain{
+      position:fixed;
+      inset:0;
+      z-index:2;
+      pointer-events:none;
+      opacity:0.06;
+      mix-blend-mode:screen;
+      background-image:url('asset://terminal-grain-overlay'), radial-gradient(circle at 20% 10%, rgba(237,230,211,0.08), transparent 24%), radial-gradient(circle at 80% 70%, rgba(237,230,211,0.045), transparent 22%);
+      background-size:1440px 1440px, 320px 320px, 220px 220px;
+      animation:grainShift 700ms steps(2) infinite;
+    }
+
+    @keyframes grainShift{
+      0%{transform:translate3d(0,0,0)}
+      33%{transform:translate3d(-1.5%,1%,0)}
+      66%{transform:translate3d(1%,-1%,0)}
+      100%{transform:translate3d(0,0,0)}
+    }
+
+    .vignette{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:4;
+      background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.65) 100%);
+    }
+
+    .boot{
+      position:fixed;
+      inset:0;
+      z-index:300;
+      background:#08110A;
+      display:flex;
+      align-items:flex-start;
+      justify-content:flex-start;
+      padding:24px;
+      color:#B8FF3D;
+      font-family:'JetBrains Mono', monospace;
+      font-size:14px;
+      letter-spacing:0.08em;
+      transition:opacity 300ms ease, visibility 300ms ease;
+    }
+
+    .boot.hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .boot-line::after{
+      content:"█";
+      animation:blink 720ms steps(1) infinite;
+      margin-left:4px;
+      text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35);
+    }
+    @keyframes blink{50%{opacity:0}}
+
+    .motion-controls{
+      position:fixed;
+      right:12px;
+      bottom:12px;
+      z-index:210;
+      display:flex;
+      gap:8px;
+    }
+    .motion-controls button{
+      border:1px solid #141B14;
+      background:#08110A;
+      color:#B8FF3D;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:10px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      padding:10px 12px;
+      border-radius:0;
+      box-shadow:0 0 18px rgba(184,255,61,0.08);
+    }
+
+    .ticker{
+      position:fixed;
+      left:0;
+      width:100vw;
+      height:40px;
+      z-index:100;
+      overflow:hidden;
+      background:#08110A;
+      border-bottom:1px solid #141B14;
+      opacity:1;
+      transition:opacity 300ms ease;
+    }
+    .ticker.top{top:0}
+    .ticker.bottom{
+      position:relative;
+      bottom:auto;
+      border-top:1px solid #141B14;
+      border-bottom:0;
+      z-index:20;
+    }
+    .ticker-track{
+      display:flex;
+      width:max-content;
+      height:40px;
+      align-items:center;
+      will-change:transform;
+      white-space:nowrap;
+      color:#B8FF3D;
+      text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35);
+      font-family:'JetBrains Mono', monospace;
+      font-size:14px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+    }
+    .ticker-copy{padding-right:48px}
+    .ticker span{margin-right:28px}
+    body.booting .ticker.top{opacity:0}
+
+    .left-rail{
+      position:fixed;
+      left:0;
+      top:40px;
+      width:64px;
+      height:calc(100vh - 40px);
+      z-index:90;
+      border-right:1px solid #141B14;
+      background:#08110A;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:space-between;
+      padding:24px 0;
+    }
+    .rail-word{
+      writing-mode:vertical-rl;
+      text-orientation:upright;
+      font-family:'Archivo Black', sans-serif;
+      font-size:18px;
+      line-height:1;
+      letter-spacing:-0.04em;
+      color:#EDE6D3;
+    }
+    .rail-live{
+      writing-mode:vertical-rl;
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:#B8FF3D;
+      text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35);
+    }
+    .live-dot{
+      display:inline-block;
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:#B8FF3D;
+      box-shadow:0 0 18px rgba(184,255,61,0.65);
+      animation:livePulse 1.2s ease-in-out infinite;
+      margin-bottom:6px;
+    }
+    @keyframes livePulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .clock{
+      color:#B8FF3D;
+      font-size:11px;
+      writing-mode:vertical-rl;
+      text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35);
+    }
+
+    .page{
+      position:relative;
+      z-index:10;
+      max-width:1440px;
+      margin:0 auto;
+      padding-left:64px;
+      padding-top:40px;
+    }
+
+    .module{
+      border-top:1px solid #141B14;
+      padding:96px 32px;
+      position:relative;
+    }
+
+    .module-kicker{
+      color:#6B6E5E;
+      margin-bottom:28px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .module-kicker::before{
+      content:"";
+      width:32px;
+      height:1px;
+      background:#141B14;
+      display:inline-block;
+    }
+
+    .hero{
+      min-height:calc(100vh - 40px);
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 500px;
+      gap:48px;
+      align-items:center;
+      padding-top:80px;
+    }
+
+    .headline{
+      font-family:'Archivo Black', sans-serif;
+      font-size:clamp(48px, 14vw, 180px);
+      line-height:0.88;
+      letter-spacing:-0.04em;
+      color:#EDE6D3;
+      text-align:left;
+      margin:0 0 32px;
+      max-width:920px;
+      text-transform:uppercase;
+    }
+    .headline .char{
+      display:inline-block;
+      clip-path:inset(0 100% 0 0);
+      transform:translateY(0);
+      transition:clip-path 800ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .headline.revealed .char{clip-path:inset(0 0 0 0)}
+    .headline.instant .char{clip-path:inset(0 0 0 0);transition:none}
+
+    .hero-sub{
+      display:grid;
+      grid-template-columns:1fr minmax(220px, 340px);
+      gap:28px;
+      align-items:end;
+      max-width:950px;
+    }
+    .terminal-lines p{
+      margin:8px 0;
+      color:#EDE6D3;
+      font-size:14px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+    }
+
+    .quick-order{
+      border:1px solid #141B14;
+      padding:14px;
+      min-height:96px;
+      background:rgba(20,27,20,0.22);
+    }
+    .quick-order .price{
+      font-size:40px;
+      color:#FF3B1F;
+      line-height:1;
+      display:block;
+      margin:8px 0 10px;
+      text-shadow:0 0 16px rgba(255,59,31,0.24);
+    }
+    .quick-order button, .tier-panel button, .tier-cta{
+      width:100%;
+      border:1px solid #FF3B1F;
+      background:#FF3B1F;
+      color:#EDE6D3;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+      padding:12px 14px;
+      border-radius:0;
+      position:relative;
+      overflow:hidden;
+      transition:background 200ms cubic-bezier(0.65, 0, 0.35, 1), color 200ms cubic-bezier(0.65, 0, 0.35, 1), border-color 200ms cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    .market-card-wrap{
+      width:480px;
+      height:300px;
+      position:relative;
+      transform:translateX(80px);
+      opacity:0;
+      transition:transform 900ms cubic-bezier(0.16, 1, 0.3, 1), opacity 900ms cubic-bezier(0.16, 1, 0.3, 1);
+      filter:drop-shadow(0 20px 40px rgba(0,0,0,0.6));
+      background-image:url('asset://member-card-mockup');
+      background-size:contain;
+      background-repeat:no-repeat;
+      background-position:center;
+      transform-style:preserve-3d;
+      justify-self:end;
+    }
+    .market-card-wrap.revealed{transform:translateX(0);opacity:1}
+
+    .member-card{
+      width:480px;
+      height:300px;
+      background:linear-gradient(135deg, #1A0805 0%, #08110A 100%);
+      border:1px solid rgba(237,230,211,0.18);
+      border-radius:0;
+      position:relative;
+      overflow:hidden;
+      padding:28px;
+      transform-style:preserve-3d;
+      box-shadow:inset 0 1px 0 rgba(237,230,211,0.12), inset 0 -24px 80px rgba(255,59,31,0.08);
+    }
+    .member-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg, transparent 0 49%, rgba(184,255,61,0.08) 50%, transparent 51%),
+        repeating-linear-gradient(0deg, transparent 0 6px, rgba(237,230,211,0.025) 7px 8px);
+      opacity:.65;
+      mix-blend-mode:screen;
+    }
+    .foil{
+      position:absolute;
+      inset:0;
+      clip-path:polygon(60% 0, 100% 0, 100% 100%, 50% 100%);
+      opacity:0.85;
+      mix-blend-mode:screen;
+      background-image:url('asset://holo-card-foil'), linear-gradient(125deg, rgba(184,255,61,0.22), rgba(237,230,211,0.08) 20%, rgba(255,59,31,0.20) 42%, rgba(184,255,61,0.18) 68%, transparent 100%);
+      background-size:720px 720px, 220% 220%;
+      animation:foilShift 4s linear infinite;
+    }
+    @keyframes foilShift{to{background-position:720px 0, 100% 0}}
+    .card-top{
+      position:relative;
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      color:#EDE6D3;
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      z-index:2;
+    }
+    .serial{
+      position:absolute;
+      left:28px;
+      bottom:30px;
+      z-index:2;
+      color:#B8FF3D;
+      font-size:28px;
+      letter-spacing:0.06em;
+      text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35);
+    }
+    .card-stamp{
+      position:absolute;
+      right:28px;
+      bottom:28px;
+      z-index:2;
+      width:78px;
+      height:78px;
+      border:1px solid rgba(184,255,61,0.42);
+      display:grid;
+      place-items:center;
+      color:#B8FF3D;
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:0.18em;
+      text-align:center;
+      text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35);
+    }
+
+    .plot-module{padding-bottom:80px}
+    .tier-plot{
+      position:relative;
+      width:100%;
+      height:720px;
+      overflow:hidden;
+      border-top:1px solid #141B14;
+      border-bottom:1px solid #141B14;
+      background:
+        linear-gradient(90deg, rgba(20,27,20,0.42) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(20,27,20,0.42) 1px, transparent 1px);
+      background-size:80px 80px;
+    }
+    .axis-label{
+      position:absolute;
+      color:#6B6E5E;
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+    }
+    .access-high{left:32px;top:90px}
+    .access-low{left:32px;bottom:106px}
+    .access-title{left:36px;top:54px;color:#EDE6D3}
+    .price-title{right:84px;bottom:70px;color:#EDE6D3}
+    .axis-svg{
+      position:absolute;
+      inset:80px;
+      width:calc(100% - 160px);
+      height:calc(100% - 160px);
+      overflow:visible;
+    }
+    .axis-line{
+      stroke:#EDE6D3;
+      stroke-width:1;
+      opacity:.82;
+      stroke-dasharray:1000;
+      stroke-dashoffset:1000;
+      transition:stroke-dashoffset 600ms ease;
+    }
+    .tier-plot.revealed .x-axis{stroke-dashoffset:0}
+    .tier-plot.revealed .y-axis{stroke-dashoffset:0;transition-delay:600ms}
+    .connector-path{
+      fill:none;
+      stroke:#B8FF3D;
+      stroke-width:1.5;
+      filter:drop-shadow(0 0 8px rgba(184,255,61,0.35));
+      stroke-dasharray:900;
+      stroke-dashoffset:900;
+      transition:stroke-dashoffset 1000ms ease;
+      transition-delay:2500ms;
+    }
+    .tier-plot.revealed .connector-path{stroke-dashoffset:0}
+    .axis-price{
+      position:absolute;
+      bottom:42px;
+      color:#6B6E5E;
+      font-size:12px;
+    }
+    .p0{left:80px}.p9{left:35%}.p29{right:86px}
+
+    .bubble{
+      position:absolute;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      text-align:center;
+      transform:scale(0);
+      opacity:0;
+      transition:transform 420ms ease, opacity 220ms ease;
+      border:1px solid rgba(237,230,211,0.16);
+    }
+    .bubble .name{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:12px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:#EDE6D3;
+      position:relative;
+      z-index:3;
+    }
+    .bubble .price{
+      position:relative;
+      z-index:3;
+      font-size:13px;
+      margin-top:4px;
+      color:#EDE6D3;
+    }
+    .regular{
+      width:56px;
+      height:56px;
+      left:18%;
+      bottom:154px;
+      background:#6B6E5E;
+      box-shadow:0 0 18px rgba(107,110,94,0.22);
+      transition-delay:1300ms;
+    }
+    .family{
+      width:180px;
+      height:180px;
+      left:61%;
+      top:80px;
+      background-image:url('asset://phosphor-bubble-noise'), radial-gradient(circle at 45% 40%, rgba(184,255,61,0.95), rgba(184,255,61,0.42) 40%, rgba(184,255,61,0.08) 68%, transparent 70%);
+      background-size:cover;
+      opacity:0;
+      box-shadow:0 0 40px rgba(184, 255, 61, 0.35);
+      filter:contrast(1.2) saturate(1.4);
+      transition-delay:1500ms;
+    }
+    .obsessed{
+      width:280px;
+      height:280px;
+      left:32%;
+      top:238px;
+      background-image:url('asset://blood-bubble-noise'), radial-gradient(circle at 42% 38%, rgba(255,59,31,0.96), rgba(255,59,31,0.56) 42%, rgba(255,59,31,0.14) 70%, transparent 72%);
+      background-size:cover;
+      box-shadow:0 0 80px rgba(255, 59, 31, 0.45);
+      filter:contrast(1.2) saturate(1.4);
+      z-index:8;
+      transition-delay:1900ms;
+    }
+    .obsessed .name{font-size:18px}
+    .obsessed .price{font-size:26px;color:#EDE6D3}
+    @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+    .tier-plot.revealed .bubble{opacity:1;transform:scale(1)}
+    .tier-plot.revealed .regular{transition-duration:200ms}
+    .tier-plot.revealed .family{transition-duration:300ms;transition-timing-function:cubic-bezier(.34,1.56,.64,1)}
+    .tier-plot.revealed .obsessed{transition-duration:800ms}
+    .tier-plot.revealed .obsessed.breathing{animation:breathe 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite}
+
+    .tier-detail{
+      position:absolute;
+      right:32px;
+      bottom:32px;
+      width:min(420px, calc(100% - 64px));
+      border:1px solid #141B14;
+      background:rgba(8,17,10,0.92);
+      padding:18px;
+      z-index:12;
+      box-shadow:0 0 40px rgba(8,17,10,0.82);
+    }
+    .tier-detail h3{
+      margin:8px 0 4px;
+      font-family:'Archivo Black', sans-serif;
+      font-size:38px;
+      line-height:.9;
+      letter-spacing:-0.04em;
+      color:#EDE6D3;
+      text-transform:uppercase;
+    }
+    .tier-detail .detail-price{
+      color:#B8FF3D;
+      font-size:28px;
+      margin-bottom:12px;
+      display:block;
+      text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35);
+    }
+    .benefit-log{
+      margin:0 0 14px;
+      padding:0;
+      list-style:none;
+      font-size:11px;
+      color:#EDE6D3;
+    }
+    .benefit-log li{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:6px 0;
+      border-top:1px solid #141B14;
+    }
+
+    .spark{
+      width:80px;
+      height:24px;
+      min-width:80px;
+      display:inline-block;
+      vertical-align:middle;
+      margin-left:12px;
+      opacity:0.7;
+      background-image:url('asset://sparkline-ribbon');
+      background-size:80px 24px;
+      background-repeat:no-repeat;
+    }
+    .spark svg{display:block;width:80px;height:24px}
+    .spark path{
+      stroke:#B8FF3D;
+      stroke-width:2;
+      fill:none;
+      stroke-linejoin:miter;
+      stroke-dasharray:160;
+      stroke-dashoffset:160;
+      animation:sparkDraw 1000ms ease forwards;
+    }
+    @keyframes sparkDraw{to{stroke-dashoffset:0}}
+
+    .treemap{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      grid-template-rows:repeat(4, 80px);
+      gap:1px;
+      background:#141B14;
+      border:1px solid #141B14;
+      grid-template-areas:
+        "card card card card card pre pre pre intel intel intel intel"
+        "card card card card card pre pre pre intel intel intel intel"
+        "edit edit edit edit discord discord skip skip skip archive archive archive"
+        "edit edit edit edit discord discord skip skip skip archive archive archive";
+    }
+    .tile{
+      background:#08110A;
+      padding:18px;
+      overflow:hidden;
+      position:relative;
+      clip-path:inset(0 100% 0 0);
+      transition:clip-path 600ms cubic-bezier(0.22, 1, 0.36, 1);
+      border-radius:0;
+    }
+    .treemap.revealed .tile{clip-path:inset(0 0 0 0)}
+    .tile:nth-child(1){transition-delay:0ms}
+    .tile:nth-child(2){transition-delay:80ms}
+    .tile:nth-child(3){transition-delay:160ms}
+    .tile:nth-child(4){transition-delay:240ms}
+    .tile:nth-child(5){transition-delay:320ms}
+    .tile:nth-child(6){transition-delay:400ms}
+    .tile[data-area="card"]{grid-area:card}
+    .tile[data-area="pre"]{grid-area:pre}
+    .tile[data-area="intel"]{grid-area:intel}
+    .tile[data-area="edit"]{grid-area:edit}
+    .tile[data-area="discord"]{grid-area:discord}
+    .tile[data-area="skip"]{grid-area:skip}
+    .tile[data-area="archive"]{grid-area:archive}
+    .tile-title{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+      font-size:18px;
+      line-height:1.15;
+      color:#EDE6D3;
+    }
+    .tile-title .char{display:inline-block;opacity:0;transform:translateY(8px)}
+    .treemap.revealed .tile-title .char{
+      animation:tileType 300ms ease forwards;
+      animation-delay:calc(var(--i) * 30ms + var(--tile-delay, 0ms));
+    }
+    @keyframes tileType{to{opacity:1;transform:translateY(0)}}
+    .tile-value{
+      position:absolute;
+      right:14px;
+      bottom:12px;
+      color:#6B6E5E;
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+    }
+    .tile[data-value="98"] .tile-title{font-size:24px;color:#B8FF3D;text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35)}
+
+    .manifesto{
+      border-top:1px solid #141B14;
+      border-bottom:1px solid #141B14;
+    }
+    .quote{
+      font-family:'Instrument Serif', serif;
+      font-style:italic;
+      font-size:clamp(24px, 4vw, 36px);
+      line-height:1.3;
+      color:#EDE6D3;
+      max-width:1180px;
+    }
+    .quote .word{
+      opacity:0;
+      display:inline-block;
+      transform:translateY(8px);
+      transition:opacity 200ms ease, transform 200ms ease;
+    }
+    .quote.revealed .word{opacity:1;transform:translateY(0)}
+
+    .faq{
+      display:grid;
+      gap:1px;
+      background:#141B14;
+      border:1px solid #141B14;
+    }
+    .faq-row{
+      display:grid;
+      grid-template-columns:280px 1fr;
+      gap:20px;
+      padding:18px;
+      background:#08110A;
+      align-items:center;
+      color:#EDE6D3;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+    }
+    .faq-row b{color:#B8FF3D;text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35)}
+
+    .buy-order{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:24px;
+    }
+    .order-form{
+      border:1px solid #141B14;
+      display:grid;
+      grid-template-columns:1.2fr .4fr 1.2fr;
+      gap:1px;
+      background:#141B14;
+    }
+    .order-cell{
+      background:#08110A;
+      padding:18px;
+      min-height:82px;
+    }
+    .order-cell select, .order-cell input{
+      width:100%;
+      background:#08110A;
+      border:1px solid #141B14;
+      color:#EDE6D3;
+      padding:12px;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      border-radius:0;
+      margin-top:8px;
+    }
+    .execute{
+      height:100%;
+      min-height:82px;
+      border:1px solid #FF3B1F;
+      background:#FF3B1F;
+      color:#EDE6D3;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+      font-size:18px;
+      border-radius:0;
+      position:relative;
+      overflow:hidden;
+      transition:background 200ms cubic-bezier(0.65, 0, 0.35, 1), color 200ms cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    .execute::before,
+    .tier-cta::before,
+    .quick-order button::before,
+    .tier-panel button::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:repeating-linear-gradient(0deg, transparent 0 3px, rgba(184,255,61,0.48) 4px 5px);
+      transform:translateX(-100%);
+      transition:transform 200ms cubic-bezier(0.65, 0, 0.35, 1);
+      mix-blend-mode:screen;
+    }
+    .execute::after,
+    .tier-cta::after,
+    .quick-order button::after,
+    .tier-panel button::after{
+      content:"▸▸▸";
+      position:absolute;
+      left:16px;
+      top:50%;
+      transform:translate(-120%, -50%);
+      transition:transform 180ms cubic-bezier(0.65, 0, 0.35, 1) 60ms;
+    }
+    .execute:hover::before,
+    .tier-cta:hover::before,
+    .quick-order button:hover::before,
+    .tier-panel button:hover::before{transform:translateX(100%)}
+    .execute:hover::after,
+    .tier-cta:hover::after,
+    .quick-order button:hover::after,
+    .tier-panel button:hover::after{transform:translate(0, -50%)}
+    .execute:hover,
+    .tier-cta:hover,
+    .quick-order button:hover,
+    .tier-panel button:hover{
+      background:#B8FF3D;
+      color:#08110A;
+      border-color:#B8FF3D;
+    }
+
+    .tier-panel{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:1px;
+      background:#141B14;
+      border:1px solid #141B14;
+      margin-top:32px;
+    }
+    .tier-card{
+      background:#08110A;
+      padding:18px;
+      min-height:260px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      border-radius:0;
+    }
+    .tier-card.featured{
+      box-shadow:inset 0 0 0 1px #FF3B1F, 0 0 40px rgba(255,59,31,0.12);
+      position:relative;
+    }
+    .tier-card.featured::before{
+      content:"FEATURED / SELLING OUT";
+      position:absolute;
+      top:12px;
+      right:12px;
+      color:#FF3B1F;
+      font-size:10px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+    }
+    .tier-card h3{
+      font-family:'Archivo Black', sans-serif;
+      color:#EDE6D3;
+      font-size:34px;
+      line-height:.9;
+      letter-spacing:-0.04em;
+      margin:18px 0 8px;
+      text-transform:uppercase;
+    }
+    .tier-card .price{font-size:28px;color:#B8FF3D;text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35)}
+    .tier-card ul{list-style:none;margin:14px 0;padding:0}
+    .tier-card li{
+      border-top:1px solid #141B14;
+      padding:8px 0;
+      font-size:11px;
+      color:#EDE6D3;
+      text-transform:uppercase;
+      letter-spacing:0.07em;
+    }
+
+    footer{
+      position:relative;
+      z-index:10;
+      max-width:1440px;
+      margin:0 auto;
+      padding-left:64px;
+    }
+    .footer-inner{
+      border-top:1px solid #141B14;
+      padding:32px;
+      color:#6B6E5E;
+      display:flex;
+      justify-content:space-between;
+      gap:24px;
+      text-transform:uppercase;
+      letter-spacing:0.18em;
+      font-size:11px;
+    }
+    .footer-inner strong{color:#EDE6D3}
+
+    .cursor-readout{
+      position:fixed;
+      left:0;
+      top:0;
+      z-index:260;
+      pointer-events:none;
+      color:#B8FF3D;
+      font-family:'JetBrains Mono', monospace;
+      font-size:10px;
+      font-weight:700;
+      text-shadow:0 0 1px #B8FF3D, 0 0 12px rgba(184,255,61,0.35);
+      transform:translate(16px,16px);
+    }
+    .cursor-dot{
+      position:fixed;
+      left:0;
+      top:0;
+      width:24px;
+      height:24px;
+      z-index:259;
+      pointer-events:none;
+      transform:translate(-50%, -50%);
+      display:none;
+    }
+    .cursor-dot::before,.cursor-dot::after{
+      content:"";
+      position:absolute;
+      background:#B8FF3D;
+      box-shadow:0 0 10px rgba(184,255,61,0.45);
+    }
+    .cursor-dot::before{left:0;right:0;top:11px;height:1px}
+    .cursor-dot::after{top:0;bottom:0;left:11px;width:1px}
+    .cursor-dot span{
+      position:absolute;
+      inset:7px;
+      border:1px solid #B8FF3D;
+      border-radius:50%;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      :root{--top-speed:30;--bottom-speed:20}
+      *{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:300ms!important;scroll-behavior:auto!important}
+      .obsessed.breathing{animation:none!important}
+      .market-card-wrap{transition:none!important}
+      body{cursor:auto}
+      .cursor-readout,.cursor-dot{display:none!important}
+    }
+
+    @media (max-width:768px){
+      body{cursor:auto}
+      a,button,select,input,.bubble{cursor:pointer}
+      body::after{opacity:.5}
+      .cursor-readout,.cursor-dot{display:none!important}
+      .left-rail{
+        top:40px;
+        width:100vw;
+        height:40px;
+        border-right:0;
+        border-bottom:1px solid #141B14;
+        flex-direction:row;
+        padding:0 12px;
+      }
+      .rail-word,.rail-live,.clock{writing-mode:horizontal-tb;text-orientation:mixed}
+      .rail-word{font-size:12px;letter-spacing:0.08em}
+      .page, footer{padding-left:0;padding-top:80px}
+      .module{padding:64px 16px}
+      .hero{
+        min-height:auto;
+        grid-template-columns:1fr;
+        gap:28px;
+        padding-top:64px;
+      }
+      .hero-sub{grid-template-columns:1fr}
+      .market-card-wrap,.member-card{
+        width:320px;
+        height:200px;
+        justify-self:start;
+      }
+      .member-card{padding:18px}
+      .serial{left:18px;bottom:20px;font-size:18px}
+      .card-stamp{right:18px;bottom:18px;width:54px;height:54px;font-size:8px}
+      .tier-plot{
+        height:480px;
+        background-size:40px 40px;
+      }
+      .axis-svg{inset:44px 40px}
+      .x-axis{display:none}
+      .price-title{right:20px;bottom:24px}
+      .access-high{top:70px;left:16px}.access-low{bottom:80px;left:16px}.access-title{left:16px;top:38px}
+      .p0,.p9,.p29{left:auto;right:18px}
+      .p0{bottom:90px}.p9{bottom:225px}.p29{bottom:360px}
+      .regular{left:42%;bottom:88px}
+      .obsessed{width:210px;height:210px;left:calc(50% - 105px);top:142px}
+      .family{width:130px;height:130px;left:calc(50% - 65px);top:24px}
+      .tier-detail{
+        position:relative;
+        right:auto;
+        bottom:auto;
+        width:100%;
+        margin-top:18px;
+      }
+      .treemap{
+        grid-template-columns:repeat(2, 1fr);
+        grid-template-rows:none;
+        grid-template-areas:none;
+      }
+      .tile{grid-area:auto!important;min-height:118px}
+      .faq-row{grid-template-columns:1fr;gap:8px}
+      .order-form{grid-template-columns:1fr}
+      .tier-panel{grid-template-columns:1fr}
+      .footer-inner{flex-direction:column;padding:24px 16px}
+      .motion-controls{right:8px;bottom:8px}
+      .motion-controls button{padding:8px;font-size:9px}
+    }
+  </style>
+</head>
+<body class="booting">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="grain"><feTurbulence baseFrequency="0.9" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0.93  0 0 0 0 0.90  0 0 0 0 0.83  0 0 0 0.08 0"/></filter>
+    </defs>
+  </svg>
+
+  <div class="asset-scanline" aria-hidden="true"></div>
+  <div class="asset-grain" aria-hidden="true"></div>
+  <svg class="grain-svg" aria-hidden="true">
+    <rect width="100%" height="100%" filter="url(#grain)"></rect>
+  </svg>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <div class="boot" id="boot"><div class="boot-line phosphor" id="bootLine"></div></div>
+
+  <div class="motion-controls" aria-label="Animation controls">
+    <button type="button" id="playBtn">Play</button>
+    <button type="button" id="resetBtn">Reset</button>
+  </div>
+
+  <div class="cursor-dot" id="cursorDot"><span></span></div>
+  <div class="cursor-readout" id="cursorReadout">(000, 000)</div>
+
+  <div class="ticker top" aria-hidden="true">
+    <div class="ticker-track" data-dir="left" data-speed="60">
+      <div class="ticker-copy">
+        <span>▸ LIVE</span><span class="market-num">14,213,847 MEMBERS</span><span>421 DROPS</span><span>96s MEDIAN SELLOUT</span><span>OBSESSED BID ↑</span><span>FOUNDING RATE LOCKED</span><span>▸▸▸</span>
+      </div>
+      <div class="ticker-copy">
+        <span>▸ LIVE</span><span class="market-num">14,213,847 MEMBERS</span><span>421 DROPS</span><span>96s MEDIAN SELLOUT</span><span>OBSESSED BID ↑</span><span>FOUNDING RATE LOCKED</span><span>▸▸▸</span>
+      </div>
+    </div>
+  </div>
+
+  <aside class="left-rail" aria-label="Live terminal status">
+    <div class="rail-word">THE INDEX</div>
+    <div class="rail-live"><span class="live-dot"></span>LIVE</div>
+    <div class="clock" id="clock">19:42</div>
+  </aside>
+
+  <main class="page">
+    <section class="module hero" id="hero" data-section="hero">
+      <div>
+        <div class="module-kicker label">MODULE 01 / INDEX HEADER</div>
+        <h1 class="headline" id="headline">THE COMPLEX INDEX</h1>
+        <div class="hero-sub">
+          <div class="terminal-lines">
+            <p><span class="phosphor">▸</span> NOW TRADING: ALLEGIANCE.</p>
+            <p><span class="phosphor">▸</span> POSITION: OPEN. CANCEL ANYTIME.</p>
+            <p><span class="phosphor">▸</span> MARKET SIGNAL: MID-TIER HEAT AT <span class="price">$9</span>.</p>
+          </div>
+          <div class="quick-order">
+            <div class="label">LAST ASK / OBSESSED</div>
+            <span class="price">$9.00</span>
+            <button type="button" data-tier-cta="OBSESSED">▸ EXECUTE — $9/MO</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="market-card-wrap" id="cardWrap" aria-label="Complex Allegiance membership card visual">
+        <div class="member-card" id="memberCard">
+          <div class="foil" aria-hidden="true"></div>
+          <div class="card-top">
+            <span>COMPLEX ALLEGIANCE / OBSESSED</span>
+            <span class="phosphor">ACCESS OPEN</span>
+          </div>
+          <div class="serial" id="serial">N° 00,019,847</div>
+          <div class="card-stamp">LIVE<br>MEMBER</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="module plot-module" id="pricing" data-section="three-tier pricing">
+      <div class="module-kicker label">MODULE 02 / TIER PLOT — PRICE × ACCESS</div>
+      <div class="tier-plot reveal-on-view" id="tierPlot" aria-label="Three-tier membership pricing plotted by price and access">
+        <div class="axis-label access-title label">ACCESS ↑</div>
+        <div class="axis-label access-high label">HIGH</div>
+        <div class="axis-label access-low label">LOW</div>
+        <div class="axis-label price-title label">→ PRICE</div>
+        <div class="axis-price p0">$0</div>
+        <div class="axis-price p9">$9</div>
+        <div class="axis-price p29">$29</div>
+
+        <svg class="axis-svg" viewBox="0 0 1000 560" preserveAspectRatio="none" aria-hidden="true">
+          <line class="axis-line x-axis" x1="0" y1="560" x2="1000" y2="560"></line>
+          <line class="axis-line y-axis" x1="0" y1="0" x2="0" y2="560"></line>
+          <path class="connector-path" d="M155 505 L425 318 L690 122"></path>
+        </svg>
+
+        <button type="button" class="bubble regular" data-tier="REGULAR" aria-label="Regular Free tier">
+          <span class="name">REGULAR</span><span class="price">FREE</span>
+        </button>
+        <button type="button" class="bubble family" data-tier="FAMILY" aria-label="Family $29 tier">
+          <span class="name">FAMILY</span><span class="price">$29</span>
+        </button>
+        <button type="button" class="bubble obsessed" data-tier="OBSESSED" aria-label="Obsessed $9 featured tier">
+          <span class="name">OBSESSED</span><span class="price">$9</span>
+        </button>
+
+        <aside class="tier-detail" id="tierDetail" aria-live="polite">
+          <div class="label phosphor">ACTIVE QUOTE</div>
+          <h3 id="detailName">OBSESSED</h3>
+          <span class="detail-price num" id="detailPrice">$9.00 / MO</span>
+          <ul class="benefit-log" id="detailBenefits"></ul>
+          <button class="tier-cta" type="button" id="detailCta">▸ EXECUTE OBSESSED</button>
+        </aside>
+      </div>
+
+      <div class="tier-panel" aria-label="Three pricing tier details">
+        <article class="tier-card" data-tier-card="REGULAR">
+          <div>
+            <div class="label">TIER 01 / OPEN MARKET</div>
+            <h3>REGULAR</h3>
+            <div class="price">FREE</div>
+            <ul>
+              <li>Daily Complex feed access</li>
+              <li>Public drop watchlist</li>
+              <li>Weekly culture market recap</li>
+              <li>Open comments signal</li>
+            </ul>
+          </div>
+          <button type="button" data-tier-cta="REGULAR">▸ OPEN FREE POSITION</button>
+        </article>
+
+        <article class="tier-card featured" data-tier-card="OBSESSED">
+          <div>
+            <div class="label">TIER 02 / MOST WANTED</div>
+            <h3>OBSESSED</h3>
+            <div class="price">$9 / MO</div>
+            <ul>
+              <li>Numbered member card</li>
+              <li>Drops pre-sale: 24HR window</li>
+              <li>Monthly editors intel drop</li>
+              <li>Q&amp;A with Complex editors</li>
+              <li>Private Discord market channel</li>
+            </ul>
+          </div>
+          <button type="button" data-tier-cta="OBSESSED">▸ EXECUTE — $9.00/MO</button>
+        </article>
+
+        <article class="tier-card" data-tier-card="FAMILY">
+          <div>
+            <div class="label">TIER 03 / HIGH ACCESS</div>
+            <h3>FAMILY</h3>
+            <div class="price">$29 / MO</div>
+            <ul>
+              <li>All OBSESSED access</li>
+              <li>Skip-line event entry</li>
+              <li>Friends &amp; family drop codes</li>
+              <li>Quarterly merch credit</li>
+              <li>IRL editorial tapings</li>
+              <li>Concierge waitlist moves</li>
+            </ul>
+          </div>
+          <button type="button" data-tier-cta="FAMILY">▸ EXECUTE FAMILY</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="module" id="benefits" data-section="supporting section A">
+      <div class="module-kicker label">MODULE 03 / BENEFITS TREEMAP — SIZED BY CULTURAL VALUE</div>
+      <div class="treemap reveal-on-view" id="treemap">
+        <div class="tile" data-area="card" data-value="98" style="--tile-delay:0ms">
+          <div class="tile-title">NUMBERED CARD <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 18 L12 14 L20 16 L29 9 L39 11 L50 5 L62 8 L75 2"></path></svg></span></div>
+          <div class="tile-value">VALUE 98</div>
+        </div>
+        <div class="tile" data-area="pre" data-value="76" style="--tile-delay:80ms">
+          <div class="tile-title">DROPS PRE-SALE 24HR <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 19 L14 17 L21 12 L33 15 L44 8 L57 10 L75 4"></path></svg></span></div>
+          <div class="tile-value">VALUE 76</div>
+        </div>
+        <div class="tile" data-area="intel" data-value="72" style="--tile-delay:160ms">
+          <div class="tile-title">MONTHLY INTEL DROP <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 20 L10 18 L17 18 L27 10 L37 13 L48 7 L61 9 L75 3"></path></svg></span></div>
+          <div class="tile-value">VALUE 72</div>
+        </div>
+        <div class="tile" data-area="edit" data-value="61" style="--tile-delay:240ms">
+          <div class="tile-title">Q&amp;A W/ EDITORS <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 18 L12 12 L25 15 L35 11 L47 6 L58 8 L75 4"></path></svg></span></div>
+          <div class="tile-value">VALUE 61</div>
+        </div>
+        <div class="tile" data-area="discord" data-value="54" style="--tile-delay:320ms">
+          <div class="tile-title">DISCORD SIGNAL ROOM <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 17 L13 16 L23 13 L33 15 L45 8 L56 11 L75 5"></path></svg></span></div>
+          <div class="tile-value">VALUE 54</div>
+        </div>
+        <div class="tile" data-area="skip" data-value="48" style="--tile-delay:400ms">
+          <div class="tile-title">SKIP-LINE EVENTS <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 20 L11 15 L19 17 L32 9 L42 12 L54 7 L75 2"></path></svg></span></div>
+          <div class="tile-value">VALUE 48</div>
+        </div>
+        <div class="tile" data-area="archive" data-value="32" style="--tile-delay:480ms">
+          <div class="tile-title">ARCHIVE RECEIPTS <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 19 L15 19 L23 14 L34 15 L45 10 L58 12 L75 7"></path></svg></span></div>
+          <div class="tile-value">VALUE 32</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="module manifesto" id="manifesto" data-section="supporting section B">
+      <div class="module-kicker label">MODULE 04 / MANIFESTO</div>
+      <div class="quote reveal-on-view" id="quote">“You already read us. This is what happens when you stop being a reader and start being on the list.” — THE EDITORS</div>
+    </section>
+
+    <section class="module" id="notes" data-section="supporting section C">
+      <div class="module-kicker label">MODULE 05 / MARKET NOTES — FAQ AS TERMINAL Q&amp;A LOGS</div>
+      <div class="faq">
+        <div class="faq-row"><div><b>Q ›</b> CAN I CANCEL? <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 18 L14 16 L25 17 L36 10 L47 12 L59 6 L75 3"></path></svg></span></div><div><b>A ›</b> ANYTIME. POSITION CLOSES IMMEDIATELY.</div></div>
+        <div class="faq-row"><div><b>Q ›</b> PHYSICAL CARD? <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 20 L12 18 L24 14 L34 16 L45 8 L58 9 L75 2"></path></svg></span></div><div><b>A ›</b> YES. SHIPPED 14 DAYS AFTER RATE LOCK.</div></div>
+        <div class="faq-row"><div><b>Q ›</b> FOUNDING RATE? <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 18 L10 18 L19 13 L30 16 L42 7 L55 9 L75 4"></path></svg></span></div><div><b>A ›</b> LOCKED FOREVER AT SIGN-UP.</div></div>
+        <div class="faq-row"><div><b>Q ›</b> WHO IS THIS FOR? <span class="spark"><svg viewBox="0 0 80 24"><path d="M2 19 L13 15 L22 16 L32 11 L44 13 L56 6 L75 3"></path></svg></span></div><div><b>A ›</b> PEOPLE WHO READ THE SIGNAL BEFORE IT HITS THE FEED.</div></div>
+      </div>
+    </section>
+
+    <section class="module" id="buy" data-section="final CTA">
+      <div class="module-kicker label">MODULE 06 / BUY ORDER</div>
+      <div class="buy-order">
+        <div>
+          <h2 class="headline instant" style="font-size:clamp(46px,9vw,112px);margin-bottom:20px">PLACE THE ORDER</h2>
+          <p class="label phosphor">MARKET WINDOW OPEN / OBSESSED QUOTE HOLDING AT <span class="num">$9.00</span></p>
+        </div>
+        <div class="order-form">
+          <div class="order-cell">
+            <label for="orderTier">ORDER TYPE</label>
+            <select id="orderTier">
+              <option>OBSESSED — $9/MO</option>
+              <option>REGULAR — FREE</option>
+              <option>FAMILY — $29/MO</option>
+            </select>
+          </div>
+          <div class="order-cell">
+            <label for="orderQty">QTY</label>
+            <input id="orderQty" type="number" min="1" value="1">
+          </div>
+          <button class="execute" type="button" id="finalCta">▸ EXECUTE — $9.00/MO</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer data-section="footer">
+    <div class="ticker bottom" aria-hidden="true">
+      <div class="ticker-track" data-dir="right" data-speed="40">
+        <div class="ticker-copy">
+          <span>BE ON THE LIST</span><span>ALLEGIANCE INDEX OPEN</span><span>NO CHECKMARKS / ALL SIGNAL</span><span>MEMBER CARD QUEUE MOVING</span><span>COMPLEX MARKET LIVE</span>
+        </div>
+        <div class="ticker-copy">
+          <span>BE ON THE LIST</span><span>ALLEGIANCE INDEX OPEN</span><span>NO CHECKMARKS / ALL SIGNAL</span><span>MEMBER CARD QUEUE MOVING</span><span>COMPLEX MARKET LIVE</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-inner">
+      <div>© COMPLEX 2026 / ALL POSITIONS OPEN</div>
+      <div><strong>BE ON THE LIST.</strong></div>
+    </div>
+  </footer>
+
+  <script>
+    const tiers = [
+      {
+        name:"REGULAR",
+        price:"FREE",
+        priceNumber:0,
+        featured_flag:false,
+        cta:"▸ OPEN FREE POSITION",
+        benefits:[
+          "Daily Complex feed access",
+          "Public drop watchlist",
+          "Weekly culture market recap",
+          "Open comments signal"
+        ]
+      },
+      {
+        name:"OBSESSED",
+        price:"$9.00 / MO",
+        priceNumber:9,
+        featured_flag:true,
+        cta:"▸ EXECUTE OBSESSED",
+        benefits:[
+          "Numbered member card",
+          "Drops pre-sale: 24HR window",
+          "Monthly editors intel drop",
+          "Q&A with Complex editors",
+          "Private Discord market channel"
+        ]
+      },
+      {
+        name:"FAMILY",
+        price:"$29.00 / MO",
+        priceNumber:29,
+        featured_flag:false,
+        cta:"▸ EXECUTE FAMILY",
+        benefits:[
+          "All OBSESSED access",
+          "Skip-line event entry",
+          "Friends & family drop codes",
+          "Quarterly merch credit",
+          "IRL editorial tapings",
+          "Concierge waitlist moves"
+        ]
+      }
+    ];
+
+    const sections = ["hero","three-tier pricing","supporting section A","supporting section B","final CTA","footer"];
+
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMobile = () => window.matchMedia("(max-width: 768px)").matches;
+
+    function splitChars(el){
+      if(!el || el.dataset.split === "true") return;
+      const text = el.textContent;
+      el.textContent = "";
+      [...text].forEach((ch,i)=>{
+        const span = document.createElement("span");
+        span.className = "char";
+        span.style.display = "inline-block";
+        span.style.transitionDelay = (i * 60) + "ms";
+        span.style.setProperty("--i", i);
+        span.textContent = ch === " " ? "\u00A0" : ch;
+        el.appendChild(span);
+      });
+      el.dataset.split = "true";
+    }
+
+    function splitTileTitles(){
+      document.querySelectorAll(".tile-title").forEach(title=>{
+        if(title.dataset.split === "true") return;
+        const nodes = Array.from(title.childNodes);
+        const textNode = nodes.find(n=>n.nodeType === Node.TEXT_NODE);
+        const text = textNode ? textNode.textContent : title.textContent;
+        const spark = title.querySelector(".spark");
+        title.innerHTML = "";
+        [...text.trim()].forEach((ch,i)=>{
+          const span = document.createElement("span");
+          span.className = "char";
+          span.style.setProperty("--i", i);
+          span.textContent = ch === " " ? "\u00A0" : ch;
+          title.appendChild(span);
+        });
+        if(spark) title.appendChild(spark);
+        title.dataset.split = "true";
+      });
+    }
+
+    function splitWords(el){
+      if(!el || el.dataset.split === "true") return;
+      const words = el.textContent.split(" ");
+      el.textContent = "";
+      words.forEach((word,i)=>{
+        const span = document.createElement("span");
+        span.className = "word";
+        span.textContent = word;
+        span.style.transitionDelay = (i * 60) + "ms";
+        el.appendChild(span);
+        el.appendChild(document.createTextNode(" "));
+      });
+      el.dataset.split = "true";
+    }
+
+    function updateClock(){
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,"0");
+      const mm = String(d.getMinutes()).padStart(2,"0");
+      document.getElementById("clock").textContent = hh + ":" + mm;
+    }
+
+    function easeOutExpo(x){ return x === 1 ? 1 : 1 - Math.pow(2, -10 * x); }
+
+    function countSerial(duration=1400){
+      const target = 19847;
+      const serial = document.getElementById("serial");
+      if(prefersReduced){
+        serial.textContent = "N° 00,019,847";
+        return;
+      }
+      const start = performance.now();
+      function frame(now){
+        const t = Math.min(1, (now - start) / duration);
+        const val = Math.round(target * easeOutExpo(t));
+        const raw = String(val).padStart(8,"0");
+        const formatted = raw.slice(0,2) + "," + raw.slice(2,5) + "," + raw.slice(5);
+        serial.textContent = "N° " + formatted;
+        if(t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function setTier(name){
+      const tier = tiers.find(t=>t.name === name) || tiers[1];
+      document.getElementById("detailName").textContent = tier.name;
+      document.getElementById("detailPrice").textContent = tier.price;
+      document.getElementById("detailCta").textContent = tier.cta;
+      const ul = document.getElementById("detailBenefits");
+      ul.innerHTML = "";
+      tier.benefits.forEach(b=>{
+        const li = document.createElement("li");
+        li.innerHTML = '<span class="phosphor">›</span><span>' + b + '</span><span class="spark"><svg viewBox="0 0 80 24"><path d="M2 19 L12 16 L22 17 L34 10 L45 12 L57 7 L75 3"></path></svg></span>';
+        ul.appendChild(li);
+      });
+    }
+
+    function bootSequence(){
+      const boot = document.getElementById("boot");
+      const bootLine = document.getElementById("bootLine");
+      const headline = document.getElementById("headline");
+      const cardWrap = document.getElementById("cardWrap");
+      document.body.classList.add("booting");
+      boot.classList.remove("hidden");
+      headline.classList.remove("revealed","instant");
+      cardWrap.classList.remove("revealed");
+      bootLine.textContent = "";
+      document.getElementById("serial").textContent = "N° 00,000,000";
+
+      if(prefersReduced){
+        setTimeout(()=>{
+          boot.classList.add("hidden");
+          document.body.classList.remove("booting");
+          headline.classList.add("instant");
+          cardWrap.classList.add("revealed");
+          countSerial(1);
+        },300);
+        return;
+      }
+
+      setTimeout(()=>{
+        const msg = "> CONNECTING TO COMPLEX INDEX...";
+        let i = 0;
+        const typer = setInterval(()=>{
+          bootLine.textContent += msg[i] || "";
+          i++;
+          if(i >= msg.length){
+            clearInterval(typer);
+          }
+        },40);
+      },200);
+
+      setTimeout(()=>{
+        bootLine.textContent = "> CONNECTING TO COMPLEX INDEX... ▸ FEED LIVE.";
+      },800);
+
+      setTimeout(()=>{
+        document.body.classList.remove("booting");
+      },1100);
+
+      setTimeout(()=>{
+        headline.classList.add("revealed");
+      },1200);
+
+      setTimeout(()=>{
+        cardWrap.classList.add("revealed");
+      },1400);
+
+      setTimeout(()=>countSerial(1400),1500);
+
+      setTimeout(()=>{
+        boot.classList.add("hidden");
+      },1850);
+    }
+
+    function completedState(){
+      document.getElementById("boot").classList.add("hidden");
+      document.body.classList.remove("booting");
+      document.getElementById("headline").classList.add("instant","revealed");
+      document.getElementById("cardWrap").classList.add("revealed");
+      document.getElementById("serial").textContent = "N° 00,019,847";
+      document.getElementById("tierPlot").classList.add("revealed");
+      setTimeout(()=>document.querySelector(".obsessed").classList.add("breathing"),50);
+      document.getElementById("treemap").classList.add("revealed");
+      document.getElementById("quote").classList.add("revealed");
+    }
+
+    function initReveal(){
+      const observer = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            const el = entry.target;
+            el.classList.add("revealed");
+            if(el.id === "tierPlot"){
+              setTimeout(()=>document.querySelector(".obsessed").classList.add("breathing"),2800);
+            }
+            observer.unobserve(el);
+          }
+        });
+      },{threshold:.18, rootMargin:"0px 0px -10% 0px"});
+      document.querySelectorAll(".reveal-on-view").forEach(el=>observer.observe(el));
+    }
+
+    function initTickers(){
+      const tracks = document.querySelectorAll(".ticker-track");
+      const states = [];
+      tracks.forEach(track=>{
+        states.push({el:track,x:0,width:track.scrollWidth/2,dir:track.dataset.dir || "left",speed:Number(track.dataset.speed || 60)});
+      });
+      let last = performance.now();
+      function raf(now){
+        const dt = (now - last) / 1000;
+        last = now;
+        states.forEach(s=>{
+          const speed = prefersReduced ? s.speed/2 : s.speed;
+          s.x += (s.dir === "left" ? -1 : 1) * speed * dt;
+          if(s.dir === "left" && Math.abs(s.x) >= s.width) s.x = 0;
+          if(s.dir === "right" && s.x >= 0) s.x = -s.width;
+          s.el.style.transform = "translateX(" + s.x + "px)";
+        });
+        requestAnimationFrame(raf);
+      }
+      states.forEach(s=>{ if(s.dir === "right") s.x = -s.width; });
+      requestAnimationFrame(raf);
+    }
+
+    function initCardTilt(){
+      if(prefersReduced || isMobile()) return;
+      const wrap = document.getElementById("cardWrap");
+      const card = document.getElementById("memberCard");
+      let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
+      wrap.addEventListener("mousemove", e=>{
+        const r = wrap.getBoundingClientRect();
+        const nx = (e.clientX - r.left - r.width/2) / r.width;
+        const ny = (e.clientY - r.top - r.height/2) / r.height;
+        targetX = nx * 12;
+        targetY = -ny * 12;
+      });
+      wrap.addEventListener("mouseleave", ()=>{targetX = 0; targetY = 0;});
+      function raf(){
+        currentX += (targetX - currentX) * 0.1;
+        currentY += (targetY - currentY) * 0.1;
+        card.style.transform = `perspective(1200px) rotateY(${currentX}deg) rotateX(${currentY}deg)`;
+        requestAnimationFrame(raf);
+      }
+      raf();
+    }
+
+    function initCustomCursor(){
+      if(prefersReduced || isMobile()) return;
+      const readout = document.getElementById("cursorReadout");
+      const dot = document.getElementById("cursorDot");
+      dot.style.display = "block";
+      let mx=0,my=0,cx=0,cy=0,label="";
+      window.addEventListener("mousemove", e=>{
+        mx = e.clientX; my = e.clientY;
+        label = "";
+        const interactive = Array.from(document.querySelectorAll("button, a, select, input"));
+        let nearest = null, nearestD = 80;
+        interactive.forEach(el=>{
+          const r = el.getBoundingClientRect();
+          const ex = r.left + r.width/2;
+          const ey = r.top + r.height/2;
+          const d = Math.hypot(mx-ex,my-ey);
+          if(d < nearestD){ nearestD = d; nearest = {x:ex,y:ey,el}; }
+        });
+        if(nearest){
+          mx += (nearest.x - mx) * 0.35;
+          my += (nearest.y - my) * 0.35;
+        }
+        if(e.target.closest(".obsessed")) label = " ▸ EXECUTE";
+      });
+      function raf(){
+        cx += (mx - cx) * 0.15;
+        cy += (my - cy) * 0.15;
+        dot.style.transform = `translate(${cx-12}px, ${cy-12}px)`;
+        readout.style.transform = `translate(${cx+16}px, ${cy+16}px)`;
+        readout.textContent = `(${String(Math.round(cx)).padStart(3,"0")}, ${String(Math.round(cy)).padStart(3,"0")})${label}`;
+        requestAnimationFrame(raf);
+      }
+      raf();
+    }
+
+    function initCTAs(){
+      document.querySelectorAll("[data-tier]").forEach(btn=>{
+        btn.addEventListener("click", ()=>setTier(btn.dataset.tier));
+      });
+      document.querySelectorAll("[data-tier-cta]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const name = btn.dataset.tierCta;
+          setTier(name);
+          document.getElementById("pricing").scrollIntoView({behavior:prefersReduced?"auto":"smooth", block:"start"});
+        });
+      });
+      document.getElementById("detailCta").addEventListener("click", ()=>{
+        document.getElementById("buy").scrollIntoView({behavior:prefersReduced?"auto":"smooth"});
+      });
+      document.getElementById("finalCta").addEventListener("click", ()=>{
+        const btn = document.getElementById("finalCta");
+        const original = btn.textContent;
+        btn.textContent = "▸ ORDER ROUTED / POSITION OPEN";
+        setTimeout(()=>btn.textContent = original, 1800);
+      });
+      document.getElementById("playBtn").addEventListener("click", bootSequence);
+      document.getElementById("resetBtn").addEventListener("click", completedState);
+    }
+
+    function init(){
+      splitChars(document.getElementById("headline"));
+      splitTileTitles();
+      splitWords(document.getElementById("quote"));
+      setTier("OBSESSED");
+      updateClock();
+      setInterval(updateClock,1000);
+      initTickers();
+      initReveal();
+      initCardTilt();
+      initCustomCursor();
+      initCTAs();
+      bootSequence();
+      if(prefersReduced) completedState();
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complex Allegiance — The Drop Ticker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================================
+   CSS VARIABLES & RESET
+   ========================================================================== */
+:root {
+  --obsidian: #0B0B0B;
+  --newsprint: #F2EDE4;
+  --allegiance: #C7FF3D;
+  --emergency: #FF3B1F;
+  --inkwell: #1A1A1A;
+  --static: #6B6B6B;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--obsidian);
+  color: var(--newsprint);
+  font-family: 'Space Grotesk', sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  cursor: none; /* Custom cursor */
+}
+
+/* Typography Scale */
+h1, h2, h3, .kinetic-headline, .display-numeral {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-stretch: condensed;
+  letter-spacing: -0.045em;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 14px;
+}
+
+.mono-bold {
+  font-weight: 700;
+}
+
+p {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.55;
+  max-width: 62ch;
+}
+
+/* ==========================================================================
+   TEXTURES & OVERLAYS
+   ========================================================================== */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.06;
+  filter: url(#grain);
+}
+
+.custom-cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  background-color: var(--newsprint); /* Acts on #0B0B0B via difference */
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--obsidian);
+}
+.custom-cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 32px; height: 32px;
+  border: 1px solid var(--newsprint);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s, height 0.2s;
+}
+
+/* ==========================================================================
+   TICKERS & NAV
+   ========================================================================== */
+.ticker-bar {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  z-index: 100;
+}
+
+.ticker-top {
+  background-color: var(--obsidian);
+  color: var(--newsprint);
+  position: sticky;
+  top: 0;
+}
+
+.ticker-bottom {
+  background-color: var(--obsidian);
+  color: var(--newsprint);
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.ticker-mid {
+  background-color: var(--allegiance);
+  color: var(--obsidian);
+  height: 36px;
+}
+
+.ticker-content {
+  display: flex;
+  width: max-content;
+}
+
+.ticker-text {
+  filter: contrast(1.15);
+  text-shadow: 1px 0 0 currentColor;
+  padding-right: 2rem;
+}
+
+.live-dot {
+  color: var(--emergency);
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes ticker-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes ticker-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.scroll-left { animation: ticker-left 60s linear infinite; }
+.scroll-right { animation: ticker-right 60s linear infinite; }
+
+nav {
+  height: 64px;
+  position: sticky;
+  top: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  z-index: 90;
+  background-color: var(--obsidian);
+  border-bottom: 1px solid var(--inkwell);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -0.045em;
+}
+
+.broadcast-bars {
+  width: 24px;
+  height: 36px;
+  opacity: 0.9;
+  object-fit: cover;
+}
+.broadcast-fallback {
+  width: 24px; height: 36px;
+  background: linear-gradient(to right, #D8B218 16.6%, #1BB1B8 16.6% 33.3%, #22A122 33.3% 50%, #B81BB8 50% 66.6%, #D81818 66.6% 83.3%, #1818D8 83.3%);
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--newsprint);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+/* ==========================================================================
+   HERO SECTION
+   ========================================================================== */
+.hero {
+  min-height: calc(100vh - 100px);
+  display: grid;
+  grid-template-columns: 60% 40%;
+  padding: 0 40px;
+  align-items: center;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.kinetic-headline {
+  font-size: clamp(4rem, 14vw, 18rem);
+  width: 100%;
+}
+
+.hero-subhead {
+  font-weight: 500;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  color: var(--static);
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--newsprint);
+  border: 1px solid var(--newsprint);
+  padding: 16px 32px;
+  cursor: none;
+  position: relative;
+  overflow: hidden;
+  transition: color 250ms cubic-bezier(0.7, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.cta-button span {
+  position: relative;
+  z-index: 2;
+}
+
+.cta-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--allegiance);
+  transform: translateY(100%);
+  transition: transform 250ms cubic-bezier(0.7, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.cta-button:hover::before {
+  transform: translateY(0);
+}
+
+.cta-button:hover {
+  color: var(--obsidian);
+  border-color: var(--allegiance);
+}
+
+.hero-visual {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-wristband {
+  width: 80%;
+  max-width: 400px;
+  height: auto;
+  transform: rotate(-2deg);
+  filter: drop-shadow(0 40px 80px rgba(0,0,0,0.6));
+  will-change: transform;
+}
+.wristband-fallback {
+  width: 300px;
+  height: 80px;
+  background-color: var(--inkwell);
+  border-left: 20px solid var(--static);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-2deg);
+  border-bottom: 2px solid var(--obsidian);
+  color: var(--allegiance);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+}
+
+/* ==========================================================================
+   MARQUEE JITTER
+   ========================================================================== */
+.marquee-band {
+  height: 140px;
+  background-color: var(--emergency);
+  color: var(--newsprint);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-content {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 32s linear infinite, broadcast-jitter 1.25s linear infinite;
+}
+
+.marquee-text {
+  font-size: 100px;
+  line-height: 1;
+  padding-right: 2rem;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes broadcast-jitter {
+  0% { margin-top: 0; }
+  25% { margin-top: 2px; }
+  50% { margin-top: 0; }
+  75% { margin-top: -2px; }
+  100% { margin-top: 0; }
+}
+
+/* ==========================================================================
+   MANIFESTO
+   ========================================================================== */
+.manifesto {
+  min-height: 80vh;
+  display: grid;
+  grid-template-columns: 40% 60%;
+  padding: 120px 40px;
+  background-color: var(--inkwell);
+  background-image: url('asset://paper-grain');
+  background-size: cover;
+  background-blend-mode: multiply;
+  position: relative;
+}
+.manifesto::before { /* Fallback background if asset fails */
+  content: ''; position: absolute; inset: 0; background-color: rgba(26,26,26,0.95); z-index: 0;
+}
+
+.manifesto > * { position: relative; z-index: 1; }
+
+.manifesto-label {
+  color: var(--static);
+}
+
+.manifesto-copy {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+.pull-quote {
+  color: var(--allegiance);
+  display: block;
+  margin-top: 40px;
+}
+
+/* ==========================================================================
+   TIERS
+   ========================================================================== */
+.tiers-section {
+  min-height: 100vh;
+  padding: 120px 40px;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.tier-card {
+  background-color: var(--inkwell);
+  min-height: 480px;
+  padding: 40px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform 250ms cubic-bezier(0.7, 0, 0.2, 1);
+}
+
+.tier-card:hover {
+  transform: translateY(-6px);
+}
+
+.tier-stamp {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.7;
+  mix-blend-mode: multiply;
+}
+.stamp-fallback {
+  position: absolute; top: 24px; left: 24px; width: 80px; height: 80px;
+  font-size: 64px; font-weight: 700; opacity: 0.3; line-height: 1;
+}
+
+.tier--obsessed {
+  transform: scale(1.06);
+  border: 1px solid var(--allegiance);
+  z-index: 2;
+}
+.tier--obsessed:hover {
+  transform: scale(1.06) translateY(-6px);
+}
+
+.tier--obsessed .tier-stamp {
+  width: 96px;
+  height: 96px;
+  opacity: 0.9;
+  mix-blend-mode: normal;
+}
+.tier--obsessed .stamp-fallback {
+  color: var(--allegiance); opacity: 0.9;
+}
+
+.corner-stamp {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 120px;
+  height: 120px;
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  transform: rotate(-7deg);
+  transition: transform 250ms ease;
+}
+.tier--obsessed:hover .corner-stamp {
+  transform: rotate(-3deg);
+}
+
+.corner-stamp-fallback {
+  position: absolute; top: -16px; right: -16px; width: 100px; height: 100px;
+  border: 4px solid var(--allegiance); border-radius: 50%; color: var(--allegiance);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: 10px; font-weight: 700; transform: rotate(-7deg); background: var(--obsidian);
+}
+
+.tier-content {
+  margin-top: 80px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tier-name {
+  color: var(--static);
+  margin-bottom: 24px;
+}
+
+.tier-price-wrapper {
+  margin-bottom: 40px;
+  display: flex;
+  align-items: baseline;
+}
+
+.tier-price {
+  font-size: clamp(6rem, 12vw, 12rem);
+  line-height: 0.8;
+  color: var(--newsprint);
+}
+.tier--obsessed .tier-price {
+  color: var(--emergency);
+}
+
+.tier-suffix {
+  font-size: 24px;
+  color: var(--static);
+}
+
+.tier-benefits {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 40px;
+  flex-grow: 1;
+}
+
+.tier-benefits li {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--newsprint);
+}
+.tier-benefits li::before {
+  content: "•";
+  color: var(--static);
+}
+
+.tier-cta {
+  width: 100%;
+}
+
+/* ==========================================================================
+   WHAT MEMBERS GET (PINNED SECTION)
+   ========================================================================== */
+.wmg-wrapper {
+  height: 400vh; /* Scroll space */
+  position: relative;
+}
+
+.wmg-pin {
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+  background-color: var(--obsidian);
+}
+
+.wmg-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 40px;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.wmg-panel.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wmg-numeral {
+  font-size: 32vw;
+  line-height: 0.8;
+  color: var(--inkwell);
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.scan-beam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--allegiance);
+  left: -10px;
+  opacity: 0;
+}
+
+.wmg-copy {
+  margin-top: -4vw;
+  max-width: 400px;
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.wmg-copy h3 {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   FAQ / INTEL
+   ========================================================================== */
+.faq-section {
+  min-height: 80vh;
+  padding: 120px 40px;
+  background-color: var(--inkwell);
+  background-image: url('asset://paper-grain');
+  background-size: cover;
+  background-blend-mode: multiply;
+}
+
+.faq-container {
+  width: 60%;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--static);
+  padding: 32px 0;
+}
+
+.faq-q {
+  display: flex;
+  gap: 24px;
+  align-items: baseline;
+}
+
+.faq-q .mono {
+  color: var(--static);
+}
+
+.faq-q h4 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   FINAL CTA
+   ========================================================================== */
+.final-cta {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--obsidian);
+}
+
+.vhs-bg {
+  position: absolute;
+  inset: -50% 0 0 0;
+  width: 100%;
+  height: 200%;
+  background-image: url('asset://vhs-static');
+  background-size: cover;
+  mix-blend-mode: screen;
+  opacity: 0.08;
+  pointer-events: none;
+  animation: vhs-pan 60s linear infinite;
+}
+.vhs-fallback {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px);
+  pointer-events: none;
+}
+
+@keyframes vhs-pan {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+.final-headline {
+  font-size: clamp(8rem, 22vw, 26rem);
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.final-cta-btn {
+  font-size: 24px;
+  padding: 24px 48px;
+  margin-top: 40px;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   FOOTER & CONTROLS
+   ========================================================================== */
+footer {
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  border-top: 1px solid var(--inkwell);
+  color: var(--static);
+  padding-bottom: 36px; /* account for bottom ticker */
+}
+
+.controls-overlay {
+  position: fixed;
+  bottom: 60px;
+  right: 40px;
+  z-index: 9999;
+  display: flex;
+  gap: 8px;
+}
+
+.control-btn {
+  background: var(--inkwell);
+  border: 1px solid var(--static);
+  color: var(--newsprint);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+.control-btn:hover {
+  background: var(--newsprint);
+  color: var(--obsidian);
+}
+
+/* ==========================================================================
+   RESPONSIVE (MOBILE)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 80px;
+  }
+  .hero-visual { margin-top: 40px; }
+  
+  .manifesto { grid-template-columns: 1fr; gap: 40px; padding: 60px 20px; }
+  .manifesto-copy { font-size: 1.5rem; }
+  
+  .tiers-section {
+    grid-template-columns: 1fr;
+    padding: 60px 20px;
+  }
+  .tier--obsessed { order: -1; transform: scale(1); }
+  .tier--obsessed:hover { transform: translateY(-6px); }
+  
+  .faq-container { width: 100%; padding: 60px 20px; }
+  
+  /* Disable pin on mobile */
+  .wmg-wrapper { height: auto; }
+  .wmg-pin { height: auto; position: relative; }
+  .wmg-panel { position: relative; opacity: 1; visibility: visible; padding: 60px 20px; }
+  .wmg-numeral { font-size: 40vw; }
+  .wmg-copy { opacity: 1; transform: none; }
+  
+  .scroll-left, .scroll-right { animation-duration: 80s; }
+  
+  .custom-cursor, .custom-cursor-ring { display: none; }
+  body { cursor: auto; }
+  .cta-button { cursor: pointer; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .scroll-left, .scroll-right { animation: none; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- SVG Grain Overlay -->
+<svg style="display:none;">
+  <filter id="grain">
+    <feTurbulence baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.5 0"/>
+  </filter>
+</svg>
+<div class="grain-overlay"></div>
+
+<!-- Custom Cursor -->
+<div class="custom-cursor" id="cursor-dot"></div>
+<div class="custom-cursor-ring" id="cursor-ring"></div>
+
+<!-- Top Ticker -->
+<div class="ticker-bar ticker-top" id="top-ticker">
+  <div class="ticker-content scroll-left mono">
+    <div class="ticker-text"><span class="live-dot">●</span> LIVE • 14M MEMBERS • 421 DROPS • 96s SELL-OUT • CANCEL ANYTIME • </div>
+    <div class="ticker-text"><span class="live-dot">●</span> LIVE • 14M MEMBERS • 421 DROPS • 96s SELL-OUT • CANCEL ANYTIME • </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav id="site-nav">
+  <div class="nav-brand">
+    <img src="asset://broadcast-bars" class="broadcast-bars" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="broadcast-fallback" style="display:none;"></div>
+    COMPLEX
+  </div>
+  <div class="nav-links mono">
+    <a href="#manifesto" data-cursor="hover">MANIFESTO</a>
+    <a href="#tiers" data-cursor="hover">TIERS</a>
+    <a href="#tiers" class="mono-bold" data-cursor="hover">[JOIN]</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <h1 class="kinetic-headline" id="hero-headline">ALLEGIANCE</h1>
+    <p class="hero-subhead mono" id="hero-subhead">A FREQUENCY YOU TUNE INTO.</p>
+    <a href="#tiers" class="cta-button mono" id="hero-cta" data-cursor="hover">
+      <span>[JOIN AT $9]</span>
+    </a>
+  </div>
+  <div class="hero-visual">
+    <img src="asset://hero-wristband" class="hero-wristband" alt="Wristband Asset" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="wristband-fallback" style="display:none;">COMPLEX N&deg;00921</div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee-band">
+  <div class="marquee-content mono">
+    <div class="marquee-text">OBSESSED • OBSESSED • OBSESSED • OBSESSED • </div>
+    <div class="marquee-text">OBSESSED • OBSESSED • OBSESSED • OBSESSED • </div>
+  </div>
+</div>
+
+<!-- Manifesto -->
+<section id="manifesto" class="manifesto section-reveal">
+  <div class="manifesto-label mono">01 / MANIFESTO</div>
+  <div class="manifesto-copy">
+    We are broadcasting on a frequency most can't hear. It's not about consuming culture, it's about owning a stake in it. When you tune in, you align with the vanguard.
+    <span class="pull-quote kinetic-headline-scroll">NOT A SUBSCRIPTION. AN ALLEGIANCE.</span>
+  </div>
+</section>
+
+<!-- Tiers -->
+<section id="tiers" class="tiers-section section-reveal">
+  <!-- REGULAR -->
+  <div class="tier-card" data-cursor="join">
+    <img src="asset://tier-numeral-stamp-01" class="tier-stamp" alt="01" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="stamp-fallback mono" style="display:none;">01</div>
+    <div class="tier-content">
+      <div class="tier-name mono">REGULAR</div>
+      <div class="tier-price-wrapper">
+        <span class="tier-price" data-target="0">0</span>
+      </div>
+      <ul class="tier-benefits mono">
+        <li>General broadcast access</li>
+        <li>Weekly intel dispatch</li>
+        <li>Standard shipping</li>
+        <li>App community access</li>
+      </ul>
+      <button class="cta-button mono tier-cta"><span>[JOIN FREE]</span></button>
+    </div>
+  </div>
+
+  <!-- OBSESSED -->
+  <div class="tier-card tier--obsessed" data-cursor="join">
+    <img src="asset://tier-numeral-stamp-02" class="tier-stamp" alt="02" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="stamp-fallback mono" style="display:none;">02</div>
+    
+    <img src="asset://corner-stamp" class="corner-stamp" alt="Founding" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="corner-stamp-fallback mono" style="display:none;">OBSESSED<br>N&deg; 9<br>FOUNDING</div>
+
+    <div class="tier-content">
+      <div class="tier-name mono" style="color:var(--allegiance)">OBSESSED</div>
+      <div class="tier-price-wrapper">
+        <span class="tier-price" data-target="9" style="color:var(--emergency)">9</span>
+        <span class="tier-suffix">/mo</span>
+      </div>
+      <ul class="tier-benefits mono">
+        <li>Founding rate locked</li>
+        <li>Early drop access (1hr)</li>
+        <li>Exclusive Discord rank</li>
+        <li>Free global shipping</li>
+        <li>Annual print zine</li>
+        <li>Private IRL invites</li>
+      </ul>
+      <button class="cta-button mono tier-cta" style="border-color:var(--allegiance); color:var(--allegiance)"><span>[JOIN OBSESSED]</span></button>
+    </div>
+  </div>
+
+  <!-- FAMILY -->
+  <div class="tier-card" data-cursor="join">
+    <img src="asset://tier-numeral-stamp-03" class="tier-stamp" alt="03" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+    <div class="stamp-fallback mono" style="display:none;">03</div>
+    <div class="tier-content">
+      <div class="tier-name mono">FAMILY</div>
+      <div class="tier-price-wrapper">
+        <span class="tier-price" data-target="29">29</span>
+        <span class="tier-suffix">/mo</span>
+      </div>
+      <ul class="tier-benefits mono">
+        <li>Everything in Obsessed</li>
+        <li>Guaranteed drop allocation</li>
+        <li>Studio tour access</li>
+        <li>Monthly 1-on-1s</li>
+        <li>Custom merch pack</li>
+        <li>Board of Advisors seat</li>
+      </ul>
+      <button class="cta-button mono tier-cta"><span>[JOIN FAMILY]</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- Pinned Section: What Members Get -->
+<section class="wmg-wrapper hidden-mobile" id="wmg-section">
+  <div class="wmg-pin">
+    <div class="wmg-panel panel-1 active">
+      <div class="wmg-numeral">01<div class="scan-beam"></div></div>
+      <div class="wmg-copy">
+        <h3 class="mono">DROPS</h3>
+        <p>The vanguard gets it first. Secure allocation before the public even knows it exists.</p>
+      </div>
+    </div>
+    <div class="wmg-panel panel-2">
+      <div class="wmg-numeral">02<div class="scan-beam"></div></div>
+      <div class="wmg-copy">
+        <h3 class="mono">INTEL</h3>
+        <p>Data direct from the source. The weekly dispatch that decodes the culture.</p>
+      </div>
+    </div>
+    <div class="wmg-panel panel-3">
+      <div class="wmg-numeral">03<div class="scan-beam"></div></div>
+      <div class="wmg-copy">
+        <h3 class="mono">ACCESS</h3>
+        <p>Behind the curtain. Conversations and spaces reserved exclusively for the collective.</p>
+      </div>
+    </div>
+    <div class="wmg-panel panel-4">
+      <div class="wmg-numeral">04<div class="scan-beam"></div></div>
+      <div class="wmg-copy">
+        <h3 class="mono">IRL</h3>
+        <p>Physical manifestations of the frequency. Invites to the rooms where it happens.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mid Ticker -->
+<div class="ticker-bar ticker-mid">
+  <div class="ticker-content scroll-right mono">
+    <div class="ticker-text">FOUNDING RATE LOCKED • $9 FOREVER • FOUNDING RATE LOCKED • $9 FOREVER • </div>
+    <div class="ticker-text">FOUNDING RATE LOCKED • $9 FOREVER • FOUNDING RATE LOCKED • $9 FOREVER • </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<section class="faq-section section-reveal">
+  <div class="faq-container">
+    <div class="faq-item">
+      <div class="faq-q">
+        <span class="mono">Q.01</span>
+        <h4>WHAT IS COMPLEX ALLEGIANCE?</h4>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">
+        <span class="mono">Q.02</span>
+        <h4>HOW DO I CLAIM MY DROPS?</h4>
+      </div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">
+        <span class="mono">Q.03</span>
+        <h4>CAN I CANCEL ANYTIME?</h4>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final-cta">
+  <div class="vhs-bg"></div>
+  <div class="vhs-fallback"></div>
+  <h2 class="final-headline kinetic-headline" id="final-headline">TUNE IN.</h2>
+  <a href="#tiers" class="cta-button final-cta-btn mono" data-cursor="hover"><span>[JOIN OBSESSED — $9/MO]</span></a>
+</section>
+
+<!-- Bottom Ticker -->
+<div class="ticker-bar ticker-bottom" id="bottom-ticker">
+  <div class="ticker-content scroll-left mono">
+    <div class="ticker-text"><span class="live-dot">●</span> LIVE • 14M MEMBERS • 421 DROPS • 96s SELL-OUT • CANCEL ANYTIME • </div>
+    <div class="ticker-text"><span class="live-dot">●</span> LIVE • 14M MEMBERS • 421 DROPS • 96s SELL-OUT • CANCEL ANYTIME • </div>
+  </div>
+</div>
+
+<footer>
+  <div class="mono">© COMPLEX 2026</div>
+  <div class="mono">A FREQUENCY YOU TUNE INTO</div>
+</footer>
+
+<div class="controls-overlay">
+  <button class="mono control-btn" id="btn-play">PLAY REVEAL</button>
+  <button class="mono control-btn" id="btn-reset">RESET</button>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  gsap.registerPlugin(ScrollTrigger);
+  const isReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isMobile = window.innerWidth <= 768;
+
+  // ---------------------------------------------------------
+  // Custom Cursor
+  // ---------------------------------------------------------
+  class CustomCursor {
+    constructor() {
+      this.dot = document.getElementById('cursor-dot');
+      this.ring = document.getElementById('cursor-ring');
+      this.pos = { x: window.innerWidth/2, y: window.innerHeight/2 };
+      this.mouse = { x: this.pos.x, y: this.pos.y };
+      this.lerp = 0.18;
+      this.activeText = "";
+      
+      if (!isMobile) {
+        window.addEventListener('mousemove', e => {
+          this.mouse.x = e.clientX;
+          this.mouse.y = e.clientY;
+        });
+        
+        document.querySelectorAll('[data-cursor]').forEach(el => {
+          el.addEventListener('mouseenter', () => {
+            const type = el.dataset.cursor;
+            this.ring.style.width = '50px';
+            this.ring.style.height = '50px';
+            if(type === 'join') {
+              this.dot.textContent = "JOIN";
+              this.dot.style.color = "var(--obsidian)";
+              this.dot.style.backgroundColor = "var(--allegiance)";
+              this.dot.style.width = "40px";
+              this.dot.style.height = "40px";
+            }
+          });
+          el.addEventListener('mouseleave', () => {
+            this.ring.style.width = '32px';
+            this.ring.style.height = '32px';
+            this.dot.textContent = "";
+            this.dot.style.backgroundColor = "var(--newsprint)";
+            this.dot.style.width = "8px";
+            this.dot.style.height = "8px";
+          });
+        });
+        
+        gsap.ticker.add(() => this.update());
+      }
+    }
+    update() {
+      this.pos.x += (this.mouse.x - this.pos.x) * this.lerp;
+      this.pos.y += (this.mouse.y - this.pos.y) * this.lerp;
+      this.dot.style.transform = `translate(calc(${this.mouse.x}px - 50%), calc(${this.mouse.y}px - 50%))`;
+      this.ring.style.transform = `translate(calc(${this.pos.x}px - 50%), calc(${this.pos.y}px - 50%))`;
+    }
+  }
+  if (!isReduced) new CustomCursor();
+
+  // ---------------------------------------------------------
+  // GlitchText Class
+  // ---------------------------------------------------------
+  class GlitchText {
+    constructor(element) {
+      this.el = element;
+      this.originalText = element.textContent.trim();
+      this.el.innerHTML = '';
+      this.chars = [];
+      this.originalText.split('').forEach(char => {
+        const span = document.createElement('span');
+        span.textContent = char;
+        if (char === ' ') span.style.width = '0.5em';
+        span.style.display = 'inline-block';
+        this.el.appendChild(span);
+        this.chars.push({ el: span, char });
+      });
+    }
+    reveal(staggerMs = 60) {
+      if (isReduced) {
+        this.el.style.opacity = 1;
+        return;
+      }
+      this.el.style.opacity = 1;
+      const charset = '█▓▒░ABCDEFGHIJKLMNOPQRSTUVWXYZ#@$%&';
+      this.chars.forEach((c, i) => {
+        c.el.textContent = '';
+        setTimeout(() => {
+          let shuffles = 0;
+          const maxShuffles = 4; 
+          const interval = setInterval(() => {
+            c.el.textContent = charset[Math.floor(Math.random() * charset.length)];
+            c.el.style.color = 'var(--allegiance)';
+            shuffles++;
+            if (shuffles >= maxShuffles) {
+              clearInterval(interval);
+              c.el.textContent = c.char;
+              setTimeout(() => c.el.style.color = '', 50);
+            }
+          }, 50);
+        }, i * staggerMs);
+      });
+    }
+    glitchSinglePass() {
+      if (isReduced) return;
+      const charset = '0123456789$';
+      this.chars.forEach(c => {
+        let shuffles = 0;
+        const interval = setInterval(() => {
+          c.el.textContent = charset[Math.floor(Math.random() * charset.length)];
+          c.el.style.color = 'var(--allegiance)';
+          shuffles++;
+          if(shuffles > 3) {
+            clearInterval(interval);
+            c.el.textContent = c.char;
+            c.el.style.color = '';
+          }
+        }, 50);
+      });
+    }
+  }
+
+  const heroHeadline = new GlitchText(document.getElementById('hero-headline'));
+  const finalHeadline = new GlitchText(document.getElementById('final-headline'));
+  
+  // Set up price glitches
+  const priceGlitches = [];
+  document.querySelectorAll('.tier-price').forEach(el => {
+    priceGlitches.push(new GlitchText(el));
+  });
+
+  document.querySelectorAll('.tier-card').forEach((card, i) => {
+    card.addEventListener('mouseenter', () => {
+      priceGlitches[i].glitchSinglePass();
+    });
+  });
+
+  // ---------------------------------------------------------
+  // Page Load Sequence
+  // ---------------------------------------------------------
+  function playIntro() {
+    if (isReduced) return;
+    
+    // Reset states
+    gsap.set('#top-ticker', { y: '-100%' });
+    gsap.set('#bottom-ticker', { y: '100%' });
+    gsap.set('#site-nav', { opacity: 0 });
+    gsap.set('#hero-cta', { y: 20, opacity: 0 });
+    
+    const subhead = document.getElementById('hero-subhead');
+    const subtext = subhead.textContent;
+    subhead.textContent = '';
+    
+    const tl = gsap.timeline();
+    
+    // 0ms
+    tl.to('#top-ticker', { y: '0%', duration: 0.4, ease: 'cubic-bezier(0.7,0,0.2,1)' }, 0);
+    tl.to('#bottom-ticker', { y: '0%', duration: 0.4, ease: 'cubic-bezier(0.7,0,0.2,1)' }, 0);
+    
+    // 200ms
+    tl.to('#site-nav', { opacity: 1, duration: 0.3, ease: 'power2.out' }, 0.2);
+    
+    // 400ms
+    tl.call(() => heroHeadline.reveal(60), null, 0.4);
+    
+    // 1200ms
+    tl.call(() => {
+      let i = 0;
+      const typeInt = setInterval(() => {
+        subhead.textContent += subtext[i];
+        i++;
+        if(i >= subtext.length) clearInterval(typeInt);
+      }, 40);
+    }, null, 1.2);
+    
+    // 1400ms
+    tl.to('#hero-cta', { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' }, 1.4);
+  }
+
+  function resetToStatic() {
+    gsap.killTweensOf('*');
+    gsap.set('#top-ticker', { y: '0%' });
+    gsap.set('#bottom-ticker', { y: '0%' });
+    gsap.set('#site-nav', { opacity: 1 });
+    gsap.set('#hero-cta', { y: 0, opacity: 1 });
+    
+    document.getElementById('hero-headline').innerHTML = '';
+    heroHeadline.chars.forEach(c => {
+      c.el.textContent = c.char;
+      c.el.style.color = '';
+      document.getElementById('hero-headline').appendChild(c.el);
+    });
+    
+    document.getElementById('hero-subhead').textContent = 'A FREQUENCY YOU TUNE INTO.';
+  }
+
+  document.getElementById('btn-play').addEventListener('click', () => { resetToStatic(); playIntro(); });
+  document.getElementById('btn-reset').addEventListener('click', resetToStatic);
+
+  // ---------------------------------------------------------
+  // ScrollTrigger Animations
+  // ---------------------------------------------------------
+  if (!isReduced) {
+    // Parallax Wristband
+    gsap.fromTo('.hero-wristband', 
+      { rotation: -2, y: 0 },
+      { rotation: 3, y: -40, ease: 'none', scrollTrigger: { trigger: '.hero', start: "top top", end: "bottom top", scrub: 1 }}
+    );
+
+    // Section Reveals
+    gsap.utils.toArray('.section-reveal').forEach(section => {
+      gsap.from(section, {
+        opacity: 0,
+        y: 40,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: section,
+          start: "top 80%",
+          toggleActions: "play none none none"
+        }
+      });
+    });
+
+    // Pinned Section (Desktop Only)
+    if (!isMobile) {
+      const wmgWrapper = document.getElementById('wmg-section');
+      const panels = gsap.utils.toArray('.wmg-panel');
+      
+      const pinTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: wmgWrapper,
+          start: "top top",
+          end: "+=300%",
+          pin: ".wmg-pin",
+          scrub: 1
+        }
+      });
+      
+      // Setup panels
+      panels.forEach((panel, i) => {
+        if(i === 0) return;
+        gsap.set(panel, { opacity: 0, visibility: 'visible' });
+        gsap.set(panel.querySelector('.wmg-numeral'), { y: '100%' });
+        
+        pinTl.to(panels[i-1], { opacity: 0, duration: 0.5 }, i)
+             .to(panel, { opacity: 1, duration: 0.5 }, i)
+             .to(panels[i-1].querySelector('.wmg-numeral'), { y: '-100%', duration: 1 }, i)
+             .to(panel.querySelector('.wmg-numeral'), { y: '0%', duration: 1 }, i)
+             .to(panels[i-1].querySelector('.wmg-copy'), { opacity: 0, y: -20, duration: 0.5 }, i)
+             .to(panel.querySelector('.wmg-copy'), { opacity: 1, y: 0, duration: 0.5 }, i + 0.2);
+             
+        // Scan beam
+        pinTl.to(panel.querySelector('.scan-beam'), { 
+          opacity: 1, left: '100%', duration: 0.5, ease: 'power2.inOut' 
+        }, i + 0.5);
+      });
+    }
+
+    // Number Count Up
+    gsap.utils.toArray('.tier-price').forEach(el => {
+      const target = parseInt(el.getAttribute('data-target'));
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 85%",
+        once: true,
+        onEnter: () => {
+          gsap.fromTo(el, { innerHTML: 0 }, {
+            innerHTML: target,
+            duration: 0.8,
+            ease: "power4.out",
+            snap: { innerHTML: 1 },
+            onUpdate: function() { el.innerHTML = Math.round(this.targets()[0].innerHTML); }
+          });
+        }
+      });
+    });
+
+    // Final CTA Glitch
+    ScrollTrigger.create({
+      trigger: '.final-cta',
+      start: "top 60%",
+      once: true,
+      onEnter: () => finalHeadline.reveal(80)
+    });
+  }
+
+});
+</script>
+</body>
+</html>

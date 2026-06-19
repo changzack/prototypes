@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMPLEX ALLEGIANCE // PALLET 09 — FREIGHT MANIFEST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Fraunces:ital,wght@0,400;0,500;1,900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ========== TOKENS ========== */
+:root{
+  --ink:#0B0B0C;
+  --ink-2:#171718;
+  --bone:#EDE6D3;
+  --hazard:#FF4D00;
+  --steel:#6E7378;
+  --steel-2:#8A8276;
+  --tilt-x:0deg;
+  --tilt-y:0deg;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--ink);color:var(--bone);font-family:'Fraunces',serif;overflow-x:hidden;}
+body{font-size:17px;line-height:1.55;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+a{color:inherit;text-decoration:none;}
+
+/* ========== FLOOR GRID (full-page iso) ========== */
+.floor-grid{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background-color:var(--ink);
+}
+
+/* ========== GRAIN OVERLAY ========== */
+.grain{
+  position:fixed;inset:0;z-index:9999;pointer-events:none;
+  opacity:0;
+  mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  animation:grainIn 600ms cubic-bezier(0.16,1,0.3,1) 200ms forwards;
+}
+@keyframes grainIn{to{opacity:.08;}}
+
+/* ========== NAV ========== */
+.nav{
+  position:sticky;top:0;z-index:100;
+  height:60px;
+  background:var(--ink);
+  border-bottom:1px solid var(--steel);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;letter-spacing:0.12em;
+  color:var(--bone);
+}
+.nav__left,.nav__right{display:flex;align-items:center;gap:24px;color:var(--steel);}
+.nav__brand{color:var(--bone);font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:18px;letter-spacing:0.06em;}
+.nav__cta{
+  background:var(--hazard);color:var(--bone);border:1px solid var(--ink);
+  padding:10px 18px;border-radius:0;
+  font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:13px;letter-spacing:0.1em;
+  text-transform:uppercase;
+  transition:transform 120ms cubic-bezier(0.4,0,0.2,1), box-shadow 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.nav__cta:hover{transform:translate(-3px,-3px);box-shadow:3px 3px 0 var(--ink);}
+
+/* ========== HERO ========== */
+.hero{
+  position:relative;
+  min-height:100vh;
+  max-width:1320px;margin:0 auto;
+  padding:80px 48px 48px;
+  display:grid;grid-template-columns:60% 40%;gap:48px;
+  align-items:center;
+}
+.hero__left{position:relative;z-index:2;}
+.hero__kicker{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;letter-spacing:0.12em;
+  color:var(--steel);margin-bottom:24px;
+}
+.mega{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:900;
+  font-size:clamp(5rem,14vw,16rem);
+  line-height:0.85;letter-spacing:-0.02em;
+  color:var(--bone);
+  -webkit-text-stroke:1px var(--bone);
+  text-shadow:2px 2px 0 var(--ink-2);
+  display:block;
+  overflow:hidden;
+}
+.mega .ch{
+  display:inline-block;
+  clip-path:inset(100% 0 0 0);
+  animation:rollDown 800ms cubic-bezier(0.7,0,0.2,1) forwards;
+}
+@keyframes rollDown{to{clip-path:inset(0);}}
+.hero__sub{
+  font-family:'Fraunces',serif;font-weight:400;font-size:19px;line-height:1.55;
+  color:var(--bone);max-width:520px;margin-top:32px;
+}
+.hero__meta{
+  margin-top:32px;display:flex;gap:32px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;color:var(--steel);
+}
+.hero__meta span:not(:last-child)::after{content:" //";color:var(--steel-2);}
+
+/* Hero card (right side) — uses asset://hero-member-card */
+.hero__card-wrap{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  perspective:1200px;
+}
+.hero__card{
+  position:relative;
+  width:100%;max-width:540px;aspect-ratio:1/1.05;
+  transform:rotate(-8deg) rotateY(var(--tilt-x)) rotateX(var(--tilt-y));
+  transition:transform 200ms cubic-bezier(0.22,1,0.36,1);
+  box-shadow:24px 24px 0 var(--ink-2);
+  clip-path:inset(100% 0 0 0);
+  animation:cardIn 900ms cubic-bezier(0.34,1.56,0.64,1) 400ms forwards;
+}
+@keyframes cardIn{to{clip-path:inset(0);}}
+.hero__card img{width:100%;height:100%;object-fit:cover;display:block;}
+
+/* ========== TICKER ========== */
+.ticker{
+  position:relative;
+  height:80px;
+  display:flex;align-items:center;
+  overflow:hidden;
+  background:var(--ink);
+  border-top:1px solid var(--steel);
+  border-bottom:4px solid var(--hazard);
+}
+.ticker__track{
+  display:flex;white-space:nowrap;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;letter-spacing:0.12em;
+  color:var(--bone);
+  animation:tickerScroll 60s linear infinite;
+}
+.ticker__track span{padding:0 32px;}
+.ticker__hazard{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--hazard);animation:hazardPulse 2s ease-in-out alternate infinite;}
+@keyframes tickerScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@keyframes hazardPulse{from{opacity:.6;}to{opacity:1;}}
+
+/* ========== SECTION CHROME ========== */
+.section{
+  position:relative;
+  max-width:1320px;margin:0 auto;
+  padding:120px 48px;
+}
+.section__label{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;letter-spacing:0.16em;
+  color:var(--steel);margin-bottom:16px;
+  border-top:1px solid var(--hazard);padding-top:16px;
+}
+.section__header{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:800;
+  font-size:clamp(2rem,5vw,4.5rem);
+  line-height:0.9;letter-spacing:-0.01em;
+  color:var(--bone);margin-bottom:64px;
+  overflow:hidden;
+  animation:stencilRollDown linear both;
+  animation-timeline:view();
+  animation-range:entry 0% entry 70%;
+}
+@keyframes stencilRollDown{
+  from{clip-path:inset(100% 0 0 0);}
+  to{clip-path:inset(0);}
+}
+
+/* ========== PRICING — isometric crates ========== */
+.pricing{
+  perspective:2200px;
+}
+.pricing__grid{
+  display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:48px;
+  align-items:end;
+  min-height:640px;
+  transform-style:preserve-3d;
+}
+.crate{
+  position:relative;
+  transform-style:preserve-3d;
+  transform:rotateX(54.7deg) rotateZ(-45deg) translateY(40px);
+  opacity:0;
+  transition:transform 600ms ease-out, opacity 600ms ease-out;
+  width:100%;
+  aspect-ratio:1/1;
+  --crate-h:120px;
+}
+.crate.is-in{transform:rotateX(54.7deg) rotateZ(-45deg) translateY(0);opacity:1;}
+.crate--obsessed{
+  transform:rotateX(54.7deg) rotateZ(-45deg) translateY(160px) translateZ(-200px) scale(1.15);
+  transition:transform 900ms cubic-bezier(0.34,1.56,0.64,1) 400ms, opacity 900ms 400ms;
+  --crate-h:180px;
+}
+.crate--obsessed.is-in{transform:rotateX(54.7deg) rotateZ(-45deg) translateZ(80px) scale(1.15);opacity:1;}
+.crate--family.is-in{transition-delay:200ms;}
+
+.crate__top,.crate__left,.crate__right{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  image-rendering:crisp-edges;
+}
+.crate__top{
+  transform:translateZ(var(--crate-h));
+  background-color:var(--bone);
+}
+.crate__left{
+  transform:rotateX(-54.7deg) rotateY(0deg);
+  transform-origin:top;
+  background-color:var(--ink-2);
+  height:var(--crate-h);top:auto;bottom:0;
+}
+.crate__right{
+  transform:rotateX(-54.7deg) rotateY(-90deg) scaleX(-1);
+  transform-origin:top right;
+  background-color:var(--ink-2);
+  height:var(--crate-h);top:auto;bottom:0;
+}
+.crate--obsessed .crate__left,
+.crate--obsessed .crate__right{
+  background-color:var(--hazard);
+}
+
+/* Hazard tape on Obsessed top edge */
+.crate__hazard-tape{
+  position:absolute;top:0;left:0;right:0;height:12px;
+  background:repeating-linear-gradient(45deg, #FF4D00 0 12px, #0B0B0C 12px 24px);
+  transform:translateZ(calc(var(--crate-h) + 0.5px));
+  clip-path:inset(0 100% 0 0);
+  animation:hazardRoll 500ms ease-out 1500ms forwards;
+}
+.crate--obsessed.is-in .crate__hazard-tape{animation:hazardRoll 500ms ease-out 1100ms forwards;}
+@keyframes hazardRoll{to{clip-path:inset(0);}}
+
+/* Tier card — sits NEXT to crate (the textual readout) */
+.tier{
+  position:relative;
+  display:flex;flex-direction:column;
+  padding:0 8px;
+}
+.tier__crate-wrap{
+  position:relative;
+  height:360px;
+  margin-bottom:32px;
+  display:flex;align-items:center;justify-content:center;
+}
+.tier--obsessed .tier__crate-wrap{height:440px;}
+.tier__catalog{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;letter-spacing:0.16em;
+  color:var(--steel);margin-bottom:8px;
+}
+.tier__name{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:56px;
+  line-height:0.9;letter-spacing:-0.01em;
+  color:var(--bone);margin-bottom:8px;
+}
+.tier--obsessed .tier__name{color:var(--hazard);}
+.tier__badge{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:10px;letter-spacing:0.18em;
+  color:var(--ink);background:var(--hazard);
+  padding:4px 8px;margin-bottom:12px;
+  text-transform:uppercase;
+}
+.tier__price{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:700;
+  font-size:120px;line-height:0.9;letter-spacing:-0.03em;
+  color:var(--bone);margin:8px 0 24px;
+}
+.tier--obsessed .tier__price{font-size:156px;color:var(--bone);}
+.tier__price small{
+  font-family:'JetBrains Mono',monospace;font-weight:400;font-size:11px;letter-spacing:0.12em;
+  color:var(--steel);display:inline-block;margin-left:4px;vertical-align:top;margin-top:24px;
+}
+.tier__benefits{list-style:none;margin:0 0 32px;padding:0;}
+.tier__benefits li{
+  font-family:'Fraunces',serif;font-weight:500;font-size:15px;line-height:1.4;
+  color:var(--bone);
+  padding:12px 0;
+  border-bottom:1px solid var(--steel);
+}
+.tier__cta{
+  background:var(--hazard);color:var(--bone);border:1px solid var(--ink);
+  padding:18px 32px;
+  font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:20px;letter-spacing:0.08em;
+  text-transform:uppercase;border-radius:0;
+  align-self:flex-start;
+  transition:transform 120ms cubic-bezier(0.4,0,0.2,1), box-shadow 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.tier__cta:hover{transform:translate(-4px,-4px);box-shadow:4px 4px 0 var(--ink);}
+
+/* ========== WHAT'S IN THE CRATE ========== */
+.unbox-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:32px;
+}
+.unbox-item{
+  border-top:1px solid var(--steel);
+  padding-top:24px;
+}
+.unbox-item__num{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;letter-spacing:0.16em;
+  color:var(--steel);margin-bottom:16px;
+}
+.unbox-item__title{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:28px;
+  line-height:0.95;letter-spacing:-0.01em;
+  color:var(--bone);margin-bottom:16px;
+  text-shadow:2px 2px 0 var(--ink-2);
+}
+.unbox-item__body{
+  font-family:'Fraunces',serif;font-weight:400;font-size:15px;line-height:1.5;
+  color:var(--bone);
+}
+
+/* ========== MANIFESTO ========== */
+.manifesto{
+  position:relative;
+  background:var(--ink);
+  overflow:hidden;
+}
+.manifesto__stamps{
+  position:absolute;inset:0;z-index:0;
+  opacity:.55;
+  mix-blend-mode:screen;
+  background-size:cover;background-position:center;
+  animation:stampDrift 60s linear infinite;
+}
+@keyframes stampDrift{from{background-position:0 50%;}to{background-position:-1920px 50%;}}
+.manifesto__inner{position:relative;z-index:1;}
+.manifesto__quote{
+  font-family:'Fraunces',serif;font-weight:900;font-style:italic;
+  font-size:clamp(1.5rem,3vw,3rem);
+  line-height:1.1;
+  color:var(--bone);
+  max-width:900px;
+  text-decoration:underline;
+  text-decoration-color:var(--hazard);
+  text-decoration-thickness:4px;
+  text-underline-offset:8px;
+  margin-bottom:48px;
+}
+.manifesto__body{
+  max-width:540px;
+  display:flex;flex-direction:column;gap:20px;
+  font-family:'Fraunces',serif;font-weight:400;font-size:17px;line-height:1.55;
+  color:var(--bone);
+}
+
+/* ========== FAQ ========== */
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px 64px;}
+.faq-item{border-top:1px solid var(--steel);padding-top:20px;}
+.faq-item__q-num{
+  font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;letter-spacing:0.16em;
+  color:var(--hazard);margin-bottom:8px;
+}
+.faq-item__q{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:22px;
+  line-height:1.05;letter-spacing:-0.005em;
+  color:var(--bone);margin-bottom:12px;
+  text-shadow:1px 1px 0 var(--ink-2);
+}
+.faq-item__a{
+  font-family:'Fraunces',serif;font-weight:400;font-size:15px;line-height:1.5;
+  color:var(--bone);
+}
+
+/* ========== FINAL CTA ========== */
+.final-cta{
+  position:relative;
+  text-align:center;
+  padding:120px 48px;
+  min-height:90vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:32px;
+}
+.final-cta__crate{
+  width:70%;max-width:900px;
+  transform:translateY(20px);opacity:0;
+  animation:finalCrateIn 800ms cubic-bezier(0.34,1.56,0.64,1) forwards;
+  animation-timeline:view();
+  animation-range:entry 0% entry 60%;
+}
+@keyframes finalCrateIn{to{transform:translateY(0);opacity:1;}}
+.final-cta__crate img{width:100%;height:auto;display:block;}
+.final-cta__headline{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:900;
+  font-size:clamp(3rem,8vw,7rem);
+  line-height:0.9;letter-spacing:-0.02em;
+  color:var(--bone);
+  -webkit-text-stroke:1px var(--bone);
+  text-shadow:2px 2px 0 var(--ink-2);
+}
+.final-cta__button{
+  background:var(--hazard);color:var(--bone);border:1px solid var(--ink);
+  padding:24px 48px;border-radius:0;
+  font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:28px;letter-spacing:0.08em;
+  text-transform:uppercase;
+  transition:transform 120ms cubic-bezier(0.4,0,0.2,1), box-shadow 120ms cubic-bezier(0.4,0,0.2,1);
+}
+.final-cta__button:hover{transform:translate(-4px,-4px);box-shadow:4px 4px 0 var(--ink);}
+
+/* ========== FOOTER ========== */
+.footer{
+  border-top:1px solid var(--steel);
+  padding:32px 48px;
+  font-family:'JetBrains Mono',monospace;font-weight:400;font-size:11px;letter-spacing:0.12em;
+  color:var(--steel);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width:768px){
+  .hero{grid-template-columns:1fr;padding:48px 20px;gap:32px;}
+  .nav{padding:0 20px;}
+  .nav__left span:not(:first-child),.nav__right span{display:none;}
+  .section{padding:80px 20px;}
+  .pricing__grid{grid-template-columns:1fr;gap:64px;}
+  .crate,.crate--obsessed{transform:rotateX(0) rotateZ(0) translateY(40px);}
+  .crate.is-in,.crate--obsessed.is-in{transform:rotateX(0) rotateZ(0);scale:1;}
+  .tier__crate-wrap{height:240px;}
+  .tier--obsessed .tier__crate-wrap{height:240px;}
+  .tier__price{font-size:96px;}
+  .tier--obsessed .tier__price{font-size:120px;}
+  .unbox-grid{grid-template-columns:1fr 1fr;gap:24px;}
+  .faq-grid{grid-template-columns:1fr;gap:32px;}
+  .footer{padding:24px 20px;flex-direction:column;}
+}
+
+/* ========== REDUCED MOTION ========== */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;}
+  .hero__card{transform:rotate(-8deg);}
+  .ticker__track{animation:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ========== FLOOR GRID (full-page SVG iso pattern) ========== -->
+<svg class="floor-grid" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <defs>
+    <pattern id="iso-grid" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="skewX(-30) scale(1, 0.577)">
+      <path d="M0 0 L80 0 M0 0 L0 80" stroke="#8A8276" stroke-width="0.5" fill="none"/>
+    </pattern>
+    <pattern id="iso-grid-2" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="skewX(30) scale(1, 0.577)">
+      <path d="M0 0 L80 0" stroke="#8A8276" stroke-width="0.5" fill="none"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#iso-grid)" opacity="0.18"/>
+  <rect width="100%" height="100%" fill="url(#iso-grid-2)" opacity="0.18"/>
+</svg>
+
+<!-- ========== GRAIN OVERLAY (SVG feTurbulence) ========== -->
+<div class="grain" aria-hidden="true"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="grain-filter">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.4 0"/>
+  </filter>
+</svg>
+
+<!-- ========== NAV ========== -->
+<nav class="nav">
+  <div class="nav__left">
+    <span class="nav__brand">▌AL-MANIFEST-2026</span>
+    <span>PALLET 09</span>
+    <span>FREIGHT LOG</span>
+  </div>
+  <div class="nav__right">
+    <span>◉ INDEX</span>
+    <button class="nav__cta">ENLIST →</button>
+  </div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<header class="hero">
+  <div class="hero__left">
+    <div class="hero__kicker">// AL-MANIFEST-2026  //  PALLET 09  //  FREIGHT LOG</div>
+    <h1 class="mega" id="mega-title" aria-label="ALLEGIANCE"></h1>
+    <p class="hero__sub">A membership for the ones already on the list. Three pallets. Pick your weight.</p>
+    <div class="hero__meta">
+      <span>BILL OF LADING #00021</span>
+      <span>MFG 2026.06</span>
+      <span>NET WT. CULTURE</span>
+    </div>
+  </div>
+  <div class="hero__card-wrap" id="card-wrap">
+    <div class="hero__card" id="hero-card">
+      <!-- asset://hero-member-card -->
+      <img src="asset://hero-member-card" alt="COMPLEX ALLEGIANCE membership card AL-09-00021" onerror="this.replaceWith(buildHeroCardSVG());">
+    </div>
+  </div>
+</header>
+
+<!-- ========== TICKER ========== -->
+<div class="ticker">
+  <div class="ticker__track">
+    <span>14M MEMBERS  ///  421 MEMBER-ONLY DROPS  ///  96s MEDIAN SELL-OUT  ///  CANCEL ANYTIME  ///  FOUNDING RATE LOCKED FOREVER  ///</span>
+    <span>14M MEMBERS  ///  421 MEMBER-ONLY DROPS  ///  96s MEDIAN SELL-OUT  ///  CANCEL ANYTIME  ///  FOUNDING RATE LOCKED FOREVER  ///</span>
+  </div>
+  <div class="ticker__hazard"></div>
+</div>
+
+<!-- ========== PRICING ========== -->
+<section class="section pricing">
+  <div class="section__label">// SECTION 02 — PALLETS &amp; WEIGHTS</div>
+  <h2 class="section__header">THREE PALLETS.<br>PICK YOUR WEIGHT.</h2>
+  <div class="pricing__grid">
+
+    <!-- TIER 1 — REGULAR -->
+    <article class="tier tier--regular">
+      <div class="tier__crate-wrap">
+        <div class="crate crate--regular" data-reveal>
+          <div class="crate__left" style="background-image:url('asset://crate-side-ink');" onerror="this.style.backgroundColor='#171718';"></div>
+          <div class="crate__right" style="background-image:url('asset://crate-side-ink');"></div>
+          <div class="crate__top" style="background-image:url('asset://crate-top-bone');"></div>
+        </div>
+      </div>
+      <div class="tier__catalog">CAT. AL-09-001 // BASE WT.</div>
+      <div class="tier__name">REGULAR</div>
+      <div class="tier__price">$0<small>USD / MO</small></div>
+      <ul class="tier__benefits">
+        <li>Weekly freight log — the newsletter, no paywall.</li>
+        <li>Read every story. No meter. No "free article" cap.</li>
+        <li>Comment access on culture coverage.</li>
+        <li>Founding rate locked if you upgrade before drop 422.</li>
+      </ul>
+      <button class="tier__cta">LOAD UP →</button>
+    </article>
+
+    <!-- TIER 2 — OBSESSED (featured) -->
+    <article class="tier tier--obsessed">
+      <div class="tier__crate-wrap">
+        <div class="crate crate--obsessed" data-reveal>
+          <div class="crate__left" style="background-image:url('asset://crate-side-hazard');"></div>
+          <div class="crate__right" style="background-image:url('asset://crate-side-hazard');"></div>
+          <div class="crate__top" style="background-image:url('asset://crate-top-bone');"></div>
+          <div class="crate__hazard-tape"></div>
+        </div>
+      </div>
+      <div class="tier__catalog">CAT. AL-09-002 // FEATURED WT.</div>
+      <span class="tier__badge">MOST WANTED</span>
+      <div class="tier__name">OBSESSED</div>
+      <div class="tier__price">$9<small>USD / MO</small></div>
+      <ul class="tier__benefits">
+        <li>Everything in Regular, plus first-look on every drop — 24hr head start.</li>
+        <li>Member-only releases. 421 last year. 14M members fought for them.</li>
+        <li>Numbered physical card (AL-09-#####). Yours forever.</li>
+        <li>Discord channel with the writers, not the interns.</li>
+        <li>Quarterly print zine. Mailed. Real paper.</li>
+        <li>Founding rate $9/mo locked for life. Goes up to $14 next quarter.</li>
+      </ul>
+      <button class="tier__cta">SIGN UP — $9 →</button>
+    </article>
+
+    <!-- TIER 3 — FAMILY -->
+    <article class="tier tier--family">
+      <div class="tier__crate-wrap">
+        <div class="crate crate--family" data-reveal>
+          <div class="crate__left" style="background-image:url('asset://crate-side-ink');"></div>
+          <div class="crate__right" style="background-image:url('asset://crate-side-ink');"></div>
+          <div class="crate__top" style="background-image:url('asset://crate-top-bone');"></div>
+        </div>
+      </div>
+      <div class="tier__catalog">CAT. AL-09-003 // HEAVY WT.</div>
+      <div class="tier__name">FAMILY</div>
+      <div class="tier__price">$29<small>USD / MO</small></div>
+      <ul class="tier__benefits">
+        <li>Everything in Obsessed, times five.</li>
+        <li>Five seats. Add your crew, your group chat, your roommates.</li>
+        <li>Two annual event tickets — release parties, listening sessions.</li>
+        <li>Founder phone number for tip-offs and tip-ins.</li>
+        <li>One member-exclusive drop slot reserved every quarter.</li>
+        <li>Gifting allowed — pass one seat as a birthday move.</li>
+      </ul>
+      <button class="tier__cta">LOAD THE FAMILY →</button>
+    </article>
+
+  </div>
+</section>
+
+<!-- ========== WHAT'S IN THE CRATE ========== -->
+<section class="section">
+  <div class="section__label">// SECTION 03 — WHAT'S IN THE CRATE</div>
+  <h2 class="section__header">UNBOX THE MANIFEST.</h2>
+  <div class="unbox-grid">
+    <div class="unbox-item">
+      <div class="unbox-item__num">ITEM 001 / 004</div>
+      <div class="unbox-item__title">THE NUMBERED CARD</div>
+      <p class="unbox-item__body">Bone-cream cardstock. Hand-stamped serial. AL-09-##### embossed in the corner. Carry it or frame it — either way it's proof you were here for Pallet 09.</p>
+    </div>
+    <div class="unbox-item">
+      <div class="unbox-item__num">ITEM 002 / 004</div>
+      <div class="unbox-item__title">THE DROP QUEUE</div>
+      <p class="unbox-item__body">Member-only releases that sell out in 96 seconds. You get 24 hours before the public sees them. 421 drops cleared the line last year.</p>
+    </div>
+    <div class="unbox-item">
+      <div class="unbox-item__num">ITEM 003 / 004</div>
+      <div class="unbox-item__title">THE PRINT ZINE</div>
+      <p class="unbox-item__body">Quarterly. Saddle-stitched. Risograph cover. Long-form interviews you won't find on the site. Smell it. We're back on paper.</p>
+    </div>
+    <div class="unbox-item">
+      <div class="unbox-item__num">ITEM 004 / 004</div>
+      <div class="unbox-item__title">THE GROUP CHAT</div>
+      <p class="unbox-item__body">The writers, the editors, the photographers. Not a community manager pasting emojis. The people whose bylines you read, answering at 11pm.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== MANIFESTO ========== -->
+<section class="section manifesto">
+  <div class="manifesto__stamps" style="background-image:url('asset://floor-stamp-decoration');"></div>
+  <div class="manifesto__inner">
+    <div class="section__label">// SECTION 04 — STATEMENT</div>
+    <h2 class="section__header" style="color:var(--bone);">THE MANIFESTO.</h2>
+    <p class="manifesto__quote">"WE BUILT THIS FOR THE ONES WHO ALREADY KNOW."</p>
+    <div class="manifesto__body">
+      <p>Allegiance isn't a discount code. It's a position. You either show up for the music, the streetwear, the films, the long-form sit-downs — or you don't. We're not going to convince you. We're going to ship to the ones who already do.</p>
+      <p>Pallet 09 is the ninth wave of members we've signed since we started numbering them. Every wave gets a card. Every card is a receipt for being early.</p>
+      <p>If you've been reading Complex since the print magazine, you already know. If you started last week, welcome — same rate, same crate, same rank.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== FAQ / INTEL ========== -->
+<section class="section">
+  <div class="section__label">// SECTION 05 — INTEL // FAQ</div>
+  <h2 class="section__header">INTEL.</h2>
+  <div class="faq-grid">
+    <div class="faq-item"><div class="faq-item__q-num">Q.01</div><div class="faq-item__q">Is the $9 rate going up?</div><p class="faq-item__a">Yes. To $14 after drop 422. If you lock it now, your rate stays $9/month as long as you don't cancel. We honor the line.</p></div>
+    <div class="faq-item"><div class="faq-item__q-num">Q.02</div><div class="faq-item__q">What's actually in member drops?</div><p class="faq-item__a">421 last year. Collabs with Aimé Leon Dore, Online Ceramics, Brain Dead, plus six artist-direct vinyl pressings and three film prints.</p></div>
+    <div class="faq-item"><div class="faq-item__q-num">Q.03</div><div class="faq-item__q">Can I cancel?</div><p class="faq-item__a">Any time. One click. We don't do retention dark patterns. Your card stays yours — it's been stamped, you keep the number.</p></div>
+    <div class="faq-item"><div class="faq-item__q-num">Q.04</div><div class="faq-item__q">Why the warehouse aesthetic?</div><p class="faq-item__a">Because we treat what we ship like cargo. Numbered. Inventoried. On a manifest. You're not "joining a community" — you're on a list with a serial number.</p></div>
+    <div class="faq-item"><div class="faq-item__q-num">Q.05</div><div class="faq-item__q">Is the physical card real?</div><p class="faq-item__a">It is mailed. Bone cardstock, ink-black border, your number embossed in the corner. Allow 14 days domestic, 28 international.</p></div>
+    <div class="faq-item"><div class="faq-item__q-num">Q.06</div><div class="faq-item__q">What does Family get me?</div><p class="faq-item__a">Five seats and two event tickets a year. Bring your group chat. One seat is giftable — birthday move locked in.</p></div>
+    <div class="faq-item"><div class="faq-item__q-num">Q.07</div><div class="faq-item__q">Will Regular ever stop being free?</div><p class="faq-item__a">No. The newsletter and the open archive stay open. The line moves; the door doesn't close.</p></div>
+    <div class="faq-item"><div class="faq-item__q-num">Q.08</div><div class="faq-item__q">Where's my receipt?</div><p class="faq-item__a">In your email and on your member dashboard. Bill of lading format. We print it like cargo paperwork because that's what it is.</p></div>
+  </div>
+</section>
+
+<!-- ========== FINAL CTA ========== -->
+<section class="final-cta">
+  <div class="section__label" style="border-top-color:var(--hazard);align-self:center;">// SECTION 06 — SIGN HERE</div>
+  <div class="final-cta__crate">
+    <img src="asset://final-cta-crate" alt="Sign the manifest cargo crate" onerror="this.replaceWith(buildFinalCrateSVG());">
+  </div>
+  <h2 class="final-cta__headline">SIGN THE MANIFEST.</h2>
+  <button class="final-cta__button">ENLIST AT $9 →</button>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <span>AL-MANIFEST-2026  ·  © COMPLEX  ·  "WE DON'T DO TIERS, WE DO RANK"</span>
+  <span>PALLET 09 / 0021 / SHIPPED</span>
+</footer>
+
+<script>
+/* ===========================================================
+   MEGA HEADLINE — stencil clip-path roll down with 40ms stagger
+=========================================================== */
+(function(){
+  const word = 'ALLEGIANCE';
+  const target = document.getElementById('mega-title');
+  if(!target) return;
+  word.split('').forEach((ch, i)=>{
+    const span = document.createElement('span');
+    span.className = 'ch';
+    span.textContent = ch;
+    span.style.animationDelay = (200 + i*40) + 'ms';
+    target.appendChild(span);
+  });
+})();
+
+/* ===========================================================
+   ASSET FALLBACKS — inline SVG when asset:// fails to resolve
+   (the asset pipeline references are above; these only fire on error)
+=========================================================== */
+function buildHeroCardSVG(){
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'width:100%;height:100%;background:#2a2a2c;display:flex;align-items:center;justify-content:center;padding:24px;';
+  wrap.innerHTML = `
+    <svg viewBox="0 0 540 560" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="display:block">
+      <defs>
+        <filter id="cardGrain"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.18 0"/></filter>
+      </defs>
+      <rect width="540" height="560" fill="#1a1a1c"/>
+      <g transform="translate(36 50) rotate(-2 234 230)">
+        <rect width="468" height="460" fill="#EDE6D3" stroke="#0B0B0C" stroke-width="6"/>
+        <rect x="14" y="14" width="440" height="432" fill="none" stroke="#0B0B0C" stroke-width="1" stroke-dasharray="3 3"/>
+        <text x="36" y="80" font-family="'Big Shoulders Display',sans-serif" font-weight="900" font-size="48" fill="#0B0B0C" letter-spacing="2">COMPLEX</text>
+        <text x="36" y="124" font-family="'Big Shoulders Display',sans-serif" font-weight="900" font-size="48" fill="#0B0B0C" letter-spacing="2">ALLEGIANCE</text>
+        <line x1="36" y1="148" x2="432" y2="148" stroke="#0B0B0C" stroke-width="1"/>
+        <text x="36" y="180" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="12" fill="#0B0B0C" letter-spacing="2">PALLET 09 // FREIGHT MANIFEST</text>
+        <g transform="translate(290 200) rotate(-12)">
+          <rect x="-6" y="-22" width="160" height="36" fill="#FF4D00"/>
+          <text x="74" y="4" font-family="'Big Shoulders Display',sans-serif" font-weight="900" font-size="22" fill="#0B0B0C" text-anchor="middle" letter-spacing="3">OBSESSED</text>
+        </g>
+        <text x="36" y="380" font-family="'Big Shoulders Display',sans-serif" font-weight="900" font-size="64" fill="#0B0B0C" letter-spacing="-2">09</text>
+        <text x="36" y="420" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="11" fill="#0B0B0C" letter-spacing="2">SERIAL</text>
+        <text x="432" y="420" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#0B0B0C" letter-spacing="2" text-anchor="end">AL-09-00021</text>
+        <line x1="320" y1="430" x2="432" y2="430" stroke="#0B0B0C" stroke-width="0.5"/>
+      </g>
+      <rect width="540" height="560" filter="url(#cardGrain)" opacity="0.4"/>
+    </svg>`;
+  return wrap;
+}
+
+function buildFinalCrateSVG(){
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'width:100%;';
+  wrap.innerHTML = `
+    <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg" width="100%" preserveAspectRatio="xMidYMid meet" style="display:block">
+      <g transform="translate(150 200)">
+        <!-- top face -->
+        <polygon points="0,300 450,80 900,300 450,520" fill="#EDE6D3" stroke="#0B0B0C" stroke-width="3"/>
+        <text x="450" y="320" font-family="'Big Shoulders Display',sans-serif" font-weight="900" font-size="64" fill="#0B0B0C" text-anchor="middle" letter-spacing="4" transform="rotate(-26 450 320)">SIGN HERE →</text>
+        <!-- left face (ink) -->
+        <polygon points="0,300 0,720 450,940 450,520" fill="#171718" stroke="#0B0B0C" stroke-width="3"/>
+        <text x="225" y="780" font-family="'Big Shoulders Display',sans-serif" font-weight="900" font-size="200" fill="#EDE6D3" text-anchor="middle" letter-spacing="-4" transform="skewY(26 225 780)">09</text>
+        <!-- right face (hazard) -->
+        <polygon points="450,520 450,940 900,720 900,300" fill="#FF4D00" stroke="#0B0B0C" stroke-width="3"/>
+        <text x="675" y="780" font-family="'Big Shoulders Display',sans-serif" font-weight="900" font-size="200" fill="#0B0B0C" text-anchor="middle" letter-spacing="-4" transform="skewY(-26 675 780)">AL</text>
+        <!-- cast shadow -->
+        <polygon points="60,940 510,1160 960,940 450,720" fill="#0B0B0C" opacity="0.5"/>
+      </g>
+    </svg>`;
+  return wrap;
+}
+
+/* Crate face fallbacks — set solid colors if asset:// fails */
+document.querySelectorAll('.crate__top, .crate__left, .crate__right').forEach(face=>{
+  const img = new Image();
+  const url = (face.style.backgroundImage||'').replace(/^url\(['"]?/,'').replace(/['"]?\)$/,'');
+  if(!url || url.startsWith('asset://')){
+    img.onerror = ()=>{ face.style.backgroundImage='none'; };
+    img.src = url;
+  }
+});
+
+/* ===========================================================
+   CURSOR-TRACKED 3D TILT on hero card
+=========================================================== */
+(function(){
+  const wrap = document.getElementById('card-wrap');
+  const card = document.getElementById('hero-card');
+  if(!wrap || !card) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  wrap.addEventListener('pointermove', (e)=>{
+    const r = wrap.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+    const tx = (px - 0.5) * 30; // ±15deg
+    const ty = (0.5 - py) * 30; // ±15deg
+    card.style.setProperty('--tilt-x', tx + 'deg');
+    card.style.setProperty('--tilt-y', ty + 'deg');
+  });
+  wrap.addEventListener('pointerleave', ()=>{
+    card.style.setProperty('--tilt-x','0deg');
+    card.style.setProperty('--tilt-y','0deg');
+  });
+})();
+
+/* ===========================================================
+   INTERSECTION OBSERVER — crate landing reveals
+=========================================================== */
+(function(){
+  const els = document.querySelectorAll('[data-reveal]');
+  if(!('IntersectionObserver' in window) || !els.length){
+    els.forEach(el=>el.classList.add('is-in'));
+    return;
+  }
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        en.target.classList.add('is-in');
+        io.unobserve(en.target);
+      }
+    });
+  },{threshold:0.4});
+  els.forEach(el=>io.observe(el));
+})();
+
+/* ===========================================================
+   CTA CLICK FEEDBACK (debug + ensures interactive)
+=========================================================== */
+document.querySelectorAll('button').forEach(b=>{
+  b.addEventListener('click',(e)=>{
+    e.preventDefault();
+    b.style.transform = 'translate(-4px,-4px)';
+    b.style.boxShadow = '4px 4px 0 #0B0B0C';
+    setTimeout(()=>{ b.style.transform=''; b.style.boxShadow=''; }, 220);
+  });
+});
+</script>
+</body>
+</html>
