@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+<title>Cut the Pizza</title>
+<style>
+  :root {
+    --bg-a: #2a1410;
+    --bg-b: #3d1f17;
+    --cream: #fff4d9;
+    --gold: #e8b94a;
+    --red: #c0392b;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; height: 100%; overflow: hidden;
+    font-family: "Georgia", "Times New Roman", serif;
+    color: var(--cream);
+    background:
+      radial-gradient(ellipse at 30% 20%, #4a2218 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 80%, #2d100a 0%, transparent 55%),
+      linear-gradient(135deg, var(--bg-a), var(--bg-b));
+    user-select: none;
+    touch-action: none;
+  }
+  /* checkered tablecloth feel */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(45deg, rgba(255,255,255,0.015) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.015) 75%),
+      linear-gradient(45deg, rgba(255,255,255,0.015) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.015) 75%);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+    pointer-events: none;
+  }
+  #stage {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  header {
+    position: absolute; top: 18px; left: 0; right: 0;
+    text-align: center; pointer-events: none;
+  }
+  header h1 {
+    margin: 0;
+    font-family: "Brush Script MT", "Snell Roundhand", cursive;
+    font-size: clamp(28px, 6vw, 44px);
+    color: var(--gold);
+    text-shadow: 0 2px 0 #000, 0 0 18px rgba(232,185,74,0.35);
+    letter-spacing: 1px;
+  }
+  header p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  canvas {
+    display: block;
+    touch-action: none;
+  }
+  #scorecard {
+    position: absolute; inset: 0;
+    display: none;
+    align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 5;
+  }
+  #scorecard.show { display: flex; }
+  .card {
+    background: linear-gradient(180deg, #fff8e7 0%, #f3e3b8 100%);
+    color: #3a1a10;
+    padding: 28px 36px 26px;
+    border-radius: 16px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 6px #8b2b1f, 0 0 0 9px #fff8e7;
+    text-align: center;
+    min-width: 280px;
+    max-width: 86vw;
+    transform: scale(0.85);
+    opacity: 0;
+    transition: transform .4s cubic-bezier(.2,1.4,.4,1), opacity .3s;
+  }
+  #scorecard.show .card { transform: scale(1); opacity: 1; }
+  .card .label {
+    font-size: 12px; letter-spacing: 4px; text-transform: uppercase;
+    color: #8b2b1f; opacity: 0.8;
+  }
+  .card .score {
+    font-size: clamp(60px, 14vw, 96px);
+    font-weight: 900;
+    line-height: 1;
+    margin: 6px 0 2px;
+    font-family: "Georgia", serif;
+    color: #8b2b1f;
+  }
+  .card .out { font-size: 18px; opacity: 0.7; }
+  .card .split {
+    margin: 14px 0 6px;
+    font-size: 14px;
+    color: #5a2818;
+  }
+  .card .verdict {
+    margin-top: 12px;
+    font-style: italic;
+    font-size: 16px;
+    color: #3a1a10;
+  }
+  .card button {
+    margin-top: 18px;
+    font-family: inherit;
+    font-size: 15px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 999px;
+    background: #8b2b1f;
+    color: #fff8e7;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #5a1a12;
+    transition: transform .1s, box-shadow .1s;
+  }
+  .card button:active {
+    transform: translateY(3px);
+    box-shadow: 0 3px 0 #5a1a12;
+  }
+  #hint {
+    position: absolute; bottom: 22px; left: 0; right: 0;
+    text-align: center; font-size: 13px; letter-spacing: 2px;
+    text-transform: uppercase; opacity: 0.55;
+    pointer-events: none;
+  }
+  #musicBtn {
+    position: absolute; top: 16px; right: 16px;
+    font-family: inherit; font-size: 18px;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,244,217,0.3);
+    background: rgba(0,0,0,0.3);
+    color: var(--cream);
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <header>
+    <h1>Taglia la Pizza</h1>
+    <p>One cut. Split it perfectly in half.</p>
+  </header>
+  <canvas id="cv"></canvas>
+  <div id="hint">Drag across the pizza to slice</div>
+  <button id="musicBtn" title="Toggle music">♪</button>
+  <div id="scorecard">
+    <div class="card">
+      <div class="label">Your Score</div>
+      <div class="score" id="scoreNum">0</div>
+      <div class="out">out of 1000</div>
+      <div class="split" id="splitTxt">— / —</div>
+      <div class="verdict" id="verdict">—</div>
+      <button id="again">Slice Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   PIZZA RENDERING
+   ========================================================= */
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W, H, DPR;
+let pizza = { cx: 0, cy: 0, r: 0 };
+let toppings = []; // baked-in details for re-rendering
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  cv.width = W * DPR;
+  cv.height = H * DPR;
+  cv.style.width = W + 'px';
+  cv.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  pizza.cx = W / 2;
+  pizza.cy = H / 2;
+  pizza.r = Math.min(W, H) * 0.36;
+  render();
+}
+window.addEventListener('resize', resize);
+
+function rand(a, b) { return a + Math.random() * (b - a); }
+
+function buildToppings() {
+  toppings = [];
+  const r = pizza.r;
+  // pepperoni
+  const pepCount = 12;
+  for (let i = 0; i < pepCount; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = Math.sqrt(Math.random()) * (r * 0.78);
+    toppings.push({
+      type: 'pep',
+      x: Math.cos(a) * d,
+      y: Math.sin(a) * d,
+      size: rand(r * 0.09, r * 0.13),
+      rot: rand(0, Math.PI * 2),
+    });
+  }
+  // basil leaves
+  for (let i = 0; i < 7; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = Math.sqrt(Math.random()) * (r * 0.78);
+    toppings.push({
+      type: 'basil',
+      x: Math.cos(a) * d,
+      y: Math.sin(a) * d,
+      size: rand(r * 0.07, r * 0.11),
+      rot: rand(0, Math.PI * 2),
+    });
+  }
+  // olive specks
+  for (let i = 0; i < 16; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = Math.sqrt(Math.random()) * (r * 0.8);
+    toppings.push({
+      type: 'olive',
+      x: Math.cos(a) * d,
+      y: Math.sin(a) * d,
+      size: rand(r * 0.018, r * 0.032),
+    });
+  }
+  // cheese highlights (irregular blobs)
+  for (let i = 0; i < 18; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = Math.sqrt(Math.random()) * (r * 0.82);
+    toppings.push({
+      type: 'cheese',
+      x: Math.cos(a) * d,
+      y: Math.sin(a) * d,
+      size: rand(r * 0.04, r * 0.09),
+    });
+  }
+  // char spots on crust
+  for (let i = 0; i < 22; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const d = rand(r * 0.92, r * 0.99);
+    toppings.push({
+      type: 'char',
+      x: Math.cos(a) * d,
+      y: Math.sin(a) * d,
+      size: rand(r * 0.012, r * 0.028),
+    });
+  }
+}
+
+function drawPizza(offsetA = 0, offsetB = 0, cutAngle = 0, cutOffset = 0) {
+  // If we have a cut, we render two halves shifted apart slightly.
+  // offsetA/B: how far each half slides perpendicular to cut.
+  ctx.clearRect(0, 0, W, H);
+
+  // Shadow under whole thing
+  ctx.save();
+  ctx.translate(pizza.cx, pizza.cy + pizza.r * 0.12);
+  ctx.scale(1, 0.25);
+  const sg = ctx.createRadialGradient(0,0,0,0,0,pizza.r*1.05);
+  sg.addColorStop(0, 'rgba(0,0,0,0.55)');
+  sg.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = sg;
+  ctx.beginPath(); ctx.arc(0,0,pizza.r*1.05,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  if (offsetA === 0 && offsetB === 0) {
+    drawWholePizza();
+  } else {
+    drawHalf(+1, offsetA, cutAngle, cutOffset);
+    drawHalf(-1, offsetB, cutAngle, cutOffset);
+  }
+}
+
+function drawWholePizza() {
+  ctx.save();
+  ctx.translate(pizza.cx, pizza.cy);
+  paintPizzaBody();
+  ctx.restore();
+}
+
+/* Draw one half of the pizza, clipped by the cut line.
+   side = +1 or -1 (which side of the line to keep)
+   slide = pixels to slide perpendicular to cut
+   angle = angle of cut line (radians)
+   offset = signed distance from center to the cut line
+*/
+function drawHalf(side, slide, angle, offset) {
+  ctx.save();
+  // Slide perpendicular to cut
+  const nx = Math.cos(angle + Math.PI / 2);
+  const ny = Math.sin(angle + Math.PI / 2);
+  ctx.translate(pizza.cx + nx * slide * side, pizza.cy + ny * slide * side);
+
+  // Build clip in the pizza's local coords (centered at pizza center, no slide)
+  // We clip to: half plane on `side` of the cut line.
+  // Cut line passes through point (offset*nx, offset*ny) with direction (cos a, sin a).
+  // Half plane: side * ( (x - offset*nx)*nx + (y - offset*ny)*ny ) >= 0
+  // i.e. side * (x*nx + y*ny - offset) >= 0
+  ctx.beginPath();
+  const big = Math.max(W, H) * 2;
+  // build a big rectangle on the chosen side, in canvas coords relative to current origin
+  // Since we translated by slide already, we need to express the cut line in current local coords.
+  // Local pizza center is at (-nx*slide*side, -ny*slide*side).
+  const cxL = -nx * slide * side;
+  const cyL = -ny * slide * side;
+  // cut line in local coords passes through (cxL + offset*nx, cyL + offset*ny)
+  const px = cxL + offset * nx;
+  const py = cyL + offset * ny;
+  const dx = Math.cos(angle), dy = Math.sin(angle);
+  // points along line
+  const p1x = px - dx * big, p1y = py - dy * big;
+  const p2x = px + dx * big, p2y = py + dy * big;
+  // extend on +side direction
+  const p3x = p2x + nx * side * big, p3y = p2y + ny * side * big;
+  const p4x = p1x + nx * side * big, p4y = p1y + ny * side * big;
+  ctx.moveTo(p1x, p1y);
+  ctx.lineTo(p2x, p2y);
+  ctx.lineTo(p3x, p3y);
+  ctx.lineTo(p4x, p4y);
+  ctx.closePath();
+  ctx.clip();
+
+  // Draw pizza at local pizza center
+  ctx.translate(cxL, cyL);
+  paintPizzaBody();
+
+  // Draw the cut edge (exposed cheese/sauce) along the chord
+  drawCutEdge(angle, offset, side);
+
+  ctx.restore();
+}
+
+function drawCutEdge(angle, offset, side) {
+  // The chord inside the pizza is where |offset| <= r.
+  if (Math.abs(offset) >= pizza.r) return;
+  const half = Math.sqrt(pizza.r * pizza.r - offset * offset);
+  const dx = Math.cos(angle), dy = Math.sin(angle);
+  const nx = Math.cos(angle + Math.PI/2), ny = Math.sin(angle + Math.PI/2);
+  const cx = offset * nx;
+  const cy = offset * ny;
+  const ax = cx - dx * half, ay = cy - dy * half;
+  const bx = cx + dx * half, by = cy + dy * half;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(120, 40, 20, 0.55)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+  ctx.stroke();
+  // tiny cheese drip highlight
+  ctx.strokeStyle = 'rgba(255, 230, 150, 0.8)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(ax + nx * side * 1.5, ay + ny * side * 1.5);
+  ctx.lineTo(bx + nx * side * 1.5, by + ny * side * 1.5);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function paintPizzaBody() {
+  const r = pizza.r;
+  // crust outer
+  const crustGrad = ctx.createRadialGradient(0, 0, r * 0.7, 0, 0, r);
+  crustGrad.addColorStop(0, '#e8a45a');
+  crustGrad.addColorStop(0.6, '#d98a3c');
+  crustGrad.addColorStop(1, '#a35a22');
+  ctx.fillStyle = crustGrad;
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+
+  // crust inner ring shading
+  ctx.save();
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.clip();
+  // sauce area
+  const sauceR = r * 0.88;
+  const sauceGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, sauceR);
+  sauceGrad.addColorStop(0, '#b8341f');
+  sauceGrad.addColorStop(0.6, '#a02a18');
+  sauceGrad.addColorStop(1, '#7a1e11');
+  ctx.fillStyle = sauceGrad;
+  ctx.beginPath(); ctx.arc(0, 0, sauceR, 0, Math.PI * 2); ctx.fill();
+
+  // cheese layer - irregular cream blob
+  ctx.fillStyle = '#f5e3a8';
+  ctx.beginPath();
+  const cheeseR = r * 0.84;
+  const pts = 28;
+  for (let i = 0; i <= pts; i++) {
+    const a = (i / pts) * Math.PI * 2;
+    // deterministic-ish wobble
+    const w = 1 + 0.04 * Math.sin(a * 5 + 1.3) + 0.03 * Math.cos(a * 3 + 0.7);
+    const x = Math.cos(a) * cheeseR * w;
+    const y = Math.sin(a) * cheeseR * w;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fill();
+
+  // cheese highlights (lighter blobs)
+  for (const t of toppings) {
+    if (t.type !== 'cheese') continue;
+    ctx.fillStyle = 'rgba(255, 245, 200, 0.55)';
+    ctx.beginPath();
+    ctx.ellipse(t.x, t.y, t.size, t.size * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // sauce peeking through (small red spots)
+  for (let i = 0; i < 14; i++) {
+    const a = (i / 14) * Math.PI * 2 + 0.3;
+    const d = (i % 3 === 0 ? 0.4 : 0.65) * r;
+    ctx.fillStyle = 'rgba(150, 40, 25, 0.55)';
+    ctx.beginPath();
+    ctx.ellipse(Math.cos(a) * d, Math.sin(a) * d, r*0.04, r*0.03, a, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // pepperoni
+  for (const t of toppings) {
+    if (t.type !== 'pep') continue;
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.rotate(t.rot);
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.beginPath(); ctx.arc(1, 2, t.size, 0, Math.PI*2); ctx.fill();
+    // body
+    const pg = ctx.createRadialGradient(-t.size*0.3, -t.size*0.3, t.size*0.1, 0, 0, t.size);
+    pg.addColorStop(0, '#d94a2c');
+    pg.addColorStop(0.7, '#a8311c');
+    pg.addColorStop(1, '#6e1c0e');
+    ctx.fillStyle = pg;
+    ctx.beginPath(); ctx.arc(0, 0, t.size, 0, Math.PI*2); ctx.fill();
+    // grease specks
+    ctx.fillStyle = '#7a1f10';
+    for (let k = 0; k < 4; k++) {
+      const aa = (k / 4) * Math.PI * 2 + t.rot;
+      ctx.beginPath();
+      ctx.arc(Math.cos(aa)*t.size*0.45, Math.sin(aa)*t.size*0.45, t.size*0.08, 0, Math.PI*2);
+      ctx.fill();
+    }
+    // shine
+    ctx.fillStyle = 'rgba(255,180,140,0.35)';
+    ctx.beginPath(); ctx.ellipse(-t.size*0.3, -t.size*0.35, t.size*0.4, t.size*0.18, -0.5, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  // basil leaves
+  for (const t of toppings) {
+    if (t.type !== 'basil') continue;
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.rotate(t.rot);
+    ctx.fillStyle = '#2e6b2a';
+    ctx.beginPath();
+    ctx.moveTo(0, -t.size);
+    ctx.bezierCurveTo(t.size*0.7, -t.size*0.5, t.size*0.7, t.size*0.5, 0, t.size);
+    ctx.bezierCurveTo(-t.size*0.7, t.size*0.5, -t.size*0.7, -t.size*0.5, 0, -t.size);
+    ctx.fill();
+    // vein
+    ctx.strokeStyle = '#1f4a1c';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, -t.size*0.9); ctx.lineTo(0, t.size*0.9);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // olives / oregano specks
+  for (const t of toppings) {
+    if (t.type !== 'olive') continue;
+    ctx.fillStyle = '#3a2a18';
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, t.size, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  ctx.restore(); // end clip
+
+  // crust char spots
+  for (const t of toppings) {
+    if (t.type !== 'char') continue;
+    ctx.fillStyle = 'rgba(60, 25, 10, 0.55)';
+    ctx.beginPath();
+    ctx.arc(t.x, t.y, t.size, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // crust rim shadow
+  ctx.save();
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(60,25,10,0.6)';
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* =========================================================
+   CUT LINE OVERLAY
+   ========================================================= */
+let drag = null;   // {x0,y0,x1,y1}
+let finalCut = null; // {angle, offset, score, half}
+let animT = 0;
+let animating = false;
+
+function render() {
+  if (finalCut) {
+    const t = Math.min(1, animT);
+    const slide = pizza.r * 0.04 * t;
+    drawPizza(slide, slide, finalCut.angle, finalCut.offset);
+  } else {
+    drawPizza();
+  }
+  // draw live drag line
+  if (drag) {
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 244, 217, 0.9)';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 6]);
+    ctx.beginPath();
+    ctx.moveTo(drag.x0, drag.y0);
+    ctx.lineTo(drag.x1, drag.y1);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // pizza-cutter wheel hint at end
+    ctx.fillStyle = 'rgba(255,244,217,0.95)';
+    ctx.beginPath();
+    ctx.arc(drag.x1, drag.y1, 6, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+function getPoint(e) {
+  const r = cv.getBoundingClientRect();
+  if (e.touches && e.touches[0]) {
+    return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+  }
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+function onDown(e) {
+  if (finalCut) return;
+  e.preventDefault();
+  startMusic();
+  const p = getPoint(e);
+  drag = { x0: p.x, y0: p.y, x1: p.x, y1: p.y };
+  render();
+}
+function onMove(e) {
+  if (!drag || finalCut) return;
+  e.preventDefault();
+  const p = getPoint(e);
+  drag.x1 = p.x; drag.y1 = p.y;
+  render();
+}
+function onUp(e) {
+  if (!drag || finalCut) return;
+  e.preventDefault();
+  const d = drag;
+  drag = null;
+  // need a meaningful drag length
+  const dx = d.x1 - d.x0, dy = d.y1 - d.y0;
+  const len = Math.hypot(dx, dy);
+  if (len < 10) { render(); return; }
+  doCut(d.x0, d.y0, d.x1, d.y1);
+}
+
+cv.addEventListener('mousedown', onDown);
+window.addEventListener('mousemove', onMove);
+window.addEventListener('mouseup', onUp);
+cv.addEventListener('touchstart', onDown, { passive: false });
+cv.addEventListener('touchmove', onMove, { passive: false });
+cv.addEventListener('touchend', onUp, { passive: false });
+
+/* =========================================================
+   CUT MATH & SCORING
+   ========================================================= */
+function doCut(x0, y0, x1, y1) {
+  // Line through (x0,y0)-(x1,y1) in pizza-centered coords
+  const px0 = x0 - pizza.cx, py0 = y0 - pizza.cy;
+  const px1 = x1 - pizza.cx, py1 = y1 - pizza.cy;
+  const dx = px1 - px0, dy = py1 - py0;
+  const angle = Math.atan2(dy, dx);
+  // perpendicular unit
+  const nx = Math.cos(angle + Math.PI/2), ny = Math.sin(angle + Math.PI/2);
+  // signed distance from pizza center (0,0) to line:
+  // line: r = p0 + t*d. distance = (p0 . n) ... but careful with sign convention.
+  // d.n = 0 since n perp d, so dist = -(p0 . n) where n is unit perp. Actually:
+  // For point Q, signed dist = (Q - p0) . n. Here Q = (0,0).
+  const offset = (0 - px0) * nx + (0 - py0) * ny;
+  // Note: we store offset such that the cut line passes through (offset*nx, offset*ny).
+
+  const r = pizza.r;
+  let score, smallerArea, totalArea = Math.PI * r * r;
+  if (Math.abs(offset) >= r) {
+    // line missed pizza entirely
+    score = 0;
+    smallerArea = 0;
+  } else {
+    // circular segment area for distance |offset| from center
+    const h = Math.abs(offset);
+    // segment area (smaller piece) = r^2 * acos(h/r) - h*sqrt(r^2-h^2)
+    smallerArea = r*r * Math.acos(h / r) - h * Math.sqrt(r*r - h*h);
+    const ratio = smallerArea / totalArea; // 0..0.5
+    // perfect 0.5 -> 1000, ratio 0 -> 0
+    score = Math.round(2000 * ratio);
+    if (score > 1000) score = 1000;
+  }
+
+  finalCut = { angle, offset, score, smallerArea, totalArea };
+  animating = true;
+  animT = 0;
+  const start = performance.now();
+  function step(now) {
+    animT = Math.min(1, (now - start) / 350);
+    render();
+    if (animT < 1) requestAnimationFrame(step);
+    else showScore();
+  }
+  requestAnimationFrame(step);
+
+  // sound effects
+  sliceSound();
+}
+
+function showScore() {
+  const card = document.getElementById('scorecard');
+  const num = document.getElementById('scoreNum');
+  const split = document.getElementById('splitTxt');
+  const verdict = document.getElementById('verdict');
+  // animate count up
+  const target = finalCut.score;
+  const t0 = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - t0) / 700);
+    const v = Math.round(target * (1 - Math.pow(1 - t, 3)));
+    num.textContent = v;
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  const smaller = finalCut.smallerArea;
+  const total = finalCut.totalArea;
+  if (smaller === 0) {
+    split.textContent = 'You missed the pizza!';
+  } else {
+    const pctSmall = (smaller / total) * 100;
+    const pctBig = 100 - pctSmall;
+    split.textContent = pctBig.toFixed(1) + '% / ' + pctSmall.toFixed(1) + '%';
+  }
+  let v;
+  if (target >= 1000) v = '“Perfetto!” — Nonna approves.';
+  else if (target >= 950) v = '“Bravissimo!” Almost perfect.';
+  else if (target >= 850) v = '“Bene!” A solid slice.';
+  else if (target >= 700) v = '“Mmm…” Could be more even.';
+  else if (target >= 400) v = '“Mamma mia.” That is uneven.';
+  else if (target > 0)    v = '“Che disastro!” Try again.';
+  else                    v = '“You didn’t even hit the pizza!”';
+  verdict.textContent = v;
+
+  card.classList.add('show');
+}
+
+document.getElementById('again').addEventListener('click', () => {
+  document.getElementById('scorecard').classList.remove('show');
+  finalCut = null;
+  drag = null;
+  animT = 0;
+  buildToppings();
+  render();
+});
+
+/* =========================================================
+   MUSIC — Funiculì Funiculà–ish tarantella loop (Web Audio)
+   ========================================================= */
+let audioCtx = null;
+let musicOn = true;
+let musicStarted = false;
+let musicTimer = null;
+const musicBtn = document.getElementById('musicBtn');
+musicBtn.addEventListener('click', () => {
+  musicOn = !musicOn;
+  musicBtn.textContent = musicOn ? '♪' : '♪̸';
+  if (!musicOn) stopMusic(); else startMusic();
+});
+
+function noteFreq(semis) {
+  // semitone offset from A4 = 440
+  return 440 * Math.pow(2, semis / 12);
+}
+
+// Funiculì Funiculà — main motif in C major (simplified, public domain melody by Denza 1880)
+// Sequence of [semitone-offset-from-A4, beats]
+// "Some think the world is made for fun and frolic..."
+const MELODY = [
+  // phrase 1
+  [3, 1], [3, 1], [5, 1], [3, 1], [0, 1], [3, 0.5], [5, 0.5], [3, 1],
+  [-2, 1], [3, 1], [5, 1], [3, 1], [0, 2],
+  // phrase 2
+  [5, 1], [5, 1], [7, 1], [5, 1], [3, 1], [5, 0.5], [7, 0.5], [5, 1],
+  [0, 1], [5, 1], [7, 1], [5, 1], [3, 2],
+  // chorus lift
+  [10, 1], [8, 0.5], [7, 0.5], [8, 1], [7, 1], [5, 1], [3, 1], [5, 2],
+  [8, 1], [7, 0.5], [5, 0.5], [7, 1], [5, 1], [3, 1], [0, 1], [3, 2],
+];
+
+const BASS = [
+  // simple I-V vamp under each measure
+  [-9, 2], [-2, 2], [-9, 2], [-2, 2],
+  [-9, 2], [-2, 2], [-9, 2], [-2, 2],
+  [-7, 2], [0, 2], [-7, 2], [-2, 2],
+  [-9, 2], [-2, 2], [-9, 2], [-2, 2],
+];
+
+let melodyIdx = 0;
+let bassIdx = 0;
+let nextNoteTime = 0;
+let nextBassTime = 0;
+const BPM = 132;
+const beatSec = 60 / BPM;
+
+function startMusic() {
+  if (musicStarted || !musicOn) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  } catch(e) { return; }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  musicStarted = true;
+  nextNoteTime = audioCtx.currentTime + 0.05;
+  nextBassTime = audioCtx.currentTime + 0.05;
+  scheduleMusic();
+}
+function stopMusic() {
+  musicStarted = false;
+  if (musicTimer) { clearTimeout(musicTimer); musicTimer = null; }
+}
+
+function pluck(freq, when, dur, gain=0.18, type='triangle') {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const amp = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  amp.gain.setValueAtTime(0.0001, when);
+  amp.gain.exponentialRampToValueAtTime(gain, when + 0.005);
+  amp.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+  // subtle vibrato for mandolin feel
+  const lfo = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.frequency.value = 5.5;
+  lfoGain.gain.value = freq * 0.005;
+  lfo.connect(lfoGain).connect(osc.frequency);
+  osc.connect(amp).connect(audioCtx.destination);
+  osc.start(when); lfo.start(when);
+  osc.stop(when + dur + 0.05); lfo.stop(when + dur + 0.05);
+}
+
+function bassNote(freq, when, dur) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const amp = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  amp.gain.setValueAtTime(0.0001, when);
+  amp.gain.exponentialRampToValueAtTime(0.22, when + 0.01);
+  amp.gain.exponentialRampToValueAtTime(0.0001, when + dur);
+  osc.connect(amp).connect(audioCtx.destination);
+  osc.start(when);
+  osc.stop(when + dur + 0.05);
+}
+
+function scheduleMusic() {
+  if (!musicStarted || !audioCtx) return;
+  const lookahead = 0.2;
+  const horizon = audioCtx.currentTime + lookahead;
+  while (nextNoteTime < horizon) {
+    const note = MELODY[melodyIdx % MELODY.length];
+    const f = noteFreq(note[0] + 12); // up an octave
+    const dur = note[1] * beatSec * 0.9;
+    pluck(f, nextNoteTime, dur, 0.16, 'triangle');
+    // mandolin double-strike
+    pluck(f, nextNoteTime + 0.04, dur * 0.6, 0.08, 'sawtooth');
+    nextNoteTime += note[1] * beatSec;
+    melodyIdx++;
+  }
+  while (nextBassTime < horizon) {
+    const note = BASS[bassIdx % BASS.length];
+    const f = noteFreq(note[0] - 12);
+    const dur = note[1] * beatSec * 0.9;
+    bassNote(f, nextBassTime, dur);
+    nextBassTime += note[1] * beatSec;
+    bassIdx++;
+  }
+  musicTimer = setTimeout(scheduleMusic, 80);
+}
+
+function sliceSound() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return; }
+  }
+  const t = audioCtx.currentTime;
+  // sharp whoosh
+  const noise = audioCtx.createBufferSource();
+  const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.3, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+  }
+  noise.buffer = buf;
+  const bp = audioCtx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = 2500;
+  bp.Q.value = 1.2;
+  const g = audioCtx.createGain();
+  g.gain.value = 0.4;
+  noise.connect(bp).connect(g).connect(audioCtx.destination);
+  noise.start(t);
+  noise.stop(t + 0.3);
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+buildToppings();
+resize();
+</script>
+</body>
+</html>
