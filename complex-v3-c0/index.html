@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>COMPLEX ALLEGIANCE — ALG-0089</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Fraunces:ital,opsz,wght@1,144,900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   COMPLEX / ALLEGIANCE — The Credential
+   Single-file build. No external assets.
+   ============================================================ */
+
+:root{
+  --ink:    #0A0908;   /* dominant canvas */
+  --bone:   #EDE6D3;   /* paper / text */
+  --signal: #FF3B1A;   /* lone accent */
+  --smoke:  #3A332A;   /* hairlines, secondary surface */
+  --dust:   #9B9384;   /* metadata mono */
+  --gutter: 48px;
+  --rx: 0;
+  --ry: 0;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--ink);color:var(--bone);overflow-x:hidden}
+body{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:500;
+  -webkit-font-smoothing:antialiased;
+  cursor:none;
+}
+@media (pointer:coarse){ body{cursor:auto} }
+
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:none}
+
+/* ------------------------------------------------------------
+   Mono small caps utility
+   ------------------------------------------------------------ */
+.mono{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:500;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  font-size:0.6875rem;
+  color:var(--dust);
+}
+.mono-md{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:500;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  font-size:1.125rem;
+  color:var(--bone);
+}
+.hair{
+  width:100%;
+  height:1px;
+  background:var(--smoke);
+  border:0;
+  transform-origin:left center;
+}
+
+/* ============================================================
+   GRAIN OVERLAY — inline SVG feTurbulence, fixed full-viewport
+   ============================================================ */
+.grain{
+  position:fixed; inset:0;
+  z-index:9999;
+  pointer-events:none;
+  mix-blend-mode:overlay;
+  opacity:0.08;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.93  0 0 0 0 0.90  0 0 0 0 0.83  0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size:512px 512px;
+}
+
+/* ============================================================
+   CUSTOM CURSOR — 8px signal dot, scales to JOIN ring on CTA
+   ============================================================ */
+.cursor{
+  position:fixed; top:0; left:0;
+  width:8px; height:8px;
+  background:var(--signal);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:10000;
+  transform:translate(-50%,-50%);
+  transition:width .25s cubic-bezier(.22,1,.36,1),
+             height .25s cubic-bezier(.22,1,.36,1),
+             background .2s ease,
+             border-color .2s ease;
+  mix-blend-mode:normal;
+  display:grid; place-items:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  letter-spacing:.2em;
+  color:transparent;
+  border:1px solid transparent;
+}
+.cursor.is-cta{
+  width:64px; height:64px;
+  background:transparent;
+  border-color:var(--signal);
+  color:var(--signal);
+}
+@media (pointer:coarse){ .cursor{display:none} }
+
+/* ============================================================
+   TOP BADGE — sits in top-right of page, mono metadata
+   ============================================================ */
+.top-badge{
+  position:fixed; top:24px; right:var(--gutter);
+  display:flex; gap:24px; align-items:center;
+  z-index:50;
+}
+.top-badge .dot{
+  width:6px; height:6px; border-radius:50%; background:var(--signal);
+  box-shadow:0 0 0 4px rgba(255,59,26,0.12);
+}
+.top-left{
+  position:fixed; top:24px; left:var(--gutter);
+  z-index:50;
+  display:flex; gap:24px; align-items:center;
+}
+.top-left .brand{
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  letter-spacing:.02em;
+  font-size:1.5rem;
+  line-height:1;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  position:relative;
+  min-height:100vh;
+  padding:120px var(--gutter) 80px;
+  perspective:1400px;
+  perspective-origin:50% 30%;
+  display:grid;
+  grid-template-columns: 52% 48%;
+  align-items:center;
+  gap:0;
+}
+
+.hero-text{
+  position:relative;
+  padding-right:24px;
+}
+
+.hero-label{
+  margin-bottom:24px;
+  display:flex; align-items:center; gap:16px;
+}
+.hero-label .bar{
+  width:48px; height:1px; background:var(--signal);
+}
+
+.allegiance{
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:clamp(7rem, 14vw, 14rem);
+  letter-spacing:-0.04em;
+  line-height:0.85;
+  text-transform:uppercase;
+  color:var(--bone);
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.4),
+    0 -1px 0 rgba(0,0,0,0.5),
+    0 0 12px rgba(255,59,26,0.15);
+  margin:8px 0 32px;
+  display:block;
+}
+.allegiance .char{
+  display:inline-block;
+  clip-path: inset(0 100% 0 0);
+}
+.allegiance.reveal .char{
+  animation: charwipe 500ms cubic-bezier(0.65,0,0.35,1) forwards;
+}
+@keyframes charwipe{
+  from{ clip-path: inset(0 100% 0 0); }
+  to  { clip-path: inset(0 0% 0 0); }
+}
+
+.hero-sub{
+  max-width:480px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.125rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--bone);
+  line-height:1.6;
+  margin-bottom:40px;
+}
+.hero-sub .slash{ color:var(--signal); padding:0 .25em }
+
+.hero-body{
+  max-width:380px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.875rem;
+  line-height:1.75;
+  color:var(--dust);
+  margin-bottom:40px;
+  letter-spacing:0.02em;
+}
+
+.cta-row{ display:flex; gap:24px; align-items:center; flex-wrap:wrap }
+
+.btn{
+  position:relative;
+  display:inline-flex;
+  align-items:center; justify-content:center;
+  padding:22px 34px;
+  background:var(--signal);
+  color:var(--ink);
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:1.25rem;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  border-radius:0;
+  cursor:none;
+  transition:transform .25s cubic-bezier(.22,1,.36,1);
+}
+.btn:hover{ transform:translateY(-2px) }
+
+/* Risograph misregistration */
+.signal-overprint{ position:relative; isolation:isolate }
+.signal-overprint::after{
+  content:attr(data-text);
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  transform:translate(2px,-1px);
+  mix-blend-mode:multiply;
+  opacity:0.7;
+  pointer-events:none;
+  color:var(--ink);
+  background:var(--signal);
+  z-index:-1;
+}
+
+.btn.btn-ghost{
+  background:transparent;
+  color:var(--bone);
+  padding:22px 0;
+  border:0;
+  border-bottom:1px solid var(--smoke);
+  font-size:0.9375rem;
+  letter-spacing:0.2em;
+  font-family:'JetBrains Mono',monospace;
+  font-weight:500;
+}
+
+/* ------------------------------------------------------------
+   Hero credential stage (right column)
+   ------------------------------------------------------------ */
+.stage{
+  position:relative;
+  height:560px;
+  display:grid; place-items:center;
+  transform-style:preserve-3d;
+}
+
+.credential{
+  position:relative;
+  width:min(480px, 100%);
+  aspect-ratio: 86/54;
+  transform-style:preserve-3d;
+  transform:
+    rotateY(calc(var(--rx) * 14deg))
+    rotateX(calc(var(--ry) * -8deg));
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.credential.hero-card{
+  animation: breathe 6s ease-in-out infinite alternate;
+}
+@keyframes breathe{
+  from{ transform: rotateY(0deg) rotateX(0deg); }
+  to  { transform: rotateY(2deg) rotateX(-1deg); }
+}
+.stage:hover .credential.hero-card,
+.stage.is-tracking .credential.hero-card{
+  animation:none;
+}
+
+/* shadow plane */
+.plane-shadow{
+  position:absolute; inset:0;
+  background:rgba(0,0,0,0.6);
+  transform: translateZ(-40px) translate(18px,28px);
+  filter: blur(8px) opacity(0.6);
+  border-radius:6px;
+}
+
+/* card body */
+.plane-body{
+  position:absolute; inset:0;
+  transform: translateZ(0);
+  border-radius:6px;
+  background-color:#EDE6D3;
+  background-image:
+    radial-gradient(circle at 30% 20%, rgba(155,147,132,0.12) 0%, transparent 40%),
+    radial-gradient(circle at 70% 80%, rgba(58,51,42,0.08) 0%, transparent 50%),
+    repeating-linear-gradient(96deg, rgba(58,51,42,0.04) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(174deg, rgba(58,51,42,0.03) 0 1px, transparent 1px 5px);
+  box-shadow:
+    inset 0 0 0 1px rgba(58,51,42,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.4);
+  color:var(--ink);
+  padding:28px 32px 24px 56px;
+  overflow:hidden;
+  display:grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+/* foil layer on top */
+.plane-foil{
+  position:absolute; inset:0;
+  transform: translateZ(20px);
+  pointer-events:none;
+  border-radius:6px;
+  background:
+    linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+  mix-blend-mode:screen;
+  opacity:0.5;
+}
+
+/* perforation strip down the LEFT edge */
+.perf{
+  position:absolute;
+  top:8px; bottom:8px; left:14px;
+  width:8px;
+  background-image: radial-gradient(circle, #0A0908 1.5px, transparent 1.6px);
+  background-size: 8px 12px;
+  background-position: 0 0;
+  background-repeat: repeat-y;
+  z-index:2;
+}
+
+/* card content */
+.card-head{
+  display:flex; justify-content:space-between; align-items:flex-start;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.625rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--smoke);
+}
+.card-head .serial{ color:var(--ink); }
+
+.card-mid{
+  display:flex; flex-direction:column; justify-content:center;
+  padding:8px 0;
+}
+.card-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.625rem;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:var(--smoke);
+  margin-bottom:6px;
+}
+.card-name{
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:clamp(2rem, 3.5vw, 3rem);
+  line-height:0.9;
+  letter-spacing:-0.02em;
+  text-transform:uppercase;
+  color:var(--ink);
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.5),
+    0 -1px 0 rgba(0,0,0,0.15);
+}
+.card-name .accent{ color:var(--signal); }
+
+.card-foot{
+  display:flex; justify-content:space-between; align-items:flex-end;
+  gap:12px;
+}
+.card-foot .stamp{
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:2.25rem;
+  line-height:1;
+  letter-spacing:-0.02em;
+  color:rgba(58,51,42,0.85);
+}
+.card-foot .meta{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.5625rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--smoke);
+  text-align:right;
+  line-height:1.5;
+}
+
+/* ============================================================
+   TICKER MARQUEE
+   ============================================================ */
+.ticker{
+  position:relative;
+  height:64px;
+  background:var(--signal);
+  color:var(--ink);
+  overflow:hidden;
+  border-top:1px solid var(--smoke);
+  border-bottom:1px solid var(--smoke);
+  display:flex; align-items:center;
+}
+.ticker-track{
+  display:flex;
+  gap:48px;
+  white-space:nowrap;
+  animation: tick 28s linear infinite;
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:1.5rem;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  padding-left:48px;
+}
+.ticker:hover .ticker-track{ animation-play-state:paused }
+.ticker-track span{ display:inline-block; }
+.ticker-track .sep{
+  width:8px; height:8px; background:var(--ink); border-radius:50%;
+  align-self:center;
+}
+@keyframes tick{
+  from{ transform: translateX(0); }
+  to  { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   MANIFESTO
+   ============================================================ */
+.section{
+  padding:160px var(--gutter);
+  position:relative;
+}
+.section-label{
+  display:flex; gap:14px; align-items:center;
+  margin-bottom:48px;
+}
+.section-label .num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6875rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--signal);
+}
+.section-label .name{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6875rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--dust);
+}
+.section-label .rule{ flex:1; height:1px; background:var(--smoke); }
+
+.manifesto{
+  max-width:760px;
+}
+.manifesto .pull{
+  font-family:'Fraunces',serif;
+  font-style:italic;
+  font-weight:900;
+  font-variation-settings: "opsz" 144;
+  font-size:clamp(2rem, 4vw, 3.5rem);
+  line-height:1.05;
+  letter-spacing:-0.02em;
+  color:var(--bone);
+  margin-bottom:48px;
+}
+.manifesto .pull .accent{ color:var(--signal); }
+.manifesto p{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.9375rem;
+  line-height:1.8;
+  color:var(--dust);
+  margin-bottom:18px;
+  max-width:580px;
+  letter-spacing:0.02em;
+}
+.manifesto .signoff{
+  margin-top:32px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6875rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  color:var(--bone);
+}
+
+/* ============================================================
+   TIER STAGE — perspective with three credentials
+   ============================================================ */
+.tiers-wrap{
+  position:relative;
+  padding:160px var(--gutter) 200px;
+  overflow:hidden;
+}
+
+.floor{
+  position:absolute;
+  left:50%; bottom:80px;
+  width:140vw;
+  height:520px;
+  transform: translateX(-50%) perspective(900px) rotateX(72deg) translateZ(-200px);
+  transform-origin: 50% 100%;
+  background:
+    repeating-linear-gradient(90deg, var(--smoke) 0 1px, transparent 1px 80px),
+    repeating-linear-gradient(0deg, var(--smoke) 0 1px, transparent 1px 80px);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 75%);
+          mask-image: radial-gradient(ellipse at 50% 0%, #000 30%, transparent 75%);
+  pointer-events:none;
+  opacity:0.7;
+}
+.floor-glow{
+  position:absolute;
+  left:50%; bottom:120px;
+  width:80vw; height:300px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 100%, rgba(255,59,26,0.22) 0%, transparent 60%);
+  mix-blend-mode:screen;
+  pointer-events:none;
+}
+
+.tiers-stage{
+  position:relative;
+  perspective:1200px;
+  perspective-origin:50% 60%;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  gap:48px;
+  min-height:520px;
+  transform-style:preserve-3d;
+}
+
+.tier{
+  position:relative;
+  width:340px;
+  /* taller than a real card so all benefits read */
+  min-height:420px;
+  transform-style:preserve-3d;
+  opacity:0;
+  transform: translateY(400px) rotateY(0) translateZ(0);
+  transition: transform 900ms cubic-bezier(0.16,1,0.3,1),
+              opacity 600ms ease-out;
+}
+.tier.is-in.tier-left { transform: translateY(0) rotateY(-12deg) translateZ(0); opacity:1; }
+.tier.is-in.tier-right{ transform: translateY(0) rotateY(12deg)  translateZ(0); opacity:1; }
+.tier.is-in.tier-mid  { transform: translateY(0) rotateY(0)      translateZ(120px) scale(1.15); opacity:1; transition-delay:240ms; }
+
+.tier .plane-body{
+  padding:28px 26px 24px 48px;
+  display:grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap:14px;
+}
+
+.tier .foil-num{
+  position:absolute;
+  top:18px; right:22px;
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:3rem;
+  line-height:1;
+  letter-spacing:-0.04em;
+  color:rgba(58,51,42,0.18);
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.5),
+    0 -1px 0 rgba(0,0,0,0.08);
+  z-index:3;
+  transform: rotate(-4deg);
+}
+.tier.tier-mid  .foil-num{ transform: rotate(0deg) }
+.tier.tier-right .foil-num{ transform: rotate(4deg) }
+
+.tier .tier-name{
+  font-family:'Fraunces',serif;
+  font-style:italic;
+  font-weight:900;
+  font-variation-settings: "opsz" 144;
+  font-size:2.25rem;
+  line-height:1;
+  color:var(--ink);
+  margin-bottom:4px;
+}
+.tier .tier-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.5625rem;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:var(--smoke);
+  margin-bottom:8px;
+}
+.tier .tier-price{
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:3rem;
+  line-height:0.9;
+  letter-spacing:-0.04em;
+  color:var(--ink);
+  margin:0 0 4px;
+}
+.tier.tier-mid .tier-price{ font-size:4rem }
+.tier .tier-price .per{ font-size:1rem; letter-spacing:.1em; color:var(--smoke); }
+.tier .tier-benefits{
+  list-style:none;
+  margin:6px 0 8px;
+  padding:0;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.625rem;
+  line-height:1.5;
+  letter-spacing:0.04em;
+  color:var(--smoke);
+  text-transform:uppercase;
+}
+.tier .tier-benefits li{
+  display:flex; gap:8px;
+  padding:4px 0;
+  border-bottom:1px solid rgba(58,51,42,0.12);
+}
+.tier .tier-benefits li .idx{ color:var(--ink); font-weight:500; flex:0 0 18px }
+.tier .tier-cta{
+  display:inline-flex;
+  align-items:center;
+  gap:12px;
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:1.125rem;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--ink);
+  cursor:none;
+  padding:8px 0;
+  border-bottom:2px solid var(--ink);
+  align-self:flex-start;
+}
+.tier.tier-mid .tier-cta{
+  background:var(--signal);
+  color:var(--ink);
+  padding:10px 18px;
+  border:0;
+}
+
+/* The FEATURED stamp on middle tier */
+.featured-stamp{
+  position:absolute;
+  top:-22px; left:50%;
+  transform: translateX(-50%) rotate(-2deg);
+  background:var(--signal);
+  color:var(--ink);
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:0.875rem;
+  letter-spacing:0.2em;
+  padding:8px 16px;
+  text-transform:uppercase;
+  z-index:5;
+  box-shadow: 3px -2px 0 rgba(0,0,0,0.6);
+  white-space:nowrap;
+}
+.featured-stamp::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--signal);
+  transform: translate(2px,-1px);
+  mix-blend-mode:multiply;
+  opacity:0.5;
+  pointer-events:none;
+  z-index:-1;
+}
+
+/* ============================================================
+   WHAT MEMBERS GET — numbered list
+   ============================================================ */
+.members{
+  padding:160px var(--gutter);
+}
+.members .row{
+  display:grid;
+  grid-template-columns: 220px 1fr 1fr;
+  gap:48px;
+  padding:48px 0;
+  border-bottom:1px solid var(--smoke);
+  align-items:start;
+  opacity:0;
+  transform: translateX(-20px);
+  transition: opacity 400ms ease-out, transform 400ms ease-out;
+}
+.members .row.is-in{ opacity:1; transform:translateX(0); }
+.members .row .index{
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size:8rem;
+  line-height:0.85;
+  letter-spacing:-0.04em;
+  color:var(--dust);
+  font-variant-numeric: tabular-nums;
+}
+.members .row .title{
+  font-family:'Fraunces',serif;
+  font-style:italic;
+  font-weight:900;
+  font-variation-settings: "opsz" 144;
+  font-size:2rem;
+  line-height:1.1;
+  letter-spacing:-0.01em;
+  color:var(--bone);
+}
+.members .row .body{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.875rem;
+  line-height:1.8;
+  color:var(--dust);
+  letter-spacing:0.02em;
+}
+.members .row .body .tag{
+  display:inline-block;
+  margin-top:14px;
+  padding:4px 10px;
+  border:1px solid var(--smoke);
+  color:var(--bone);
+  font-size:0.625rem;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+}
+
+/* ============================================================
+   FINAL CTA
+   ============================================================ */
+.final{
+  position:relative;
+  padding:200px var(--gutter) 160px;
+  overflow:hidden;
+}
+.final-grid{
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap:64px;
+  align-items:center;
+}
+.final h2{
+  font-family:'Big Shoulders Display',sans-serif;
+  font-weight:900;
+  font-size: clamp(4rem, 9vw, 9rem);
+  line-height:0.85;
+  letter-spacing:-0.04em;
+  text-transform:uppercase;
+  color:var(--bone);
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.3),
+    0 -1px 0 rgba(0,0,0,0.5),
+    0 0 12px rgba(255,59,26,0.15);
+}
+.final h2 .accent{ color:var(--signal); }
+.final .lede{
+  margin-top:24px;
+  font-family:'Fraunces',serif;
+  font-style:italic;
+  font-weight:900;
+  font-variation-settings: "opsz" 144;
+  font-size:1.5rem;
+  color:var(--dust);
+  line-height:1.3;
+  max-width:520px;
+}
+.final .cta-row{ margin-top:48px }
+.final-card{ position:relative; perspective:1200px; transform-style:preserve-3d; }
+.final-card .credential{
+  transform: rotateY(-12deg) rotateX(8deg);
+  width:100%;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{
+  border-top:1px solid var(--smoke);
+  padding:24px var(--gutter);
+  display:flex;
+  justify-content:space-between;
+  gap:24px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.75rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--dust);
+}
+.footer .right{ color:var(--bone); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px){
+  :root{ --gutter: 20px; }
+  body{ cursor:auto }
+  .cursor{ display:none }
+  .top-left .brand{ font-size:1.25rem }
+  .top-badge{ font-size:0.625rem }
+  .hero{
+    grid-template-columns:1fr;
+    padding:120px var(--gutter) 60px;
+    gap:48px;
+  }
+  .stage{ height:auto; min-height:340px; }
+  .credential{ width:100%; }
+  .section, .members, .final{ padding:80px var(--gutter); }
+  .tiers-wrap{ padding:80px var(--gutter) 100px; }
+  .tiers-stage{
+    flex-direction:column;
+    align-items:center;
+    gap:48px;
+    perspective:800px;
+    min-height:auto;
+  }
+  .tier{ width:min(100%, 360px); }
+  .tier.is-in.tier-left,
+  .tier.is-in.tier-right,
+  .tier.is-in.tier-mid{
+    transform: translateY(0) rotateY(0) translateZ(0) scale(1);
+  }
+  .floor{ height:280px; }
+  .members .row{
+    grid-template-columns:1fr;
+    gap:16px; padding:32px 0;
+  }
+  .members .row .index{ font-size:5rem }
+  .members .row .title{ font-size:1.5rem }
+  .final-grid{ grid-template-columns:1fr; gap:48px; }
+  .footer{ flex-direction:column; gap:8px; }
+  .ticker-track{ font-size:1.125rem; gap:32px; }
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== GRAIN OVERLAY ===== -->
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ===== CUSTOM CURSOR ===== -->
+<div class="cursor" id="cursor" aria-hidden="true">JOIN</div>
+
+<!-- ===== TOP CHROME ===== -->
+<div class="top-left">
+  <span class="brand">COMPLEX</span>
+  <span class="mono">ALG–0089 / 2026</span>
+</div>
+<div class="top-badge">
+  <span class="dot"></span>
+  <span class="mono">VOL.01 — MEMBERS ONLY</span>
+</div>
+
+<!-- ===== HAIRLINE DRAW ON LOAD ===== -->
+<hr class="hair" id="hairTop" style="position:absolute;top:64px;left:0;right:0;z-index:40" />
+
+<!-- ============================================================
+     [01] HERO
+     ============================================================ -->
+<section class="hero" id="hero">
+  <div class="hero-text">
+    <div class="hero-label">
+      <span class="bar"></span>
+      <span class="mono">[01] HERO / THE CREDENTIAL</span>
+    </div>
+
+    <h1 class="allegiance" id="allegiance" aria-label="Allegiance">
+      <span class="char">A</span><span class="char">L</span><span class="char">L</span><span class="char">E</span><span class="char">G</span><span class="char">I</span><span class="char">A</span><span class="char">N</span><span class="char">C</span><span class="char">E</span>
+    </h1>
+
+    <p class="hero-sub">
+      ALG–EST. 2026<span class="slash">/</span>A MEMBERS-ONLY THING, ON PURPOSE.
+    </p>
+
+    <p class="hero-body">
+      A numbered credential for the people who were here before the algorithm. Drop access, intel before press, room in the room — printed, not posted.
+    </p>
+
+    <div class="cta-row">
+      <button class="btn signal-overprint" data-text="JOIN — GET NUMBERED" data-cta="1">
+        JOIN — GET NUMBERED
+      </button>
+      <button class="btn btn-ghost" data-cta="1">SEE TIERS ↓</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="credential hero-card" id="heroCard">
+      <div class="plane-shadow"></div>
+      <div class="plane-body">
+        <div class="perf" aria-hidden="true"></div>
+
+        <div class="card-head">
+          <span>COMPLEX · ALLEGIANCE</span>
+          <span class="serial">No. ALG-0089</span>
+        </div>
+
+        <div class="card-mid">
+          <div class="card-eyebrow">Cardmember</div>
+          <div class="card-name">ZACK <span class="accent">/</span> CHANG</div>
+          <div class="card-eyebrow" style="margin-top:8px">Tier · OBSESSED</div>
+        </div>
+
+        <div class="card-foot">
+          <span class="stamp">01</span>
+          <span class="meta">VALID THRU<br/>12 · 2027<br/>NON-TRANSFERABLE</span>
+        </div>
+      </div>
+      <div class="plane-foil" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<hr class="hair" />
+
+<!-- ============================================================
+     [02] TICKER
+     ============================================================ -->
+<div class="ticker" aria-label="Marquee">
+  <div class="ticker-track">
+    <span>14M MEMBERS</span><span class="sep"></span>
+    <span>421 MEMBER-ONLY DROPS</span><span class="sep"></span>
+    <span>96s MEDIAN SELL-OUT</span><span class="sep"></span>
+    <span>CANCEL ANY TIME</span><span class="sep"></span>
+    <span>14M MEMBERS</span><span class="sep"></span>
+    <span>421 MEMBER-ONLY DROPS</span><span class="sep"></span>
+    <span>96s MEDIAN SELL-OUT</span><span class="sep"></span>
+    <span>CANCEL ANY TIME</span><span class="sep"></span>
+  </div>
+</div>
+
+<hr class="hair" />
+
+<!-- ============================================================
+     [03] MANIFESTO
+     ============================================================ -->
+<section class="section" id="manifesto">
+  <div class="section-label">
+    <span class="num">[03]</span>
+    <span class="name">EDITOR'S LETTER</span>
+    <span class="rule"></span>
+  </div>
+
+  <div class="manifesto">
+    <p class="pull">
+      The good stuff was never in the feed. It was in the room, in the group chat, on the <span class="accent">list.</span>
+    </p>
+
+    <p>Allegiance is what we make for the people who showed up first. Not a paywall, not a perk pile — a printed credential with a number on it that says you are part of the thing.</p>
+
+    <p>Every drop, every dinner, every editor's pick — there is a quiet door. Members walk in.</p>
+
+    <p>You will get fewer emails than usual. The ones you do get will be embarrassingly specific. The hoodie before the queue. The seat before the announcement. The story before the take.</p>
+
+    <p>It is $9. You can cancel any time. Nobody is going to chase you.</p>
+
+    <p class="signoff">— Complex Editorial, NYC</p>
+  </div>
+</section>
+
+<hr class="hair" />
+
+<!-- ============================================================
+     [04] TIERS
+     ============================================================ -->
+<section class="tiers-wrap" id="tiers">
+  <div class="section-label" style="margin-bottom:24px">
+    <span class="num">[04]</span>
+    <span class="name">TIERS / PICK YOUR DOOR</span>
+    <span class="rule"></span>
+  </div>
+
+  <div class="floor" aria-hidden="true"></div>
+  <div class="floor-glow" aria-hidden="true"></div>
+
+  <div class="tiers-stage" id="tiersStage">
+
+    <!-- TIER 1 -->
+    <article class="tier tier-left" data-tier="left">
+      <div class="plane-shadow"></div>
+      <div class="plane-body">
+        <div class="perf" aria-hidden="true"></div>
+        <div class="foil-num">01</div>
+
+        <div>
+          <div class="tier-eyebrow">ALG—T1 / OPEN FLOOR</div>
+          <div class="tier-name">REGULAR.</div>
+        </div>
+
+        <div>
+          <div class="tier-price">FREE<span class="per"> / NO CARD</span></div>
+          <ul class="tier-benefits">
+            <li><span class="idx">01</span><span>THE DAILY EMAIL · UNFILTERED</span></li>
+            <li><span class="idx">02</span><span>COMMENT ACCESS ON STAFF PIECES</span></li>
+            <li><span class="idx">03</span><span>DROP CALENDAR · PUBLIC TIER</span></li>
+            <li><span class="idx">04</span><span>SAVE 3 ARTICLES / MONTH</span></li>
+          </ul>
+        </div>
+
+        <a class="tier-cta" data-cta="1">START FREE →</a>
+      </div>
+      <div class="plane-foil" aria-hidden="true"></div>
+    </article>
+
+    <!-- TIER 2 - FEATURED -->
+    <article class="tier tier-mid" data-tier="mid">
+      <div class="featured-stamp">EDITOR'S PICK</div>
+      <div class="plane-shadow"></div>
+      <div class="plane-body">
+        <div class="perf" aria-hidden="true"></div>
+        <div class="foil-num">02</div>
+
+        <div>
+          <div class="tier-eyebrow">ALG—T2 / NUMBERED</div>
+          <div class="tier-name">OBSESSED.</div>
+        </div>
+
+        <div>
+          <div class="tier-price">$9<span class="per"> / MO</span></div>
+          <ul class="tier-benefits">
+            <li><span class="idx">01</span><span>HAND-NUMBERED MEMBER CARD · MAILED</span></li>
+            <li><span class="idx">02</span><span>INTEL DROPS · 48HRS BEFORE PRESS</span></li>
+            <li><span class="idx">03</span><span>PRIVATE DISCORD · STAFF IN-CHAT</span></li>
+            <li><span class="idx">04</span><span>EARLY ACCESS · COMPLEXCON RSVP</span></li>
+            <li><span class="idx">05</span><span>QUARTERLY ZINE · PRINTED, MAILED</span></li>
+            <li><span class="idx">06</span><span>MEMBER-ONLY DROP RAFFLES</span></li>
+          </ul>
+        </div>
+
+        <a class="tier-cta signal-overprint" data-text="JOIN OBSESSED" data-cta="1">JOIN OBSESSED →</a>
+      </div>
+      <div class="plane-foil" aria-hidden="true"></div>
+    </article>
+
+    <!-- TIER 3 -->
+    <article class="tier tier-right" data-tier="right">
+      <div class="plane-shadow"></div>
+      <div class="plane-body">
+        <div class="perf" aria-hidden="true"></div>
+        <div class="foil-num">03</div>
+
+        <div>
+          <div class="tier-eyebrow">ALG—T3 / HOUSEHOLD</div>
+          <div class="tier-name">FAMILY.</div>
+        </div>
+
+        <div>
+          <div class="tier-price">$29<span class="per"> / MO</span></div>
+          <ul class="tier-benefits">
+            <li><span class="idx">01</span><span>FOUR NUMBERED CARDS · ONE HOUSEHOLD</span></li>
+            <li><span class="idx">02</span><span>COMPLEXCON VIP · 2 TICKETS, FRONT</span></li>
+            <li><span class="idx">03</span><span>EDITOR DINNERS · NYC / LA / TOKYO</span></li>
+            <li><span class="idx">04</span><span>ARCHIVE ACCESS · 20 YEARS OF PRINT</span></li>
+            <li><span class="idx">05</span><span>CO-SIGN ON ONE ANNUAL COLLAB DROP</span></li>
+            <li><span class="idx">06</span><span>NO ADS · ANYWHERE · EVER</span></li>
+          </ul>
+        </div>
+
+        <a class="tier-cta" data-cta="1">GO FAMILY →</a>
+      </div>
+      <div class="plane-foil" aria-hidden="true"></div>
+    </article>
+  </div>
+</section>
+
+<hr class="hair" />
+
+<!-- ============================================================
+     [05] WHAT MEMBERS GET
+     ============================================================ -->
+<section class="members" id="members">
+  <div class="section-label">
+    <span class="num">[05]</span>
+    <span class="name">WHAT MEMBERS GET / IN PLAIN LANGUAGE</span>
+    <span class="rule"></span>
+  </div>
+
+  <div class="row" data-target="1">
+    <div class="index" data-count="1">00</div>
+    <div class="title">A card with your number on it.</div>
+    <div class="body">
+      Hand-numbered, mailed to your address, printed on 350gsm uncoated stock. Yours forever. Shows up at the door, not in your inbox.
+      <span class="tag">PRINTED · NOT POSTED</span>
+    </div>
+  </div>
+
+  <div class="row" data-target="2">
+    <div class="index" data-count="2">00</div>
+    <div class="title">The intel, before press.</div>
+    <div class="body">
+      Drop calendars, collab leaks, label rumors — 48 hours before they hit the public site. The version we'd send a friend.
+      <span class="tag">+48HRS LEAD</span>
+    </div>
+  </div>
+
+  <div class="row" data-target="3">
+    <div class="index" data-count="3">00</div>
+    <div class="title">A room. Not a Slack. A room.</div>
+    <div class="body">
+      Members-only Discord with editors in the chat. Drop predictions, sneaker authentication, music recs that aren't algorithmic.
+      <span class="tag">EDITORS IN-CHAT</span>
+    </div>
+  </div>
+
+  <div class="row" data-target="4">
+    <div class="index" data-count="4">00</div>
+    <div class="title">The door at ComplexCon.</div>
+    <div class="body">
+      Skip the line. Front row at the panel. The member lounge that nobody photographs because nobody needs to.
+      <span class="tag">VIP / FRONT ROW</span>
+    </div>
+  </div>
+</section>
+
+<hr class="hair" />
+
+<!-- ============================================================
+     [06] FINAL CTA
+     ============================================================ -->
+<section class="final" id="final">
+  <div class="section-label">
+    <span class="num">[06]</span>
+    <span class="name">END / GET YOURS NUMBERED</span>
+    <span class="rule"></span>
+  </div>
+
+  <div class="final-grid">
+    <div>
+      <h2>GET YOURS <span class="accent">NUMBERED.</span></h2>
+      <p class="lede">$9 a month. A real card, in real mail. The list you actually wanted to be on.</p>
+      <div class="cta-row">
+        <button class="btn signal-overprint" data-text="CLAIM ALG-0090" data-cta="1">
+          CLAIM ALG-0090
+        </button>
+        <button class="btn btn-ghost" data-cta="1">CANCEL ANY TIME ✓</button>
+      </div>
+    </div>
+
+    <div class="final-card">
+      <div class="credential">
+        <div class="plane-shadow"></div>
+        <div class="plane-body">
+          <div class="perf" aria-hidden="true"></div>
+          <div class="card-head">
+            <span>COMPLEX · ALLEGIANCE</span>
+            <span class="serial">No. ALG-0090</span>
+          </div>
+          <div class="card-mid">
+            <div class="card-eyebrow">Cardmember</div>
+            <div class="card-name">YOUR <span class="accent">/</span> NAME</div>
+            <div class="card-eyebrow" style="margin-top:8px">Tier · OBSESSED</div>
+          </div>
+          <div class="card-foot">
+            <span class="stamp">02</span>
+            <span class="meta">VALID THRU<br/>12 · 2027<br/>NON-TRANSFERABLE</span>
+          </div>
+        </div>
+        <div class="plane-foil" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <span>COMPLEX ALLEGIANCE · ALG-EST-2026 · CANCEL ANY TIME</span>
+  <span class="right">© 2026 COMPLEX EDITORIAL · NYC</span>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ----------------------------------------------------------
+     Custom cursor
+     ---------------------------------------------------------- */
+  const cursor = document.getElementById('cursor');
+  let cx = window.innerWidth/2, cy = window.innerHeight/2;
+  let tx = cx, ty = cy;
+  const isCoarse = window.matchMedia('(pointer:coarse)').matches;
+
+  if (!isCoarse) {
+    window.addEventListener('mousemove', (e) => {
+      tx = e.clientX; ty = e.clientY;
+    }, {passive:true});
+
+    const lerp = () => {
+      cx += (tx - cx) * 0.22;
+      cy += (ty - cy) * 0.22;
+      cursor.style.transform = `translate(${cx}px, ${cy}px) translate(-50%,-50%)`;
+      requestAnimationFrame(lerp);
+    };
+    lerp();
+
+    document.querySelectorAll('[data-cta]').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('is-cta'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('is-cta'));
+    });
+  }
+
+  /* ----------------------------------------------------------
+     Hero parallax — cursor tracking on credential
+     ---------------------------------------------------------- */
+  const stage = document.getElementById('stage');
+  const heroCard = document.getElementById('heroCard');
+  if (stage && !isCoarse) {
+    const hero = document.getElementById('hero');
+    hero.addEventListener('mousemove', (e) => {
+      const r = hero.getBoundingClientRect();
+      const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+      const ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+      hero.style.setProperty('--rx', nx.toFixed(3));
+      hero.style.setProperty('--ry', ny.toFixed(3));
+      stage.classList.add('is-tracking');
+    }, {passive:true});
+    hero.addEventListener('mouseleave', () => {
+      hero.style.setProperty('--rx', 0);
+      hero.style.setProperty('--ry', 0);
+      stage.classList.remove('is-tracking');
+    });
+  } else if (heroCard && window.DeviceOrientationEvent) {
+    window.addEventListener('deviceorientation', (e) => {
+      const nx = Math.max(-1, Math.min(1, (e.gamma || 0) / 30));
+      const ny = Math.max(-1, Math.min(1, (e.beta  || 0) / 30));
+      document.getElementById('hero').style.setProperty('--rx', nx.toFixed(3));
+      document.getElementById('hero').style.setProperty('--ry', ny.toFixed(3));
+    }, {passive:true});
+  }
+
+  /* ----------------------------------------------------------
+     Page-load reveals
+     ---------------------------------------------------------- */
+  const hair = document.getElementById('hairTop');
+  if (hair) {
+    hair.style.transform = 'scaleX(0)';
+    hair.style.transition = 'transform 600ms cubic-bezier(0.77,0,0.175,1)';
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      hair.style.transform = 'scaleX(1)';
+    }));
+  }
+
+  // ALLEGIANCE character wipe, staggered 40ms
+  const word = document.getElementById('allegiance');
+  if (word) {
+    const chars = word.querySelectorAll('.char');
+    chars.forEach((c, i) => {
+      c.style.animationDelay = (400 + i * 40) + 'ms';
+    });
+    requestAnimationFrame(() => word.classList.add('reveal'));
+  }
+
+  // Hero credential fade-in + settle
+  if (heroCard) {
+    heroCard.style.opacity = 0;
+    heroCard.style.transform = 'translateZ(-200px)';
+    heroCard.style.transition = 'opacity 400ms ease-out, transform 400ms cubic-bezier(0.22,1,0.36,1)';
+    setTimeout(() => {
+      heroCard.style.opacity = 1;
+      heroCard.style.transform = '';
+    }, 800);
+  }
+
+  /* ----------------------------------------------------------
+     IntersectionObserver — tiers rise + numbered list slide
+     ---------------------------------------------------------- */
+  const tiers = document.querySelectorAll('.tier');
+  let tiersRevealed = false;
+  const revealTiers = () => {
+    if (tiersRevealed) return;
+    tiersRevealed = true;
+    const order = ['left','right','mid'];
+    tiers.forEach((t) => {
+      const delay = order.indexOf(t.dataset.tier) * 120;
+      setTimeout(() => t.classList.add('is-in'), delay);
+    });
+  };
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(en => {
+        if (en.isIntersecting) {
+          revealTiers();
+          io.unobserve(en.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    const stageEl = document.getElementById('tiersStage');
+    if (stageEl) io.observe(stageEl);
+  } else {
+    tiers.forEach(t => t.classList.add('is-in'));
+  }
+  // safety fallback — guarantee reveal
+  setTimeout(revealTiers, 2200);
+
+  /* Numbered rows — count-up + slide-in */
+  const rows = document.querySelectorAll('.members .row');
+  if ('IntersectionObserver' in window) {
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(en => {
+        if (en.isIntersecting) {
+          const row = en.target;
+          row.classList.add('is-in');
+          const idx = row.querySelector('.index');
+          const target = parseInt(row.dataset.target, 10);
+          const start = performance.now();
+          const dur = 400;
+          const tick = (t) => {
+            const p = Math.min(1, (t - start) / dur);
+            const val = Math.round(p * target);
+            idx.textContent = String(val).padStart(2, '0');
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+          io2.unobserve(row);
+        }
+      });
+    }, { threshold: 0.08 });
+    rows.forEach(r => io2.observe(r));
+  } else {
+    rows.forEach(r => {
+      r.classList.add('is-in');
+      const t = r.dataset.target;
+      r.querySelector('.index').textContent = String(t).padStart(2,'0');
+    });
+  }
+  // safety fallback for rows
+  setTimeout(() => {
+    rows.forEach(r => {
+      if (!r.classList.contains('is-in')) {
+        r.classList.add('is-in');
+        const t = r.dataset.target;
+        r.querySelector('.index').textContent = String(t).padStart(2,'0');
+      }
+    });
+  }, 2400);
+
+  /* ----------------------------------------------------------
+     CTA hover feedback — log clicks (no real handler in static)
+     ---------------------------------------------------------- */
+  document.querySelectorAll('[data-cta]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      btn.animate(
+        [{ transform:'translateY(0)' }, { transform:'translateY(-4px)' }, { transform:'translateY(0)' }],
+        { duration: 240, easing: 'cubic-bezier(0.22,1,0.36,1)' }
+      );
+    });
+  });
+
+})();
+</script>
+</body>
+</html>

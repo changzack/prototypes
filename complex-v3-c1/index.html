@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complex Allegiance — The Allegiance Index</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,900;1,900&family=JetBrains+Mono:wght@400;700&family=Fraunces:ital,opsz,wght@1,144,600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0A0A0A;
+      --bone:#EDE6D3;
+      --signal:#C8FF00;
+      --blood:#FF2E2E;
+      --dust:#5A5A5A;
+      --s4:4px;
+      --s8:8px;
+      --s14:14px;
+      --s24:24px;
+      --s40:40px;
+      --s64:64px;
+      --s112:112px;
+      --ease:cubic-bezier(0.16, 1, 0.3, 1);
+      --bounce:cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    *{box-sizing:border-box}
+    html{background:var(--ink);color:var(--bone);scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:#0A0A0A;
+      color:#EDE6D3;
+      font-family:'JetBrains Mono', monospace;
+      overflow-x:hidden;
+      cursor:none;
+    }
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:9998;
+      pointer-events:none;
+      mix-blend-mode:overlay;
+      opacity:0.08;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' fill='%23EDE6D3'/%3E%3C/svg%3E");
+      background-size:256px 256px;
+    }
+
+    a,button{font:inherit;color:inherit}
+    button{cursor:none}
+    .hidden-svg{position:absolute;width:0;height:0;overflow:hidden}
+
+    .hairline{border-top:1px solid #EDE6D3; opacity:0.18}
+    .section{
+      position:relative;
+      max-width:1440px;
+      margin:0 auto;
+      padding:64px 24px;
+      border-top:1px solid rgba(237,230,211,0.18);
+      overflow:hidden;
+    }
+    .grid12{
+      display:grid;
+      grid-template-columns:repeat(12, minmax(0, 1fr));
+      gap:24px;
+      position:relative;
+      z-index:2;
+    }
+
+    .topbar{
+      height:56px;
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:#0A0A0A;
+      border-bottom:1px solid rgba(237,230,211,0.18);
+      display:flex;
+      align-items:center;
+      padding:0 24px;
+      gap:14px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+    .topbar .brandline{min-width:min(46vw, 390px)}
+    .live-cluster{display:flex;align-items:center;gap:8px;opacity:0;transition:opacity 260ms var(--ease)}
+    .live-cluster.on{opacity:1}
+    .live-dot{
+      width:6px;
+      height:6px;
+      display:inline-block;
+      background:#FF2E2E;
+      animation:livePulse 1.4s infinite;
+      flex:0 0 6px;
+    }
+    @keyframes livePulse{
+      0%,100%{transform:scale(1);opacity:1}
+      50%{transform:scale(1.4);opacity:0.5}
+    }
+    .topbar .counter{color:#EDE6D3;font-variant-numeric:tabular-nums}
+    .topbar-spacer{flex:1}
+    .mini-cta{
+      border:1px solid rgba(237,230,211,0.3);
+      background:#C8FF00;
+      color:#0A0A0A;
+      padding:8px 14px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      box-shadow:0 0 28px rgba(200,255,0,0.25);
+      transition:transform 120ms var(--ease), opacity 120ms var(--ease);
+    }
+    .mini-cta:active{transform:translateY(1px)}
+
+    .hero{
+      min-height:60vh;
+      padding-top:64px;
+      padding-bottom:64px;
+      border-top:0;
+    }
+    .hero-copy{grid-column:1 / span 7;align-self:center;min-width:0}
+    .hero-graph-wrap{grid-column:8 / span 5;position:relative;min-height:520px}
+    .terminal-kicker{
+      font-family:'JetBrains Mono', monospace;
+      font-size:11px;
+      line-height:1;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:#5A5A5A;
+      margin-bottom:24px;
+      font-variant-numeric:tabular-nums;
+    }
+    .display{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-style:italic;
+      font-size:clamp(72px, 12vw, 196px);
+      letter-spacing:-0.04em;
+      line-height:0.86;
+      margin:0 0 40px 0;
+      text-transform:uppercase;
+      max-width:980px;
+    }
+    .display .word{
+      display:block;
+      transform:translateY(40px);
+      opacity:0;
+      transition:transform 600ms var(--ease), opacity 600ms var(--ease);
+    }
+    .display .word.on{transform:translateY(0);opacity:1}
+    .stroke-only{
+      -webkit-text-stroke:2px #EDE6D3;
+      color:transparent;
+      text-shadow:none;
+    }
+    .index-line{
+      position:relative;
+      display:block;
+      height:0.92em;
+    }
+    .index-word{
+      position:absolute;
+      inset:0 auto auto 0;
+      white-space:nowrap;
+      opacity:0.22;
+    }
+    .index-svg{
+      position:absolute;
+      left:0;
+      top:-0.02em;
+      width:min(680px, 90vw);
+      height:0.92em;
+      overflow:visible;
+    }
+    .index-svg text{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-style:italic;
+      font-size:168px;
+      letter-spacing:-0.04em;
+      fill:transparent;
+      stroke:#EDE6D3;
+      stroke-width:2;
+      stroke-dasharray:1600;
+      stroke-dashoffset:1600;
+    }
+    .index-svg.on text{animation:strokeDraw 1200ms var(--ease) forwards}
+    @keyframes strokeDraw{to{stroke-dashoffset:0}}
+
+    .hero-stats{
+      display:grid;
+      gap:14px;
+      max-width:560px;
+    }
+    .stat-line{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      min-height:24px;
+      opacity:0;
+      transform:translateY(12px);
+      transition:opacity 420ms var(--ease), transform 420ms var(--ease);
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:14px;
+      letter-spacing:0.02em;
+      font-variant-numeric:tabular-nums;
+      color:#EDE6D3;
+    }
+    .stat-line.on{opacity:1;transform:translateY(0)}
+    .stat-line svg{width:60px;height:18px;flex:0 0 60px}
+    .sparkline{
+      fill:none;
+      stroke:#C8FF00;
+      stroke-width:1.6;
+      stroke-linecap:square;
+      stroke-linejoin:miter;
+      stroke-dasharray:90;
+      stroke-dashoffset:90;
+      filter:drop-shadow(0 0 6px rgba(200,255,0,0.35));
+    }
+    .stat-line.on .sparkline{animation:sparkDraw 400ms var(--ease) forwards}
+    @keyframes sparkDraw{to{stroke-dashoffset:0}}
+
+    .first-viewport-price{
+      margin-top:40px;
+      display:inline-flex;
+      align-items:center;
+      gap:14px;
+      border-top:1px solid rgba(237,230,211,0.18);
+      border-bottom:1px solid rgba(237,230,211,0.18);
+      padding:14px 0;
+      font-size:13px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:#EDE6D3;
+      font-variant-numeric:tabular-nums;
+    }
+    .signal-text{
+      color:#C8FF00;
+      text-shadow:0 0 18px rgba(200,255,0,0.35);
+    }
+
+    .graph-panel{
+      position:sticky;
+      top:80px;
+      height:520px;
+      border:1px solid rgba(237,230,211,0.18);
+      background:#0A0A0A;
+      overflow:hidden;
+    }
+    .graph-panel::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background-image:repeating-linear-gradient(0deg, transparent 0 2px, rgba(200,255,0,0.04) 2px 3px);
+      z-index:4;
+    }
+    .phosphor-leak{
+      position:absolute;
+      inset:0;
+      opacity:0.55;
+      mix-blend-mode:screen;
+      pointer-events:none;
+      z-index:1;
+    }
+    .graph-meta{
+      position:absolute;
+      left:14px;
+      right:14px;
+      top:14px;
+      z-index:5;
+      display:flex;
+      justify-content:space-between;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:#5A5A5A;
+      font-variant-numeric:tabular-nums;
+    }
+    #networkGraph{position:absolute;inset:0;z-index:2;width:100%;height:100%}
+    #networkGraph line{
+      stroke:#EDE6D3;
+      stroke-opacity:0.16;
+      stroke-width:0.7;
+      vector-effect:non-scaling-stroke;
+      stroke-dasharray:30;
+      stroke-dashoffset:30;
+    }
+    #networkGraph line.on{animation:edgeDraw 700ms var(--ease) forwards}
+    @keyframes edgeDraw{to{stroke-dashoffset:0}}
+    #networkGraph circle{
+      fill:#EDE6D3;
+      opacity:0;
+      transform-box:fill-box;
+      transform-origin:center;
+      transform:scale(0);
+    }
+    #networkGraph circle.signal{
+      fill:#C8FF00;
+      filter:drop-shadow(0 0 8px rgba(200,255,0,0.55));
+    }
+    #networkGraph circle.on{
+      opacity:0.9;
+      transform:scale(1);
+      transition:transform 500ms var(--bounce), opacity 500ms var(--ease);
+    }
+
+    .ticker{
+      width:100%;
+      border-top:1px solid rgba(237,230,211,0.18);
+      border-bottom:1px solid rgba(237,230,211,0.18);
+      height:40px;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      background:#0A0A0A;
+    }
+    .ticker-track{
+      display:flex;
+      width:max-content;
+      animation:tickerMove 60s linear infinite;
+      will-change:transform;
+    }
+    .ticker:hover .ticker-track{animation-play-state:paused}
+    .ticker span{
+      white-space:nowrap;
+      padding-right:40px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:#EDE6D3;
+    }
+    @keyframes tickerMove{
+      from{transform:translateX(0)}
+      to{transform:translateX(-50%)}
+    }
+
+    .section-label{
+      grid-column:1 / -1;
+      min-height:16px;
+      margin-bottom:24px;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.14em;
+      color:#EDE6D3;
+      font-variant-numeric:tabular-nums;
+    }
+    .section-label::after{
+      content:"";
+      display:inline-block;
+      width:8px;
+      height:13px;
+      margin-left:8px;
+      background:#EDE6D3;
+      opacity:0;
+    }
+    .section-label.typing::after{opacity:1;animation:cursorBlink 700ms steps(1) infinite}
+    @keyframes cursorBlink{50%{opacity:0}}
+
+    .tier-stage{grid-column:1 / -1;position:relative;padding-top:112px;perspective:900px}
+    .member-card{
+      position:absolute;
+      width:min(480px, 38vw);
+      height:300px;
+      top:0;
+      left:52%;
+      transform:translate3d(40px,20px,0) rotateZ(-3deg) rotateX(0deg) rotateY(0deg);
+      opacity:0;
+      z-index:5;
+      transform-style:preserve-3d;
+      transition:opacity 800ms var(--ease), transform 800ms var(--ease);
+      pointer-events:auto;
+      border:1px solid rgba(200,255,0,0.7);
+      background:#0A0A0A;
+    }
+    .member-card.on{opacity:1;transform:translate3d(40px,0,0) rotateZ(-3deg)}
+    .member-card::before{
+      content:"";
+      position:absolute;
+      inset:14px;
+      border:1px solid rgba(200,255,0,0.55);
+    }
+    .member-card::after{
+      content:"";
+      position:absolute;
+      width:6px;
+      height:6px;
+      right:24px;
+      top:24px;
+      background:#FF2E2E;
+      animation:livePulse 1.4s infinite;
+    }
+    .card-title{
+      position:absolute;
+      left:24px;
+      top:24px;
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:44px;
+      line-height:0.88;
+      letter-spacing:-0.04em;
+      color:#EDE6D3;
+    }
+    .card-serial{
+      position:absolute;
+      left:24px;
+      bottom:24px;
+      color:#C8FF00;
+      font-size:14px;
+      font-weight:700;
+      letter-spacing:0.08em;
+      text-shadow:0 0 18px rgba(200,255,0,0.35);
+      font-variant-numeric:tabular-nums;
+    }
+    .card-lines{
+      position:absolute;
+      right:24px;
+      bottom:28px;
+      display:grid;
+      gap:8px;
+    }
+    .card-lines i{
+      display:block;
+      width:90px;
+      height:1px;
+      background:rgba(237,230,211,0.22);
+    }
+
+    .stacked-bar{
+      position:relative;
+      display:flex;
+      width:100%;
+      min-height:420px;
+      align-items:stretch;
+      border-top:1px solid rgba(237,230,211,0.18);
+      border-bottom:1px solid rgba(237,230,211,0.18);
+      overflow:visible;
+    }
+    .tier-segment{
+      position:relative;
+      flex-basis:0;
+      flex-grow:0;
+      min-width:0;
+      padding:24px 14px 40px;
+      border-right:1px solid rgba(237,230,211,0.18);
+      transition:flex-grow 600ms var(--ease), transform 200ms var(--ease);
+      overflow:hidden;
+    }
+    .tier-segment:last-child{border-right:0}
+    .tier-regular{flex:14}
+    .tier-obsessed{flex:56}
+    .tier-family{flex:28}
+    .tier-segment.settle{transform:scale(1.015)}
+    .tier-name{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:28px;
+      letter-spacing:-0.02em;
+      margin-bottom:14px;
+    }
+    .tier-price{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:22px;
+      font-variant-numeric:tabular-nums;
+      margin-bottom:24px;
+      color:#EDE6D3;
+    }
+    .tier-benefits{
+      display:grid;
+      gap:14px;
+      margin-bottom:24px;
+      font-size:12px;
+      line-height:1.35;
+      color:#EDE6D3;
+    }
+    .benefit-row{
+      display:grid;
+      grid-template-columns:1fr 60px;
+      gap:14px;
+      align-items:center;
+      border-top:1px solid rgba(237,230,211,0.18);
+      padding-top:8px;
+    }
+    .benefit-row b{
+      font-weight:700;
+      color:#5A5A5A;
+      margin-right:8px;
+      font-variant-numeric:tabular-nums;
+    }
+    .tier-obsessed .tier-name,
+    .tier-obsessed .tier-price{color:#C8FF00;text-shadow:0 0 18px rgba(200,255,0,0.35)}
+    .tier-obsessed::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:4px;
+      background:#C8FF00;
+      box-shadow:0 0 28px rgba(200,255,0,0.25);
+    }
+    .tier-cta{
+      position:absolute;
+      left:14px;
+      bottom:14px;
+      right:14px;
+      border:1px solid rgba(237,230,211,0.3);
+      background:#0A0A0A;
+      color:#EDE6D3;
+      padding:14px;
+      text-align:left;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      transition:transform 120ms var(--ease), color 120ms var(--ease), border-color 120ms var(--ease);
+    }
+    .tier-obsessed .tier-cta{
+      background:#C8FF00;
+      color:#0A0A0A;
+      border-color:#C8FF00;
+      box-shadow:0 0 28px rgba(200,255,0,0.25);
+    }
+    .tier-cta:active{transform:translateY(1px)}
+
+    .mobile-card-stub{display:none}
+
+    .heatmap-copy{grid-column:1 / span 3;color:#5A5A5A;font-size:13px;line-height:1.55}
+    .heatmap-wrap{grid-column:4 / -1}
+    .heatmap{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:4px;
+      border-left:1px solid rgba(237,230,211,0.18);
+      border-top:1px solid rgba(237,230,211,0.18);
+      padding:14px;
+    }
+    .heat-cell{
+      aspect-ratio:1.8 / 1;
+      background:#0A0A0A;
+      border:1px solid rgba(237,230,211,0.12);
+      opacity:0;
+      transition:opacity 420ms var(--ease), transform 420ms var(--ease);
+      transform:translateY(8px);
+    }
+    .heat-cell.on{opacity:1;transform:translateY(0)}
+    .axis-labels{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:4px;
+      margin-top:14px;
+      color:#5A5A5A;
+      font-size:10px;
+      letter-spacing:0.1em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .manifesto{
+      min-height:560px;
+      padding:0 24px;
+      display:grid;
+      align-items:stretch;
+    }
+    .manifesto .grid12{min-height:560px}
+    .portrait-panel{
+      grid-column:1 / span 6;
+      position:relative;
+      overflow:hidden;
+      opacity:0;
+      transition:opacity 1200ms var(--ease);
+      border-right:1px solid rgba(237,230,211,0.18);
+    }
+    .portrait-panel.on{opacity:0.7}
+    .portrait-panel svg{
+      width:100%;
+      height:100%;
+      display:block;
+      filter:grayscale(0.4) contrast(1.1);
+    }
+    .portrait-panel::after{
+      content:"";
+      position:absolute;
+      top:0;
+      bottom:0;
+      right:0;
+      width:80px;
+      background:linear-gradient(90deg, transparent, #0A0A0A);
+      pointer-events:none;
+    }
+    .scratch-layer{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      mix-blend-mode:screen;
+      opacity:0.12;
+      z-index:3;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 360 640' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23EDE6D3' stroke-width='0.55' opacity='0.7'%3E%3Cpath d='M34 80l22 -9M200 44l5 36M300 170l-38 8M84 300l8 68M280 420l42 -12M120 510l-20 24M340 570l-36 2M170 610l8 -48'/%3E%3C/g%3E%3Cg fill='%23EDE6D3' opacity='0.45'%3E%3Ccircle cx='40' cy='430' r='1'/%3E%3Ccircle cx='210' cy='220' r='1'/%3E%3Ccircle cx='310' cy='510' r='1'/%3E%3Ccircle cx='120' cy='130' r='1'/%3E%3C/g%3E%3C/svg%3E");
+      background-size:360px 640px;
+    }
+    .quote-wrap{
+      grid-column:7 / -1;
+      display:flex;
+      align-items:center;
+      padding-left:64px;
+      position:relative;
+      z-index:4;
+    }
+    .pull-quote{
+      font-family:'Fraunces', serif;
+      font-weight:600;
+      font-style:italic;
+      font-optical-sizing:auto;
+      font-size:56px;
+      line-height:1.1;
+      max-width:680px;
+      margin:0;
+      opacity:0;
+      letter-spacing:0.02em;
+      transition:opacity 1200ms var(--ease), letter-spacing 1200ms var(--ease);
+    }
+    .pull-quote.on{opacity:1;letter-spacing:0}
+    .pull-quote cite{
+      display:block;
+      margin-top:24px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:11px;
+      font-style:normal;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      color:#5A5A5A;
+    }
+
+    .scatter-copy{grid-column:1 / span 3;color:#5A5A5A;font-size:13px;line-height:1.55}
+    .scatter-wrap{grid-column:4 / -1;border:1px solid rgba(237,230,211,0.18);position:relative;min-height:560px}
+    #scatterPlot{width:100%;height:560px;display:block}
+    #scatterPlot .axis{stroke:#EDE6D3;stroke-opacity:0.18;stroke-width:1}
+    #scatterPlot text{
+      font-family:'JetBrains Mono', monospace;
+      font-size:10px;
+      fill:#5A5A5A;
+      letter-spacing:0.1em;
+    }
+    #scatterPlot circle{
+      fill:#EDE6D3;
+      fill-opacity:0.56;
+      r:0;
+      transition:r 520ms var(--ease), fill-opacity 180ms var(--ease);
+    }
+    #scatterPlot circle.signal{fill:#C8FF00;filter:drop-shadow(0 0 8px rgba(200,255,0,0.45))}
+    #scatterPlot circle.on{}
+    #dropTip{
+      position:absolute;
+      pointer-events:none;
+      border:1px solid rgba(237,230,211,0.25);
+      background:#0A0A0A;
+      color:#EDE6D3;
+      padding:8px;
+      font-size:10px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      opacity:0;
+      transform:translate(12px,12px);
+      font-variant-numeric:tabular-nums;
+      z-index:5;
+    }
+
+    .faq-table{grid-column:1 / -1;border-top:1px solid rgba(237,230,211,0.18)}
+    .faq-row{
+      display:grid;
+      grid-template-columns:80px 1fr 2fr 40px;
+      gap:24px;
+      padding:24px 0;
+      border-bottom:1px solid rgba(237,230,211,0.18);
+      font-size:13px;
+      line-height:1.45;
+      align-items:start;
+    }
+    .faq-row button{
+      background:transparent;
+      border:0;
+      padding:0;
+      text-align:left;
+      color:#EDE6D3;
+      font-weight:700;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+    }
+    .faq-answer{
+      color:#5A5A5A;
+      max-height:0;
+      overflow:hidden;
+      opacity:0.55;
+      transition:max-height 360ms var(--ease), opacity 360ms var(--ease);
+    }
+    .faq-row.open .faq-answer{max-height:180px;opacity:1}
+    .faq-plus{color:#C8FF00;text-shadow:0 0 18px rgba(200,255,0,0.35);font-weight:700;transition:transform 200ms var(--ease)}
+    .faq-row.open .faq-plus{transform:rotate(45deg)}
+
+    .final-cta{
+      min-height:60vh;
+      max-width:none;
+      background:#C8FF00;
+      color:#0A0A0A;
+      border-top:0;
+      display:flex;
+      align-items:center;
+      position:relative;
+      box-shadow:0 0 28px rgba(200,255,0,0.25);
+    }
+    .final-cta .phosphor-leak{opacity:0.55}
+    .final-inner{
+      width:min(1440px,100%);
+      margin:0 auto;
+      padding:64px 24px;
+      position:relative;
+      z-index:4;
+    }
+    .final-kicker{
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      margin-bottom:24px;
+      color:#0A0A0A;
+    }
+    .final-title{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-style:italic;
+      font-size:clamp(72px, 11vw, 176px);
+      letter-spacing:-0.04em;
+      line-height:0.86;
+      margin:0 0 40px;
+      max-width:1100px;
+    }
+    .final-button{
+      background:#0A0A0A;
+      color:#C8FF00;
+      border:1px solid #0A0A0A;
+      padding:24px 40px;
+      font-size:13px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      box-shadow:0 0 28px rgba(200,255,0,0.25);
+    }
+
+    footer{
+      max-width:1440px;
+      margin:0 auto;
+      padding:24px;
+      border-top:1px solid rgba(237,230,211,0.18);
+      color:#5A5A5A;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+    }
+
+    .cursor-outer{
+      position:fixed;
+      left:0;
+      top:0;
+      width:24px;
+      height:24px;
+      z-index:10000;
+      pointer-events:none;
+      mix-blend-mode:difference;
+      transform:translate(-50%,-50%);
+      color:#EDE6D3;
+      display:grid;
+      place-items:center;
+      font-family:'JetBrains Mono', monospace;
+      font-size:24px;
+      line-height:1;
+      transition:width 180ms var(--ease), height 180ms var(--ease), font-size 180ms var(--ease);
+    }
+    .cursor-outer::before{content:"+"}
+    .cursor-outer.active{
+      width:56px;
+      height:56px;
+      border:1px solid #EDE6D3;
+      font-size:10px;
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+    }
+    .cursor-outer.active::before{content:attr(data-label)}
+    .cursor-dot{
+      position:fixed;
+      left:0;
+      top:0;
+      width:4px;
+      height:4px;
+      background:#EDE6D3;
+      border-radius:2px;
+      z-index:10001;
+      pointer-events:none;
+      mix-blend-mode:difference;
+      transform:translate(-50%,-50%);
+    }
+
+    .motion-controls{
+      position:fixed;
+      right:14px;
+      bottom:14px;
+      z-index:120;
+      display:flex;
+      gap:8px;
+    }
+    .motion-controls button{
+      border:1px solid rgba(237,230,211,0.22);
+      background:#0A0A0A;
+      color:#EDE6D3;
+      padding:8px 10px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+    }
+
+    .join-status{
+      position:fixed;
+      left:24px;
+      bottom:14px;
+      z-index:120;
+      max-width:420px;
+      border:1px solid rgba(237,230,211,0.22);
+      background:#0A0A0A;
+      color:#C8FF00;
+      text-shadow:0 0 18px rgba(200,255,0,0.35);
+      padding:8px 10px;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      transform:translateY(80px);
+      opacity:0;
+      transition:transform 260ms var(--ease), opacity 260ms var(--ease);
+    }
+    .join-status.on{transform:translateY(0);opacity:1}
+
+    @media (max-width: 767px){
+      body{cursor:auto}
+      button{cursor:pointer}
+      .cursor-outer,.cursor-dot{display:none}
+      .topbar{padding:0 14px;gap:8px;font-size:9px;letter-spacing:0.08em}
+      .topbar .brandline{min-width:0;flex:1}
+      .topbar .counter{display:none}
+      .mini-cta{padding:8px}
+      .section{padding:40px 14px}
+      .grid12{display:block}
+      .hero{display:flex;flex-direction:column;padding-top:24px}
+      .hero-graph-wrap{order:1;min-height:200px;margin-bottom:40px}
+      .hero-copy{order:2}
+      .graph-panel{position:relative;top:auto;height:200px}
+      .display{font-size:clamp(72px, 14vw, 196px);margin-bottom:24px}
+      .index-svg{width:96vw}
+      .index-svg text{font-size:88px}
+      .hero-stats{gap:8px}
+      .stat-line{font-size:12px}
+      .first-viewport-price{margin-top:24px;font-size:10px;display:flex}
+      .ticker span{font-size:10px}
+
+      .tier-stage{padding-top:0}
+      .member-card{display:none}
+      .mobile-card-stub{
+        display:block;
+        height:160px;
+        margin-bottom:24px;
+        border:1px solid rgba(200,255,0,0.7);
+        position:relative;
+        background:#0A0A0A;
+      }
+      .mobile-card-stub::before{
+        content:"OBSESSED / NO. 00,247,891";
+        position:absolute;
+        left:14px;
+        bottom:14px;
+        color:#C8FF00;
+        text-shadow:0 0 18px rgba(200,255,0,0.35);
+        font-size:11px;
+        font-weight:700;
+        letter-spacing:0.08em;
+      }
+      .stacked-bar{display:block;min-height:0}
+      .tier-segment{
+        min-height:300px;
+        border-right:0;
+        border-bottom:1px solid rgba(237,230,211,0.18);
+        padding:24px 14px 58px;
+      }
+      .tier-segment:last-child{border-bottom:0}
+      .tier-obsessed{min-height:420px}
+      .benefit-row{grid-template-columns:1fr 52px}
+
+      .heatmap-copy,.heatmap-wrap,.scatter-copy,.scatter-wrap{margin-bottom:24px}
+      .heatmap{grid-template-columns:repeat(6, 1fr)}
+      .heat-cell:nth-child(12n+7),
+      .heat-cell:nth-child(12n+8),
+      .heat-cell:nth-child(12n+9),
+      .heat-cell:nth-child(12n+10),
+      .heat-cell:nth-child(12n+11),
+      .heat-cell:nth-child(12n+12){display:none}
+      .axis-labels{grid-template-columns:repeat(6,1fr)}
+      .axis-labels span:nth-child(n+7){display:none}
+
+      .manifesto{padding:0 14px}
+      .manifesto .grid12{min-height:0}
+      .portrait-panel{height:320px;border-right:0;border-bottom:1px solid rgba(237,230,211,0.18)}
+      .quote-wrap{padding:40px 0}
+      .pull-quote{font-size:clamp(38px, 11vw, 56px)}
+      .scatter-wrap{min-height:380px}
+      #scatterPlot{height:380px}
+      .faq-row{grid-template-columns:42px 1fr 28px;gap:14px}
+      .faq-answer{grid-column:2 / -1}
+      .final-inner{padding:64px 14px}
+      .final-button{padding:18px 14px;width:100%;text-align:left}
+      .motion-controls{display:none}
+      .join-status{left:14px;right:14px;max-width:none}
+    }
+  </style>
+</head>
+<body>
+  <svg class="hidden-svg" aria-hidden="true">
+    <filter id="grain-check"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"></feTurbulence></filter>
+  </svg>
+
+  <header class="topbar">
+    <span id="headerText" class="brandline" data-text="> COMPLEX/ALLEGIANCE_INDEX"></span>
+    <span id="liveCluster" class="live-cluster"><span class="live-dot"></span><span>LIVE</span></span>
+    <span id="topCounter" class="counter">T+ 00:00:00</span>
+    <span class="topbar-spacer"></span>
+    <button class="mini-cta interactive" data-cursor="JOIN" data-tier-click="OBSESSED">JOIN</button>
+  </header>
+
+  <main>
+    <section class="section hero" id="top">
+      <div class="grid12">
+        <div class="hero-copy">
+          <div class="terminal-kicker">> 01 / LIVE CULTURAL INTELLIGENCE TERMINAL</div>
+          <h1 class="display" aria-label="ALLEGIANCE INDEX">
+            <span id="heroWord" class="word">ALLEGIANCE</span>
+            <span class="index-line">
+              <span class="index-word stroke-only">/INDEX/</span>
+              <svg id="indexSvg" class="index-svg" viewBox="0 0 760 180" role="img" aria-label="/INDEX/">
+                <text x="0" y="148">/INDEX/</text>
+              </svg>
+            </span>
+          </h1>
+          <div class="hero-stats" id="heroStats">
+            <div class="stat-line"><span>&gt; 14,238,447 NODES</span><svg viewBox="0 0 60 18"><polyline class="sparkline" points="0,14 7,12 14,11 21,9 28,5 35,7 42,10 49,8 56,4"/></svg></div>
+            <div class="stat-line"><span>&gt; 421 DROPS INDEXED</span><svg viewBox="0 0 60 18"><polyline class="sparkline" points="0,15 6,13 12,13 18,10 24,12 30,6 36,8 42,5 48,7 56,3"/></svg></div>
+            <div class="stat-line"><span>&gt; 96s MEDIAN SELL-OUT</span><svg viewBox="0 0 60 18"><polyline class="sparkline" points="0,16 6,14 12,11 18,8 24,3 30,5 36,7 42,10 48,12 56,15"/></svg></div>
+          </div>
+          <div class="first-viewport-price">
+            <span class="signal-text">OBSESSED $9.00 / MO</span>
+            <span>PRIMARY ACCESS RATE VISIBLE AT OPEN</span>
+          </div>
+        </div>
+
+        <div class="hero-graph-wrap">
+          <div class="graph-panel" id="graphPanel">
+            <svg class="phosphor-leak" viewBox="0 0 900 520" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <filter id="softLeak"><feGaussianBlur stdDeviation="28"></feGaussianBlur></filter>
+              </defs>
+              <g filter="url(#softLeak)" opacity="0.9">
+                <rect x="-40" y="232" width="980" height="34" fill="#C8FF00" opacity="0.2"></rect>
+                <rect x="90" y="252" width="620" height="10" fill="#C8FF00" opacity="0.28"></rect>
+              </g>
+            </svg>
+            <div class="graph-meta"><span>FORCE GRAPH / 140 NODES</span><span>EDGE VOL 280</span></div>
+            <svg id="networkGraph" viewBox="0 0 900 520" preserveAspectRatio="xMidYMid meet" aria-label="Live force directed membership network graph"></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" aria-label="Live ticker marquee">
+      <div class="ticker-track">
+        <span>━━ FOUNDING MEMBERS LOCKED AT SIGN-UP RATE FOREVER · 96s MEDIAN SELL-OUT · 421 DROPS INDEXED · CANCEL ANYTIME · ● LIVE ━━</span>
+        <span>━━ FOUNDING MEMBERS LOCKED AT SIGN-UP RATE FOREVER · 96s MEDIAN SELL-OUT · 421 DROPS INDEXED · CANCEL ANYTIME · ● LIVE ━━</span>
+        <span>━━ FOUNDING MEMBERS LOCKED AT SIGN-UP RATE FOREVER · 96s MEDIAN SELL-OUT · 421 DROPS INDEXED · CANCEL ANYTIME · ● LIVE ━━</span>
+        <span>━━ FOUNDING MEMBERS LOCKED AT SIGN-UP RATE FOREVER · 96s MEDIAN SELL-OUT · 421 DROPS INDEXED · CANCEL ANYTIME · ● LIVE ━━</span>
+      </div>
+    </div>
+
+    <section class="section reveal" id="tiers">
+      <div class="grid12">
+        <div class="section-label" data-type="> 02 / SIGNAL TIERS"></div>
+        <div class="tier-stage">
+          <div id="memberCard" class="member-card interactive" data-cursor="CARD" aria-label="Obsessed physical numbered membership card mockup">
+            <div class="card-title">COMPLEX<br>ALLEGIANCE</div>
+            <div class="card-serial">OBSESSED / NO. 00,247,891</div>
+            <div class="card-lines"><i></i><i></i><i></i></div>
+          </div>
+          <div class="mobile-card-stub"></div>
+          <div class="stacked-bar" id="tierBar" aria-label="Tier stacked bar with Regular, Obsessed, and Family">
+            <article class="tier-segment tier-regular" data-grow="14" data-tier="REGULAR">
+              <div class="tier-name">REGULAR</div>
+              <div class="tier-price">FREE</div>
+              <div class="tier-benefits" data-benefits="REGULAR"></div>
+              <button class="tier-cta interactive" data-cursor="JOIN" data-tier-click="REGULAR">WATCH THE INDEX</button>
+            </article>
+            <article class="tier-segment tier-obsessed" data-grow="56" data-tier="OBSESSED">
+              <div class="tier-name">OBSESSED</div>
+              <div class="tier-price">$9.00 / MO <span class="live-dot"></span></div>
+              <div class="tier-benefits" data-benefits="OBSESSED"></div>
+              <button class="tier-cta interactive" data-cursor="JOIN" data-tier-click="OBSESSED">JOIN OBSESSED — $9/MO</button>
+            </article>
+            <article class="tier-segment tier-family" data-grow="28" data-tier="FAMILY">
+              <div class="tier-name">FAMILY</div>
+              <div class="tier-price">$29.00 / MO</div>
+              <div class="tier-benefits" data-benefits="FAMILY"></div>
+              <button class="tier-cta interactive" data-cursor="JOIN" data-tier-click="FAMILY">OPEN FAMILY DESK</button>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="heatmapSection">
+      <div class="grid12">
+        <div class="section-label" data-type="> 03 / WHAT YOU GET — HEATMAP"></div>
+        <div class="heatmap-copy">
+          <p>Rows are benefits. Columns are months. Intensity marks how often members touch the signal: drops, intel, Discord rooms, zine dispatches, and ComplexCon routing.</p>
+        </div>
+        <div class="heatmap-wrap">
+          <div id="heatmap" class="heatmap" aria-label="Benefit usage heatmap"></div>
+          <div class="axis-labels">
+            <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span><span>JUL</span><span>AUG</span><span>SEP</span><span>OCT</span><span>NOV</span><span>DEC</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section manifesto reveal" id="manifesto">
+      <div class="scratch-layer"></div>
+      <div class="grid12">
+        <div class="portrait-panel" id="portraitPanel" aria-label="Editorial analyst silhouette facing glowing monitors">
+          <svg viewBox="0 0 720 560" preserveAspectRatio="xMidYMid slice" role="img">
+            <rect width="720" height="560" fill="#0A0A0A"></rect>
+            <g opacity="0.7">
+              <rect x="40" y="52" width="168" height="92" fill="#0A0A0A" stroke="#5A5A5A"></rect>
+              <rect x="236" y="34" width="202" height="124" fill="#0A0A0A" stroke="#5A5A5A"></rect>
+              <rect x="466" y="72" width="184" height="106" fill="#0A0A0A" stroke="#5A5A5A"></rect>
+              <g stroke="#C8FF00" stroke-width="2" opacity="0.45">
+                <path d="M60 118h116M60 100h70M256 128h150M256 98h112M492 142h120M492 112h70"></path>
+                <polyline points="60,132 76,122 92,128 110,104 132,112 150,90 176,96" fill="none"></polyline>
+                <polyline points="256,142 284,132 310,144 342,92 380,104 406,72" fill="none"></polyline>
+              </g>
+            </g>
+            <g>
+              <path d="M330 244 C330 184 390 178 414 220 C426 242 420 280 398 298 L398 334 L336 334 L336 298 C322 286 318 264 330 244Z" fill="#EDE6D3" opacity="0.18"></path>
+              <path d="M240 560 C246 440 284 350 366 340 C452 350 494 444 506 560Z" fill="#EDE6D3" opacity="0.14"></path>
+              <path d="M288 560 C292 420 320 360 366 356 C420 362 444 428 452 560Z" fill="#0A0A0A"></path>
+              <path d="M300 390 C330 356 404 356 438 392" fill="none" stroke="#5A5A5A" stroke-width="2" opacity="0.7"></path>
+            </g>
+            <g opacity="0.28" stroke="#C8FF00">
+              <path d="M0 272h720M0 274h720M0 276h720"></path>
+            </g>
+          </svg>
+        </div>
+        <div class="quote-wrap">
+          <blockquote id="pullQuote" class="pull-quote">“We're not selling a subscription. We're indexing taste.” <cite>— Complex Editorial</cite></blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="drops">
+      <div class="grid12">
+        <div class="section-label" data-type="> 04 / RECENT DROPS — SCATTER PLOT"></div>
+        <div class="scatter-copy">
+          <p>X-axis is release date. Y-axis is sell-out time on a log scale. Dot size is pieces released. The rare green series is the Obsessed-first window — the only highlighted signal in the plot.</p>
+        </div>
+        <div class="scatter-wrap">
+          <svg id="scatterPlot" viewBox="0 0 920 560" preserveAspectRatio="none" aria-label="Scatter plot of 421 recent drops"></svg>
+          <div id="dropTip"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reveal" id="faq">
+      <div class="grid12">
+        <div class="section-label" data-type="> 05 / FAQ — TABULAR"></div>
+        <div class="faq-table">
+          <div class="faq-row open">
+            <div>Q01</div>
+            <button class="interactive" data-cursor="EXPAND">IS OBSESSED A DROP CLUB?</button>
+            <div class="faq-answer">No. It is an intelligence layer: early reads, numbered membership, private Discord rooms, and Complex editorial context before the public timeline catches up.</div>
+            <div class="faq-plus">+</div>
+          </div>
+          <div class="faq-row">
+            <div>Q02</div>
+            <button class="interactive" data-cursor="EXPAND">CAN I CANCEL?</button>
+            <div class="faq-answer">Anytime. Your rate is locked while active. Leave the index and the market decides your re-entry price later.</div>
+            <div class="faq-plus">+</div>
+          </div>
+          <div class="faq-row">
+            <div>Q03</div>
+            <button class="interactive" data-cursor="EXPAND">WHAT MAKES FAMILY DIFFERENT?</button>
+            <div class="faq-answer">Family is for crews: shared access, guest routing, ComplexCon VIP windows, and the zine archive shipped for the table, not just one account.</div>
+            <div class="faq-plus">+</div>
+          </div>
+          <div class="faq-row">
+            <div>Q04</div>
+            <button class="interactive" data-cursor="EXPAND">WHY THE CARD?</button>
+            <div class="faq-answer">The numbered card is your proof-of-allegiance artifact. It is not merch. It is a timestamp that says when your taste entered the ledger.</div>
+            <div class="faq-plus">+</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta reveal" id="join">
+      <svg class="phosphor-leak" viewBox="0 0 1440 640" preserveAspectRatio="none" aria-hidden="true">
+        <defs><filter id="ctaLeak"><feGaussianBlur stdDeviation="34"></feGaussianBlur></filter></defs>
+        <g filter="url(#ctaLeak)">
+          <rect x="-60" y="284" width="1560" height="42" fill="#0A0A0A" opacity="0.35"></rect>
+          <rect x="150" y="316" width="820" height="14" fill="#0A0A0A" opacity="0.22"></rect>
+        </g>
+      </svg>
+      <div class="scratch-layer"></div>
+      <div class="final-inner">
+        <div class="final-kicker">> 06 / MARKET ENTRY</div>
+        <h2 class="final-title">ENTER THE INDEX →</h2>
+        <button class="final-button interactive" data-cursor="JOIN" data-tier-click="OBSESSED">JOIN OBSESSED — $9/MO</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>© COMPLEX ALLEGIANCE · INDEX OPENED 2026 · TASTE IS DATA</footer>
+
+  <div class="motion-controls" aria-label="Animation controls">
+    <button id="playBtn" class="interactive" data-cursor="PLAY">PLAY</button>
+    <button id="resetBtn" class="interactive" data-cursor="RESET">RESET</button>
+  </div>
+  <div id="joinStatus" class="join-status"></div>
+  <div id="cursorOuter" class="cursor-outer"></div>
+  <div id="cursorDot" class="cursor-dot"></div>
+
+  <script>
+    const pricing_tiers = [
+      {
+        name:"Regular",
+        price:"Free",
+        cta_label:"WATCH THE INDEX",
+        is_featured:false,
+        benefits_list:[
+          "Public drop calendar with Complex editorial timestamps",
+          "Weekly heat-check newsletter: what moved, what stalled",
+          "Open-access culture market recaps after each major release",
+          "Member-only comment signals on selected drop analysis"
+        ]
+      },
+      {
+        name:"Obsessed",
+        price:"$9",
+        cta_label:"JOIN OBSESSED — $9/MO",
+        is_featured:true,
+        benefits_list:[
+          "Numbered physical card: OBSESSED / NO. 00,247,891",
+          "Intel drops before public calendars catch the release",
+          "Private Discord desk with Complex editors and market watchers",
+          "Early access windows for merch capsules and collabs",
+          "Monthly Allegiance zine: receipts, essays, and radar lists",
+          "ComplexCon VIP pre-sale routing when allocations open"
+        ]
+      },
+      {
+        name:"Family",
+        price:"$29",
+        cta_label:"OPEN FAMILY DESK",
+        is_featured:false,
+        benefits_list:[
+          "Four-seat crew access with shared watchlists and alerts",
+          "Family-only ComplexCon VIP guest lane and itinerary desk",
+          "Quarterly print zine bundle mailed for the whole table",
+          "Crew Discord room with drop captains and release reminders",
+          "Group raffle multipliers for selected culture capsules"
+        ]
+      }
+    ];
+
+    const tier_benefits = pricing_tiers.flatMap(t => t.benefits_list.map(benefit_text => ({tier:t.name, benefit_text})));
+    const stats_or_proof_points = [
+      {stat_text:"> 14,238,447 NODES"},
+      {stat_text:"> 421 DROPS INDEXED"},
+      {stat_text:"> 96s MEDIAN SELL-OUT"}
+    ];
+    const sections = [
+      {section_type:"hero", heading:"ALLEGIANCE /INDEX/", body_content:"A live cultural intelligence terminal for membership access."},
+      {section_type:"pricing", heading:"SIGNAL TIERS", body_content:"Regular, Obsessed, and Family rendered as a treemap-like tier bar."},
+      {section_type:"supporting", heading:"WHAT YOU GET — HEATMAP", body_content:"Benefit cadence as usage intensity over twelve months."},
+      {section_type:"supporting", heading:"RECENT DROPS — SCATTER PLOT", body_content:"421 deterministic drop points by date, sell-out speed, and allocation size."},
+      {section_type:"faq", heading:"FAQ — TABULAR", body_content:"Membership questions in terminal-row format."},
+      {section_type:"cta", heading:"ENTER THE INDEX", body_content:"Join Obsessed for $9/MO."}
+    ];
+
+    let bootStart = Date.now();
+    let counterTimer;
+    let graphRAF = null;
+    let graphRunning = true;
+    let labelTyped = new WeakSet();
+
+    function pad(n){return String(n).padStart(2,"0")}
+    function updateCounter(){
+      const s = Math.floor((Date.now() - bootStart)/1000);
+      const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+      document.getElementById("topCounter").textContent = "T+ " + pad(h) + ":" + pad(m) + ":" + pad(sec);
+    }
+
+    function typeIn(el, ms=40, text){
+      const target = text || el.dataset.type || el.dataset.text || el.textContent;
+      el.textContent = "";
+      el.classList.add("typing");
+      let i = 0;
+      const timer = setInterval(()=>{
+        el.textContent = target.slice(0, i++);
+        if(i > target.length){
+          clearInterval(timer);
+          el.classList.remove("typing");
+        }
+      }, ms);
+    }
+
+    function boot(){
+      bootStart = Date.now();
+      clearInterval(counterTimer);
+      updateCounter();
+      counterTimer = setInterval(updateCounter, 1000);
+
+      const header = document.getElementById("headerText");
+      document.getElementById("liveCluster").classList.remove("on");
+      typeIn(header, 40, header.dataset.text);
+
+      setTimeout(()=>document.getElementById("liveCluster").classList.add("on"), 600);
+      setTimeout(()=>document.getElementById("heroWord").classList.add("on"), 800);
+      setTimeout(()=>document.getElementById("indexSvg").classList.add("on"), 1040);
+
+      document.querySelectorAll(".stat-line").forEach((line,i)=>{
+        setTimeout(()=>line.classList.add("on"), 1280 + i*80);
+      });
+
+      setTimeout(popNetwork, 900);
+      document.querySelectorAll(".tier-segment").forEach(el=>{ el.style.flexGrow = "0"; });
+    }
+
+    function completeState(){
+      document.getElementById("headerText").textContent = document.getElementById("headerText").dataset.text;
+      document.getElementById("liveCluster").classList.add("on");
+      document.getElementById("heroWord").classList.add("on");
+      document.getElementById("indexSvg").classList.add("on");
+      document.querySelectorAll(".stat-line").forEach(x=>x.classList.add("on"));
+      document.querySelectorAll("#networkGraph circle,#networkGraph line").forEach(x=>x.classList.add("on"));
+      document.querySelectorAll(".tier-segment").forEach(el=>{el.style.flexGrow = el.dataset.grow;});
+      document.getElementById("memberCard").classList.add("on");
+      document.querySelectorAll(".heat-cell").forEach(x=>x.classList.add("on"));
+      document.querySelectorAll("#scatterPlot circle").forEach(c=>{c.classList.add("on");c.setAttribute("r", c.dataset.r);});
+      document.getElementById("portraitPanel").classList.add("on");
+      document.getElementById("pullQuote").classList.add("on");
+    }
+
+    function playAgain(){
+      document.getElementById("headerText").textContent="";
+      document.getElementById("liveCluster").classList.remove("on");
+      document.getElementById("heroWord").classList.remove("on");
+      document.getElementById("indexSvg").classList.remove("on");
+      document.querySelectorAll(".stat-line").forEach(x=>x.classList.remove("on"));
+      document.querySelectorAll("#networkGraph circle,#networkGraph line").forEach(x=>x.classList.remove("on"));
+      boot();
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    function seeded(seed=1){
+      let s = seed >>> 0;
+      return function(){
+        s = (s * 1664525 + 1013904223) >>> 0;
+        return s / 4294967296;
+      }
+    }
+
+    function populateBenefits(){
+      const sparkSets = [
+        "0,14 8,12 16,12 24,9 32,10 40,7 48,8 58,5",
+        "0,15 8,10 16,13 24,6 32,4 40,8 48,5 58,2",
+        "0,12 8,13 16,9 24,11 32,7 40,8 48,6 58,4",
+        "0,16 8,14 16,11 24,12 32,8 40,6 48,7 58,3",
+        "0,13 8,8 16,9 24,5 32,7 40,4 48,6 58,2",
+        "0,15 8,15 16,12 24,8 32,9 40,5 48,4 58,3"
+      ];
+      document.querySelectorAll("[data-benefits]").forEach(box=>{
+        const tier = pricing_tiers.find(t=>t.name.toUpperCase() === box.dataset.benefits);
+        box.innerHTML = tier.benefits_list.map((b,i)=>`
+          <div class="benefit-row">
+            <span><b>${String(i+1).padStart(2,"0")}</b>${b}</span>
+            <svg viewBox="0 0 60 18"><polyline class="sparkline" points="${sparkSets[i%sparkSets.length]}"/></svg>
+          </div>`).join("");
+      });
+    }
+
+    function buildHeatmap(){
+      const rand = seeded(247891);
+      const heat = document.getElementById("heatmap");
+      const rows = 7, cols = 12;
+      for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+          let wave = (Math.sin((c+r)*0.75)+1)/2;
+          let raw = Math.min(1, Math.max(0.05, rand()*0.55 + wave*0.45 + (r===1?0.25:0)));
+          const cell = document.createElement("div");
+          cell.className = "heat-cell";
+          const alpha = (0.06 + raw*0.88).toFixed(3);
+          cell.style.backgroundColor = `rgba(200,255,0,${alpha})`;
+          cell.style.transitionDelay = `${((r+c)/(rows+cols))*800}ms`;
+          cell.dataset.diagonal = r+c;
+          heat.appendChild(cell);
+        }
+      }
+    }
+
+    function buildScatter(){
+      const rand = seeded(421);
+      const svg = document.getElementById("scatterPlot");
+      const ns = "http://www.w3.org/2000/svg";
+      const w=920,h=560, ml=54, mr=24, mt=28, mb=52;
+      function line(x1,y1,x2,y2, cls){
+        const l = document.createElementNS(ns,"line");
+        l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);
+        l.setAttribute("class",cls||"axis");svg.appendChild(l);
+      }
+      line(ml, mt, ml, h-mb, "axis"); line(ml, h-mb, w-mr, h-mb, "axis");
+      for(let i=0;i<6;i++){
+        const x = ml + i*(w-ml-mr)/5;
+        line(x, mt, x, h-mb, "axis");
+        const t = document.createElementNS(ns,"text");
+        t.setAttribute("x", x-16);t.setAttribute("y", h-22);t.textContent = "M+"+String(i*2).padStart(2,"0");svg.appendChild(t);
+      }
+      for(let i=0;i<5;i++){
+        const y = mt + i*(h-mt-mb)/4;
+        line(ml, y, w-mr, y, "axis");
+        const t = document.createElementNS(ns,"text");
+        t.setAttribute("x", 10);t.setAttribute("y", y+4);t.textContent = [">1D","6H","30M","96S","LIVE"][i];svg.appendChild(t);
+      }
+      const names = ["NOIR HOODIE","ARCHIVE CAP","VINYL VARIANT","BASKETBALL LOW","ZINE PACK","CREWNECK","POSTER RUN","CONVENTION PASS"];
+      for(let i=0;i<421;i++){
+        const x = ml + rand()*(w-ml-mr);
+        const logY = Math.pow(rand(), 1.85);
+        const y = mt + logY*(h-mt-mb);
+        const r = 1.2 + Math.pow(rand(), 2)*4.8;
+        const c = document.createElementNS(ns,"circle");
+        c.setAttribute("cx", x.toFixed(2));
+        c.setAttribute("cy", y.toFixed(2));
+        c.setAttribute("r", 0);
+        c.dataset.r = r.toFixed(2);
+        c.dataset.name = names[Math.floor(rand()*names.length)];
+        c.dataset.time = Math.round(24 + rand()*820) + "s";
+        if(i%37===0)c.setAttribute("class","signal");
+        c.style.transitionDelay = `${i*8}ms`;
+        svg.appendChild(c);
+      }
+      const tip = document.getElementById("dropTip");
+      svg.querySelectorAll("circle").forEach(c=>{
+        c.addEventListener("mouseenter", e=>{
+          tip.textContent = `${c.dataset.name} / SOLD ${c.dataset.time}`;
+          tip.style.opacity = "1";
+        });
+        c.addEventListener("mousemove", e=>{
+          const rect = svg.getBoundingClientRect();
+          tip.style.left = (e.clientX - rect.left) + "px";
+          tip.style.top = (e.clientY - rect.top) + "px";
+        });
+        c.addEventListener("mouseleave", ()=>tip.style.opacity="0");
+      });
+    }
+
+    const graph = {
+      nodes:[], edges:[], svg:null, nodeEls:[], edgeEls:[], last:0, visible:true
+    };
+
+    function buildNetwork(){
+      const rand = seeded(140280);
+      graph.svg = document.getElementById("networkGraph");
+      const ns = "http://www.w3.org/2000/svg";
+      const edgeLayer = document.createElementNS(ns,"g");
+      const nodeLayer = document.createElementNS(ns,"g");
+      graph.svg.appendChild(edgeLayer); graph.svg.appendChild(nodeLayer);
+
+      for(let i=0;i<140;i++){
+        graph.nodes.push({
+          x: 450 + (rand()-0.5)*520,
+          y: 260 + (rand()-0.5)*330,
+          px: 450 + (rand()-0.5)*520,
+          py: 260 + (rand()-0.5)*330,
+          vx:0, vy:0,
+          r: i%17===0 ? 3.2 : 1.6 + rand()*1.5,
+          signal: i%17===0
+        });
+      }
+      for(let i=0;i<280;i++){
+        const a = Math.floor(rand()*140);
+        let b = Math.floor(rand()*140);
+        if(a===b)b=(b+1)%140;
+        graph.edges.push({a,b,len:42+rand()*110});
+      }
+      graph.edges.forEach(e=>{
+        const l = document.createElementNS(ns,"line");
+        edgeLayer.appendChild(l); graph.edgeEls.push(l);
+      });
+      graph.nodes.forEach((n,i)=>{
+        const c = document.createElementNS(ns,"circle");
+        c.setAttribute("r", n.r);
+        if(n.signal)c.setAttribute("class","signal");
+        nodeLayer.appendChild(c); graph.nodeEls.push(c);
+      });
+      tickGraph(0);
+      requestAnimationFrame(tickGraph);
+    }
+
+    function popNetwork(){
+      const order = graph.nodeEls.map((_,i)=>i).sort((a,b)=>((a*73)%140)-((b*73)%140));
+      order.forEach((idx,i)=>{
+        setTimeout(()=>graph.nodeEls[idx].classList.add("on"), (i/order.length)*1500);
+      });
+      graph.edgeEls.forEach((el,i)=>{
+        setTimeout(()=>el.classList.add("on"), 800 + (i/graph.edgeEls.length)*900);
+      });
+    }
+
+    function tickGraph(t){
+      if(!graph.last) graph.last=t;
+      const elapsed = t - graph.last;
+      if(graph.visible && elapsed > 33){
+        graph.last = t;
+        const nodes = graph.nodes;
+        const centerX=450, centerY=260;
+
+        for(const n of nodes){
+          n.vx += (centerX - n.x) * 0.0007;
+          n.vy += (centerY - n.y) * 0.0007;
+        }
+        for(const e of graph.edges){
+          const a=nodes[e.a], b=nodes[e.b];
+          let dx=b.x-a.x, dy=b.y-a.y;
+          let d=Math.sqrt(dx*dx+dy*dy)||1;
+          let force=(d-e.len)*0.0009;
+          let fx=dx/d*force, fy=dy/d*force;
+          a.vx += fx; a.vy += fy; b.vx -= fx; b.vy -= fy;
+        }
+        for(let i=0;i<nodes.length;i++){
+          for(let j=i+1;j<nodes.length;j++){
+            const a=nodes[i], b=nodes[j];
+            let dx=b.x-a.x, dy=b.y-a.y, d2=dx*dx+dy*dy;
+            if(d2<900 && d2>0.01){
+              const d=Math.sqrt(d2), f=(900-d2)*0.000015;
+              a.vx -= dx/d*f; a.vy -= dy/d*f; b.vx += dx/d*f; b.vy += dy/d*f;
+            }
+          }
+        }
+        nodes.forEach((n,i)=>{
+          n.vx *= 0.94; n.vy *= 0.94;
+          n.vx += Math.sin((t*0.0002)+i)*0.006;
+          n.vy += Math.cos((t*0.00018)+i*1.7)*0.006;
+          n.px=n.x; n.py=n.y;
+          n.x += n.vx; n.y += n.vy;
+          n.x = Math.max(30, Math.min(870,n.x));
+          n.y = Math.max(34, Math.min(490,n.y));
+          graph.nodeEls[i].setAttribute("cx", n.x.toFixed(2));
+          graph.nodeEls[i].setAttribute("cy", n.y.toFixed(2));
+        });
+        graph.edges.forEach((e,i)=>{
+          const a=nodes[e.a], b=nodes[e.b], el=graph.edgeEls[i];
+          el.setAttribute("x1",a.x.toFixed(2)); el.setAttribute("y1",a.y.toFixed(2));
+          el.setAttribute("x2",b.x.toFixed(2)); el.setAttribute("y2",b.y.toFixed(2));
+        });
+      }
+      graphRAF = requestAnimationFrame(tickGraph);
+    }
+
+    function revealTierBar(){
+      const segs = [...document.querySelectorAll(".tier-segment")];
+      segs.forEach(s=>s.style.flexGrow=0);
+      setTimeout(()=>segs[0].style.flexGrow = 14, 50);
+      setTimeout(()=>segs[1].style.flexGrow = 56, 350);
+      setTimeout(()=>segs[2].style.flexGrow = 28, 950);
+      setTimeout(()=>{
+        segs[1].classList.add("settle");
+        setTimeout(()=>segs[1].classList.remove("settle"), 200);
+      }, 1550);
+      setTimeout(()=>document.getElementById("memberCard").classList.add("on"), 500);
+    }
+
+    function setupObservers(){
+      const revealObserver = new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{
+          if(!entry.isIntersecting) return;
+          const sec = entry.target;
+          const label = sec.querySelector(".section-label");
+          if(label && !labelTyped.has(label)){
+            labelTyped.add(label);
+            typeIn(label, 40, label.dataset.type);
+          }
+          if(sec.id === "tiers") revealTierBar();
+          if(sec.id === "heatmapSection"){
+            document.querySelectorAll(".heat-cell").forEach(cell=>cell.classList.add("on"));
+          }
+          if(sec.id === "manifesto"){
+            document.getElementById("portraitPanel").classList.add("on");
+            document.getElementById("pullQuote").classList.add("on");
+          }
+          if(sec.id === "drops"){
+            document.querySelectorAll("#scatterPlot circle").forEach(c=>{
+              c.classList.add("on");
+              c.setAttribute("r", c.dataset.r);
+            });
+          }
+        });
+      }, {threshold:0.2});
+      document.querySelectorAll(".reveal").forEach(s=>revealObserver.observe(s));
+
+      const graphObserver = new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{graph.visible = entry.isIntersecting});
+      }, {threshold:0.05});
+      graphObserver.observe(document.getElementById("graphPanel"));
+    }
+
+    function setupCursor(){
+      const outer = document.getElementById("cursorOuter");
+      const dot = document.getElementById("cursorDot");
+      let tx=innerWidth/2, ty=innerHeight/2, ox=tx, oy=ty, dx=tx, dy=ty;
+      window.addEventListener("mousemove", e=>{tx=e.clientX;ty=e.clientY});
+      function raf(){
+        ox += (tx-ox)*0.18; oy += (ty-oy)*0.18;
+        dx += (tx-dx)*0.55; dy += (ty-dy)*0.55;
+        outer.style.left = ox+"px"; outer.style.top = oy+"px";
+        dot.style.left = dx+"px"; dot.style.top = dy+"px";
+        requestAnimationFrame(raf);
+      }
+      raf();
+      document.querySelectorAll(".interactive, button, a").forEach(el=>{
+        el.addEventListener("mouseenter", ()=>{
+          outer.classList.add("active");
+          outer.dataset.label = el.dataset.cursor || "GO";
+        });
+        el.addEventListener("mouseleave", ()=>{
+          outer.classList.remove("active");
+          outer.dataset.label = "";
+        });
+      });
+    }
+
+    function setupCardTilt(){
+      const card = document.getElementById("memberCard");
+      let targetX=0,targetY=0,rx=0,ry=0;
+      window.addEventListener("mousemove", e=>{
+        if(innerWidth < 768){targetX=0;targetY=0;return}
+        const rect = card.getBoundingClientRect();
+        const inZone = e.clientX > rect.left-160 && e.clientX < rect.right+160 && e.clientY > rect.top-160 && e.clientY < rect.bottom+160;
+        if(inZone){
+          const cx = rect.left + rect.width/2;
+          const cy = rect.top + rect.height/2;
+          targetY = ((e.clientX - cx)/(rect.width/2))*8;
+          targetX = -((e.clientY - cy)/(rect.height/2))*8;
+        } else {targetX=0; targetY=0}
+      });
+      function tilt(){
+        rx += (targetX-rx)*0.12;
+        ry += (targetY-ry)*0.12;
+        if(card.classList.contains("on")){
+          card.style.transform = `translate3d(40px,0,0) rotateZ(-3deg) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+        }
+        requestAnimationFrame(tilt);
+      }
+      tilt();
+    }
+
+    function setupInteractions(){
+      document.querySelectorAll("[data-tier-click]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const tier = btn.dataset.tierClick;
+          const status = document.getElementById("joinStatus");
+          status.textContent = `> ${tier} SIGNAL REQUEST RECEIVED / INDEX DESK OPEN`;
+          status.classList.add("on");
+          setTimeout(()=>status.classList.remove("on"), 2600);
+        });
+      });
+      document.querySelectorAll(".faq-row").forEach(row=>{
+        row.querySelector("button").addEventListener("click", ()=>{
+          row.classList.toggle("open");
+        });
+      });
+      document.getElementById("playBtn").addEventListener("click", playAgain);
+      document.getElementById("resetBtn").addEventListener("click", completeState);
+    }
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+      populateBenefits();
+      buildHeatmap();
+      buildScatter();
+      buildNetwork();
+      setupObservers();
+      setupCursor();
+      setupCardTilt();
+      setupInteractions();
+      boot();
+      setTimeout(completeState, 3600);
+    });
+
+    window.addEventListener("beforeunload", ()=>{
+      clearInterval(counterTimer);
+      if(graphRAF) cancelAnimationFrame(graphRAF);
+    });
+  </script>
+</body>
+</html>
