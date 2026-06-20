@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMPLEX ALLEGIANCE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600&family=Archivo+Black&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --hazard: #E8FF00;
+    --press-black: #050505;
+    --newsprint: #F2EDE2;
+    --emergency-red: #FF2D16;
+    --graphite: #1A1A1A;
+
+    --font-display: 'Anton', sans-serif;
+    --font-sub: 'Archivo Black', sans-serif;
+    --font-body: 'Archivo', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--hazard);
+    color: var(--press-black);
+    font-family: var(--font-body);
+    font-weight: 400;
+    overflow-x: hidden;
+    cursor: auto;
+  }
+
+  /* GRAIN OVERLAY */
+  .grain-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: multiply;
+    opacity: 0.6;
+    filter: url(#grain);
+  }
+
+  /* CUSTOM CURSOR */
+  .custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--newsprint);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    mix-blend-mode: difference;
+    transform: translate(-50%, -50%);
+    display: none;
+  }
+  @media (pointer: fine) {
+    body { cursor: none; }
+    .custom-cursor { display: block; }
+    a, button, .faq-item { cursor: none; }
+  }
+
+  /* VISIBLE GRID ARMATURE */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+    padding: 0 96px;
+    opacity: 0.15;
+  }
+  .grid-overlay .grid-col {
+    border-left: 1.5px dashed var(--press-black);
+    height: 100vh;
+  }
+  .grid-overlay .grid-col:last-child {
+    border-right: 1.5px dashed var(--press-black);
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+    padding: 0 96px;
+    width: 100%;
+  }
+
+  /* TYPOGRAPHY */
+  h1, h2, h3, h4, .tier-name {
+    margin: 0;
+  }
+  .label-text {
+    font-family: var(--font-sub);
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .body-text {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .caption-text {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .mono-text {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* BUTTONS & CTAS */
+  .cta-pill {
+    display: inline-block;
+    background: var(--emergency-red);
+    color: var(--press-black);
+    font-family: var(--font-sub);
+    font-size: 16px;
+    text-transform: uppercase;
+    padding: 20px 40px;
+    border: none;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 2px var(--press-black), 4px 4px 0 var(--press-black);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+    text-decoration: none;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .cta-pill:hover, .cta-pill:focus-visible {
+    transform: translate(2px, 2px);
+    box-shadow: inset 0 0 0 2px var(--press-black), 2px 2px 0 var(--press-black);
+    outline: none;
+  }
+  .cta-pill:focus-visible {
+    box-shadow: 0 0 0 4px var(--hazard), 0 0 0 6px var(--emergency-red);
+  }
+
+  /* NAV */
+  .top-nav {
+    border-bottom: 1.5px dashed var(--press-black);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    position: relative;
+    z-index: 50;
+  }
+  .nav-left { grid-column: 1 / 5; }
+  .nav-right { grid-column: 5 / -1; text-align: right; }
+
+  /* HERO */
+  .hero-section {
+    position: relative;
+    min-height: calc(100vh - 56px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .hero-content {
+    grid-column: 1 / 8;
+    position: relative;
+    z-index: 10;
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(96px, 18vw, 280px);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    margin-bottom: 40px;
+    display: block;
+    white-space: nowrap;
+  }
+  .char-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .char-wrap .main {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+  }
+  .char-wrap .riso {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    color: var(--emergency-red);
+    mix-blend-mode: multiply;
+    z-index: 1;
+  }
+
+  /* SOLARI FLIP CLASSES */
+  .char-wrap.solari {
+    transform-style: preserve-3d;
+    transition: transform 180ms cubic-bezier(0.7, 0, 0.3, 1);
+  }
+  .solari-state-1 { font-family: var(--font-display); }
+  .solari-state-2 { -webkit-text-stroke: 2px var(--press-black); color: transparent; }
+  .solari-state-3 { transform: skewX(-12deg); }
+  .solari-state-4 { font-family: var(--font-mono); }
+
+  .hero-subhead {
+    font-family: var(--font-sub);
+    font-size: 24px;
+    text-transform: uppercase;
+    margin-bottom: 48px;
+    max-width: 500px;
+  }
+  
+  .hero-card-container {
+    position: absolute;
+    right: 96px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38vw;
+    max-width: 540px;
+    z-index: 5;
+    perspective: 1000px;
+  }
+  .hero-card {
+    width: 100%;
+    height: auto;
+    transform: rotate(-8deg);
+    mix-blend-mode: multiply;
+    display: block;
+  }
+
+  /* MARQUEES */
+  .marquee-wrapper {
+    width: 120vw;
+    margin-left: -10vw;
+    overflow: hidden;
+    position: relative;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .marquee-wrapper.tilted-down {
+    transform: rotate(-3deg);
+    margin-top: -40px;
+    margin-bottom: -40px;
+  }
+  .marquee-wrapper.tilted-up {
+    transform: rotate(3deg);
+    margin-top: -20px;
+    margin-bottom: -20px;
+  }
+  .marquee-track {
+    background: var(--press-black);
+    color: var(--hazard);
+    height: 80px;
+    display: flex;
+    align-items: center;
+    width: max-content;
+  }
+  .marquee-content {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    animation: scroll-left 20s linear infinite;
+  }
+  @keyframes scroll-left {
+    from { transform: translateX(0); }
+    to { transform: translateX(-100%); }
+  }
+  @media (hover: hover) {
+    .marquee-wrapper:hover .marquee-content { animation-play-state: paused; }
+  }
+
+  /* INTEL SECTION (GRAPHITE) */
+  .intel-section {
+    background: var(--graphite);
+    color: var(--newsprint);
+    padding: 120px 0;
+    position: relative;
+    z-index: 10;
+  }
+  .intel-section::before, .intel-section::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background-image: repeating-linear-gradient(90deg, var(--press-black) 0, var(--press-black) 6px, transparent 6px, transparent 10px);
+  }
+  .intel-section::before { top: 0; }
+  .intel-section::after { bottom: 0; }
+
+  .section-header {
+    grid-column: 1 / -1;
+    border-bottom: 1.5px dashed var(--press-black);
+    padding-bottom: 24px;
+    margin-bottom: 64px;
+  }
+  .intel-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1.5px dashed var(--press-black);
+    border-left: 1.5px dashed var(--press-black);
+  }
+  .intel-item {
+    border-right: 1.5px dashed var(--press-black);
+    border-bottom: 1.5px dashed var(--press-black);
+    padding: 32px 24px;
+  }
+  .intel-item h3 {
+    font-family: var(--font-sub);
+    font-size: 18px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    color: var(--hazard);
+  }
+
+  /* PRICING SECTION */
+  .pricing-section {
+    padding: 120px 0;
+    position: relative;
+    z-index: 10;
+  }
+  .pricing-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    gap: 24px;
+  }
+  .tier-card {
+    padding: 40px 32px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    transition: transform 200ms ease;
+  }
+  .tier-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .tier-1 {
+    background: var(--newsprint);
+    border: 1.5px dashed var(--press-black);
+  }
+  .tier-2 {
+    background: var(--emergency-red);
+    color: var(--newsprint);
+    transform: translateY(-16px) scale(1.04);
+    z-index: 2;
+  }
+  .tier-2:hover {
+    transform: translateY(-20px) scale(1.04);
+  }
+  .tier-3 {
+    background: var(--press-black);
+    color: var(--hazard);
+    border: 1.5px dashed var(--press-black);
+  }
+
+  .tier-ribbon {
+    position: absolute;
+    top: -12px;
+    right: 24px;
+    background: var(--press-black);
+    color: var(--hazard);
+    padding: 6px 12px;
+    border: 1.5px dashed var(--press-black);
+    border-radius: 999px;
+  }
+
+  .tier-name {
+    font-family: var(--font-sub);
+    font-size: 72px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .tier-price {
+    font-family: var(--font-sub);
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .tier-1 .tier-price, .tier-3 .tier-price {
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.4), -1px -1px 0 rgba(255,255,255,0.15);
+  }
+  .tier-2 .tier-price {
+    text-shadow: -1px -1px 0 rgba(255,255,255,0.3), 1px 1px 0 rgba(0,0,0,0.5);
+  }
+
+  .tier-desc {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    opacity: 0.8;
+  }
+
+  .tier-benefits {
+    list-style: none;
+    margin-bottom: 48px;
+    flex-grow: 1;
+  }
+  .tier-benefits li {
+    font-size: 16px;
+    margin-bottom: 16px;
+    padding-left: 20px;
+    position: relative;
+    font-weight: 600;
+  }
+  .tier-benefits li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+  }
+
+  .tier-1 .cta-tier, .tier-3 .cta-tier {
+    background: transparent;
+    border: 1.5px dashed currentColor;
+    color: currentColor;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    text-transform: uppercase;
+    padding: 16px;
+    border-radius: 4px;
+    text-align: center;
+    text-decoration: none;
+    transition: all 120ms ease;
+  }
+  .tier-1 .cta-tier:hover, .tier-3 .cta-tier:hover {
+    background: currentColor;
+    color: var(--hazard);
+  }
+  .tier-1 .cta-tier:hover { color: var(--newsprint); }
+
+  .tier-2 .cta-tier {
+    background: var(--newsprint);
+    color: var(--press-black);
+    font-family: var(--font-sub);
+    font-size: 16px;
+    text-transform: uppercase;
+    padding: 16px;
+    border-radius: 999px;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: inset 0 0 0 2px var(--press-black), 4px 4px 0 var(--press-black);
+    transition: all 120ms ease;
+  }
+  .tier-2 .cta-tier:hover {
+    transform: translate(2px, 2px);
+    box-shadow: inset 0 0 0 2px var(--press-black), 2px 2px 0 var(--press-black);
+  }
+
+  /* FAQ SECTION */
+  .faq-section {
+    padding: 120px 0;
+  }
+  .faq-list {
+    grid-column: 4 / -1;
+    border-top: 1.5px dashed var(--press-black);
+  }
+  .faq-item {
+    border-bottom: 1.5px dashed var(--press-black);
+    padding: 32px 0;
+  }
+  .faq-q {
+    font-family: var(--font-sub);
+    font-size: 22px;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  .faq-icon {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    transition: transform 300ms ease;
+  }
+  .faq-item.open .faq-icon {
+    transform: rotate(45deg);
+  }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 400ms cubic-bezier(0.16, 1, 0.3, 1), margin-top 400ms;
+    font-weight: 600;
+  }
+  .faq-item.open .faq-a {
+    max-height: 200px;
+    margin-top: 16px;
+  }
+
+  /* FINAL CTA */
+  .final-cta-section {
+    padding: 160px 0;
+    text-align: center;
+  }
+  .final-cta-content {
+    grid-column: 1 / -1;
+  }
+  .final-cta-title {
+    font-family: var(--font-display);
+    font-size: clamp(64px, 12vw, 160px);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 64px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--press-black);
+    color: var(--newsprint);
+    text-align: center;
+    padding: 24px 0;
+  }
+
+  /* ANIMATION CLASSES */
+  .reveal {
+    opacity: 0;
+    transform: translateX(-24px);
+    will-change: transform, opacity;
+  }
+  
+  /* CONTROLS */
+  .controls {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    gap: 8px;
+  }
+  .control-btn {
+    background: var(--press-black);
+    color: var(--hazard);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    border: 1.5px dashed var(--press-black);
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 120ms;
+  }
+  .control-btn:hover {
+    background: var(--hazard);
+    color: var(--press-black);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 1024px) {
+    .hero-title { font-size: 14vw; }
+    .hero-card-container { width: 45vw; right: 48px; }
+  }
+  @media (max-width: 768px) {
+    .grid-container {
+      grid-template-columns: repeat(4, 1fr);
+      padding: 0 20px;
+      gap: 16px;
+    }
+    .grid-overlay {
+      grid-template-columns: repeat(4, 1fr);
+      padding: 0 20px;
+      gap: 16px;
+    }
+    .grid-overlay .grid-col:nth-child(n+5) { display: none; }
+    
+    .hero-section { min-height: auto; padding-bottom: 64px; }
+    .hero-content { grid-column: 1 / -1; }
+    .hero-card-container {
+      position: relative;
+      right: auto;
+      top: auto;
+      transform: none;
+      width: 70%;
+      margin: 40px auto 0;
+      perspective: none;
+    }
+    .hero-card { transform: rotate(-4deg); }
+    
+    .intel-grid { grid-template-columns: 1fr; }
+    .intel-item { border-right: none; }
+    
+    .pricing-grid { grid-template-columns: 1fr; }
+    .tier-2 { transform: translateY(-8px) scale(1.04); }
+    .tier-2:hover { transform: translateY(-8px) scale(1.04); }
+    
+    .faq-list { grid-column: 1 / -1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-play-state: paused !important;
+      transition: none !important;
+    }
+    .char-wrap.solari { transform: none !important; }
+    .hero-card { transform: rotate(-8deg) !important; }
+    .marquee-content { animation: none !important; }
+    .reveal { opacity: 1 !important; transform: translateX(0) !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG FILTER DEFINITION -->
+<svg style="display:none;" aria-hidden="true">
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise" />
+    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0" in="noise" />
+  </filter>
+</svg>
+
+<!-- NOISE OVERLAY -->
+<div class="grain-overlay"></div>
+
+<!-- VISIBLE GRID -->
+<div class="grid-overlay" aria-hidden="true">
+  <div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div>
+  <div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div>
+  <div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div><div class="grid-col"></div>
+</div>
+
+<!-- CURSOR -->
+<div class="custom-cursor" aria-hidden="true"></div>
+
+<!-- CONTROLS -->
+<div class="controls" aria-hidden="true">
+  <button id="btn-reset" class="control-btn">Reset</button>
+  <button id="btn-play" class="control-btn">Play Reveal</button>
+</div>
+
+<!-- NAV -->
+<nav class="top-nav grid-container mono-text">
+  <div class="nav-left">MEMBER №</div>
+  <div class="nav-right">COMPLEX ALLEGIANCE</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-section grid-container">
+  <div class="hero-content">
+    <h1 class="hero-title">
+      <span class="char-wrap"><span class="main">A</span><span class="riso">A</span></span>
+      <span class="char-wrap"><span class="main">L</span><span class="riso">L</span></span>
+      <span class="char-wrap"><span class="main">L</span><span class="riso">L</span></span>
+      <span class="char-wrap"><span class="main">E</span><span class="riso">E</span></span>
+      <span class="char-wrap"><span class="main">G</span><span class="riso">G</span></span>
+      <span class="char-wrap"><span class="main">I</span><span class="riso">I</span></span>
+      <span class="char-wrap solari"><span class="main">A</span><span class="riso">A</span></span>
+      <span class="char-wrap"><span class="main">N</span><span class="riso">N</span></span>
+      <span class="char-wrap"><span class="main">C</span><span class="riso">C</span></span>
+      <span class="char-wrap"><span class="main">E</span><span class="riso">E</span></span>
+    </h1>
+    <h2 class="hero-subhead reveal">WE DON'T DO SUBSCRIPTIONS.<br>WE DO ALLEGIANCE.</h2>
+    <div class="reveal">
+      <a href="#pricing" class="cta-pill">CLAIM YOUR NUMBER →</a>
+    </div>
+  </div>
+  
+  <div class="hero-card-container">
+    <img src="https://changzack.github.io/prototypes/_assets/complex-lean-v5-asset/concept-2/hero-numbered-card.jpg" alt="Numbered Complex Allegiance Member Card" class="hero-card">
+  </div>
+</section>
+
+<!-- MARQUEE 1 -->
+<div class="marquee-wrapper tilted-down">
+  <div class="marquee-track">
+    <div class="marquee-content">
+      14M MEMBERS • 421 DROPS • 96s MEDIAN SELL-OUT • CANCEL ANYTIME • FOUNDING RATE LOCKED FOREVER •&nbsp;
+    </div>
+    <div class="marquee-content" aria-hidden="true">
+      14M MEMBERS • 421 DROPS • 96s MEDIAN SELL-OUT • CANCEL ANYTIME • FOUNDING RATE LOCKED FOREVER •&nbsp;
+    </div>
+    <div class="marquee-content" aria-hidden="true">
+      14M MEMBERS • 421 DROPS • 96s MEDIAN SELL-OUT • CANCEL ANYTIME • FOUNDING RATE LOCKED FOREVER •&nbsp;
+    </div>
+  </div>
+</div>
+
+<!-- THE INTEL -->
+<section class="intel-section">
+  <div class="grid-container">
+    <div class="section-header reveal">
+      <h2 class="label-text">03 / WHAT YOU ACTUALLY GET</h2>
+    </div>
+    <div class="intel-grid">
+      <div class="intel-item reveal">
+        <h3>DROPS</h3>
+        <p class="body-text">first dibs before the public sees the link.</p>
+      </div>
+      <div class="intel-item reveal">
+        <h3>INTEL</h3>
+        <p class="body-text">monthly briefing on what's about to pop.</p>
+      </div>
+      <div class="intel-item reveal">
+        <h3>ACCESS</h3>
+        <p class="body-text">skip the line at every physical event.</p>
+      </div>
+      <div class="intel-item reveal">
+        <h3>THE CARD</h3>
+        <p class="body-text">numbered. yours. forever.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="pricing-section grid-container">
+  <div class="section-header reveal" style="grid-column: 1 / -1; border-bottom: 1.5px dashed var(--press-black); padding-bottom: 24px; margin-bottom: 64px;">
+    <h2 class="label-text">04 / PICK YOUR NUMBER</h2>
+  </div>
+  
+  <div class="pricing-grid">
+    <!-- TIER 1 -->
+    <div class="tier-card tier-1 reveal tier-anim-1">
+      <h3 class="tier-name">REGULAR</h3>
+      <div class="tier-price">$0</div>
+      <div class="tier-desc">free tier</div>
+      <ul class="tier-benefits">
+        <li>The weekly intel drop</li>
+        <li>General public access</li>
+        <li>Basic editorial archive</li>
+        <li>Standard shipping</li>
+      </ul>
+      <a href="#" class="cta-tier">CLAIM FREE</a>
+    </div>
+    
+    <!-- TIER 2 -->
+    <div class="tier-card tier-2 reveal tier-anim-3">
+      <div class="tier-ribbon mono-text">★ MOST WANTED</div>
+      <h3 class="tier-name">OBSESSED</h3>
+      <div class="tier-price">$9 / MO</div>
+      <div class="tier-desc">6 benefits</div>
+      <ul class="tier-benefits">
+        <li>96-second priority head start</li>
+        <li>Private Discord dispatch</li>
+        <li>Limited physical zine</li>
+        <li>Free expedited shipping</li>
+        <li>Exclusive voting rights</li>
+        <li>Members-only lotteries</li>
+      </ul>
+      <a href="#" class="cta-tier">CLAIM YOUR NUMBER →</a>
+    </div>
+
+    <!-- TIER 3 -->
+    <div class="tier-card tier-3 reveal tier-anim-2">
+      <h3 class="tier-name">FAMILY</h3>
+      <div class="tier-price">$29 / MO</div>
+      <div class="tier-desc">family</div>
+      <ul class="tier-benefits">
+        <li>Guaranteed drop allocation</li>
+        <li>Direct line to editorial desk</li>
+        <li>VIP physical event access</li>
+        <li>Lifetime archive unlock</li>
+        <li>Friends & family discounts</li>
+        <li>Early unreleased samples</li>
+      </ul>
+      <a href="#" class="cta-tier">APPLY FOR FAMILY</a>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE 2 -->
+<div class="marquee-wrapper tilted-up">
+  <div class="marquee-track">
+    <div class="marquee-content">
+      ALLEGIANCE • ALLEGIANCE • ALLEGIANCE • ALLEGIANCE • ALLEGIANCE • ALLEGIANCE •&nbsp;
+    </div>
+    <div class="marquee-content" aria-hidden="true">
+      ALLEGIANCE • ALLEGIANCE • ALLEGIANCE • ALLEGIANCE • ALLEGIANCE • ALLEGIANCE •&nbsp;
+    </div>
+    <div class="marquee-content" aria-hidden="true">
+      ALLEGIANCE • ALLEGIANCE • ALLEGIANCE • ALLEGIANCE • ALLEGIANCE • ALLEGIANCE •&nbsp;
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<section class="faq-section grid-container">
+  <div class="section-header reveal" style="grid-column: 1 / 4; border-bottom: none; margin-bottom: 0;">
+    <h2 class="label-text">05 / INTEL</h2>
+    <p class="mono-text" style="margin-top: 12px; opacity: 0.6;">(FAQ)</p>
+  </div>
+  
+  <div class="faq-list">
+    <div class="faq-item reveal">
+      <div class="faq-q">Q. WHY $9? <span class="faq-icon">[+]</span></div>
+      <div class="faq-a body-text">Because commitment requires a threshold. We want people who actually care about the culture, not bots farming free signups.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Q. CAN I CANCEL? <span class="faq-icon">[+]</span></div>
+      <div class="faq-a body-text">Yes, anytime. But your numbered card is deactivated and your spot in the priority queue goes to the next person.</div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Q. WHAT IS THE CARD? <span class="faq-icon">[+]</span></div>
+      <div class="faq-a body-text">A physical PVC artifact stamped with your unique member number. It's your physical key to skip lines at physical events.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta-section grid-container">
+  <div class="final-cta-content reveal">
+    <h2 class="final-cta-title">CLAIM YOUR NUMBER.<br>JOIN COMPLEX ALLEGIANCE.</h2>
+    <a href="#pricing" class="cta-pill" style="font-size: 24px; padding: 24px 56px;">GET YOUR CARD →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer mono-text">
+  © 2026 COMPLEX ALLEGIANCE / ISSUE 001 / NUMBERED FOR LIFE
+</footer>
+
+<script>
+  // ---- CUSTOM CURSOR ----
+  const cursor = document.querySelector('.custom-cursor');
+  let mouseX = 0, mouseY = 0, currX = 0, currY = 0;
+  
+  if (window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('mousemove', e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+    
+    function animateCursor() {
+      currX += (mouseX - currX) * 0.2;
+      currY += (mouseY - currY) * 0.2;
+      if (cursor) {
+        cursor.style.left = `${currX}px`;
+        cursor.style.top = `${currY}px`;
+      }
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+  }
+
+  // ---- SOLARI FLIP ----
+  const solariWrap = document.querySelector('.char-wrap.solari');
+  const solariMain = solariWrap.querySelector('.main');
+  const solariRiso = solariWrap.querySelector('.riso');
+  const states = ['solari-state-1', 'solari-state-2', 'solari-state-3', 'solari-state-4'];
+  let solariState = 0;
+
+  setInterval(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    
+    solariWrap.style.transform = 'rotateX(-90deg)';
+    
+    setTimeout(() => {
+      [solariMain, solariRiso].forEach(el => {
+        el.classList.remove(states[solariState]);
+        el.classList.add(states[(solariState + 1) % states.length]);
+      });
+      solariState = (solariState + 1) % states.length;
+      solariWrap.style.transform = 'rotateX(0deg)';
+    }, 180);
+  }, 1800);
+
+  // ---- CARD TILT (CURSOR TRACKING) ----
+  const cardContainer = document.querySelector('.hero-card-container');
+  const card = document.querySelector('.hero-card');
+  let targetRotateX = 0, targetRotateY = 0;
+  let currRotateX = 0, currRotateY = 0;
+
+  if (window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('mousemove', e => {
+      // Normalize from -1 to 1
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      
+      targetRotateX = y * -5; // ±5deg
+      targetRotateY = x * 8;  // ±8deg
+    });
+
+    function animateCard() {
+      currRotateX += (targetRotateX - currRotateX) * 0.08;
+      currRotateY += (targetRotateY - currRotateY) * 0.08;
+      
+      card.style.transform = `rotate(-8deg) rotateX(${currRotateX}deg) rotateY(${currRotateY}deg)`;
+      requestAnimationFrame(animateCard);
+    }
+    animateCard();
+  }
+
+  // ---- FAQ ACCORDION ----
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('open');
+    });
+  });
+
+  // ---- INTERSECTION OBSERVER REVEALS ----
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.2
+  };
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.transform = 'translateX(0)';
+        entry.target.style.opacity = '1';
+        obs.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  // ---- PLAY / RESET LOGIC ----
+  const btnPlay = document.getElementById('btn-play');
+  const btnReset = document.getElementById('btn-reset');
+  const chars = document.querySelectorAll('.hero-title .char-wrap');
+  const reveals = document.querySelectorAll('.reveal');
+
+  function setToStatic() {
+    chars.forEach(c => {
+      c.style.transition = 'none';
+      c.style.transform = 'translateY(0)';
+      c.style.opacity = '1';
+    });
+    
+    cardContainer.style.transition = 'none';
+    cardContainer.style.clipPath = 'inset(0 0 0 0)';
+
+    reveals.forEach(el => {
+      observer.unobserve(el);
+      el.style.transition = 'none';
+      el.style.transform = 'translateX(0)';
+      el.style.opacity = '1';
+    });
+  }
+
+  function runAnimation() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setToStatic();
+      return;
+    }
+
+    // Reset Hero Chars
+    chars.forEach(c => {
+      c.style.transition = 'none';
+      c.style.transform = 'translateY(-40px)';
+      c.style.opacity = '0';
+    });
+    
+    // Reset Card
+    cardContainer.style.transition = 'none';
+    cardContainer.style.clipPath = 'inset(0 100% 0 0)';
+    
+    // Reset Scroll Reveals
+    reveals.forEach(el => {
+      observer.unobserve(el);
+      el.style.transition = 'none';
+      el.style.transform = 'translateX(-24px)';
+      el.style.opacity = '0';
+    });
+
+    // Force reflow
+    void document.body.offsetHeight;
+
+    // 1. Hero Letters Drop
+    chars.forEach((c, i) => {
+      setTimeout(() => {
+        c.style.transition = 'transform 400ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease';
+        c.style.transform = 'translateY(0)';
+        c.style.opacity = '1';
+      }, i * 60);
+    });
+
+    // 2. Card Wipe In
+    setTimeout(() => {
+      cardContainer.style.transition = 'clip-path 600ms ease-in-out';
+      cardContainer.style.clipPath = 'inset(0 0 0 0)';
+    }, 200);
+
+    // 3. Re-observe scroll elements
+    setTimeout(() => {
+      reveals.forEach(el => {
+        // Stagger logic via transition delays based on classes could be added,
+        // but simple observer re-trigger works best.
+        el.style.transition = 'transform 500ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms ease';
+        
+        // Add specific stagger for tier cards
+        if(el.classList.contains('tier-anim-1')) el.style.transitionDelay = '0ms';
+        if(el.classList.contains('tier-anim-2')) el.style.transitionDelay = '120ms';
+        if(el.classList.contains('tier-anim-3')) {
+          el.style.transitionDelay = '240ms';
+          // Middle tier bounce reveal
+          el.style.transform = 'translateX(-24px) scale(0.95)';
+          setTimeout(()=> {
+            if(el.style.opacity !== '0') el.style.transform = 'translateX(0) scale(1.04)';
+          }, 300);
+        }
+
+        observer.observe(el);
+      });
+    }, 50);
+  }
+
+  // Bind controls
+  btnReset.addEventListener('click', setToStatic);
+  btnPlay.addEventListener('click', () => {
+    window.scrollTo({top: 0, behavior: 'smooth'});
+    setTimeout(runAnimation, 300); // Wait for scroll
+  });
+
+  // Run on load by default
+  window.addEventListener('load', runAnimation);
+
+</script>
+</body>
+</html>

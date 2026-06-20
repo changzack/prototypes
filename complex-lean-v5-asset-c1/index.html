@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complex Allegiance — The Hype Index</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --black:#0B0B0C;
+      --bone:#EDE6D3;
+      --acid:#C8FF00;
+      --red:#E8341B;
+      --panel:#1A1A1C;
+      --hair:rgba(237, 230, 211, 0.18);
+      --hair-tight:rgba(237,230,211,0.18);
+    }
+    *{box-sizing:border-box}
+    html{background:#0B0B0C;color:#EDE6D3;scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:#0B0B0C;
+      color:#EDE6D3;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:15px;
+      line-height:1.5;
+      overflow-x:hidden;
+    }
+    @media (min-width:901px){body{cursor:none}}
+    a,button{font:inherit;color:inherit}
+    button{appearance:none}
+    .grain-svg{
+      position:fixed;
+      inset:0;
+      z-index:9998;
+      width:100vw;
+      height:100vh;
+      pointer-events:none;
+      opacity:0.06;
+      mix-blend-mode:overlay;
+    }
+    .cursor{
+      position:fixed;
+      left:0;
+      top:0;
+      width:12px;
+      height:12px;
+      border:1px solid #EDE6D3;
+      background:transparent;
+      pointer-events:none;
+      z-index:9999;
+      transform:translate(-50%,-50%);
+      transition:width 160ms ease,height 160ms ease,background-color 160ms ease,border-color 160ms ease,transform 90ms ease;
+    }
+    .cursor.hot{
+      width:48px;
+      height:48px;
+      background:#C8FF00;
+      border-color:#C8FF00;
+      mix-blend-mode:difference;
+    }
+    .cursor.down{transform:translate(-50%,-50%) rotate(-12deg)}
+    @media (max-width:900px){.cursor{display:none}}
+    .grid-12{
+      width:min(100% - 48px,1440px);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(12,minmax(0,1fr));
+      column-gap:24px;
+    }
+    .section{
+      border-top:1px solid rgba(237, 230, 211, 0.18);
+      position:relative;
+    }
+    .panel{background:#1A1A1C}
+    .label{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+    }
+    .caption{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:10px;
+      line-height:1.45;
+    }
+    .caption::before{content:">> "}
+    h1,h2,h3,p{margin:0}
+    .ticker{
+      height:44px;
+      background:#1A1A1C;
+      border-bottom:1px solid rgba(237, 230, 211, 0.18);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      white-space:nowrap;
+      transform:translateY(0);
+      position:relative;
+      z-index:5;
+    }
+    .ticker-track{
+      display:flex;
+      align-items:center;
+      gap:34px;
+      min-width:max-content;
+      animation:tickerMove 60s linear infinite;
+      will-change:transform;
+    }
+    .ticker:hover .ticker-track{animation-play-state:paused}
+    .ticker-item{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:#EDE6D3;
+    }
+    .ticker-item.acid{color:#C8FF00}
+    .live-cursor::after{
+      content:"▍";
+      color:#C8FF00;
+      animation:blink 1s steps(2) infinite;
+      margin-left:3px;
+    }
+    @keyframes tickerMove{
+      from{transform:translateX(0)}
+      to{transform:translateX(-50%)}
+    }
+    @keyframes blink{50%{opacity:0}}
+    .masthead{
+      min-height:88vh;
+      padding:58px 0 42px;
+      background:#0B0B0C;
+    }
+    .mast-copy{
+      grid-column:1 / span 8;
+      align-self:end;
+      padding-top:7vh;
+    }
+    .mega{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:clamp(72px,11vw,188px);
+      line-height:0.86;
+      letter-spacing:-0.04em;
+      text-transform:uppercase;
+      max-width:1100px;
+    }
+    .mega-line{
+      display:block;
+      overflow:hidden;
+      clip-path:inset(0 0 0 0);
+    }
+    .mega-line span{display:block}
+    .mast-rule{
+      height:1px;
+      background:rgba(237, 230, 211, 0.18);
+      margin-top:34px;
+      width:72%;
+    }
+    .mast-note{
+      margin-top:18px;
+      max-width:520px;
+      color:rgba(237,230,211,0.72);
+    }
+    .mast-side{
+      grid-column:9 / span 4;
+      padding-top:7vh;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      min-height:70vh;
+    }
+    .terminal-stack{
+      border-top:1px solid rgba(237, 230, 211, 0.18);
+      padding-top:14px;
+    }
+    .terminal-row{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      padding:9px 0;
+      border-bottom:1px solid rgba(237, 230, 211, 0.18);
+      color:#EDE6D3;
+    }
+    .terminal-row span:first-child{color:#C8FF00}
+    .sparkline{
+      width:100%;
+      height:92px;
+      background:#1A1A1C;
+      border:1px solid rgba(237, 230, 211, 0.18);
+      margin-top:8px;
+      display:block;
+    }
+    .access-slab{
+      margin-top:auto;
+      background:#1A1A1C;
+      border:1px solid rgba(237, 230, 211, 0.18);
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .access-slab::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:repeating-linear-gradient(0deg, transparent 0 13px, rgba(237,230,211,0.05) 14px);
+      opacity:.5;
+      pointer-events:none;
+    }
+    .slab-top,.slab-bottom{position:relative;display:flex;justify-content:space-between;gap:18px}
+    .slab-price{
+      position:relative;
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:64px;
+      line-height:0.9;
+      letter-spacing:-0.04em;
+      margin:34px 0 8px;
+      font-variant-numeric:tabular-nums;
+      color:#C8FF00;
+    }
+    .slab-cta{
+      position:relative;
+      width:100%;
+      height:44px;
+      border:1px solid #C8FF00;
+      background:transparent;
+      color:#C8FF00;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 14px;
+      margin-top:16px;
+      text-decoration:none;
+      overflow:hidden;
+    }
+    .slab-cta span{position:relative;z-index:1}
+    .slab-cta::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:#EDE6D3;
+      transform:translateY(100%);
+      transition:transform 280ms cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    .slab-cta:hover{color:#0B0B0C;border-color:#EDE6D3}
+    .slab-cta:hover::before{transform:translateY(0)}
+    .slab-cta .arrow{transform:translateX(-16px);transition:transform 280ms cubic-bezier(0.33, 1, 0.68, 1)}
+    .slab-cta:hover .arrow{transform:translateX(0)}
+    .chart-section{
+      min-height:70vh;
+      background:#1A1A1C;
+      overflow:hidden;
+    }
+    .chart-pin{
+      min-height:70vh;
+      padding:44px 0;
+      display:flex;
+      align-items:stretch;
+    }
+    .chart-wrap{
+      grid-column:1 / span 12;
+      position:relative;
+      min-height:calc(70vh - 88px);
+      border-top:1px solid rgba(237, 230, 211, 0.18);
+      border-bottom:1px solid rgba(237, 230, 211, 0.18);
+      display:grid;
+      grid-template-columns:repeat(12,minmax(0,1fr));
+      column-gap:24px;
+      padding:22px 0;
+    }
+    .chart-title{
+      grid-column:1 / span 4;
+      z-index:2;
+    }
+    .section-title{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:42px;
+      line-height:0.95;
+      letter-spacing:-0.01em;
+      text-transform:uppercase;
+    }
+    .axis-note{
+      margin-top:12px;
+      color:rgba(237,230,211,0.66);
+    }
+    .hype-svg{
+      grid-column:1 / span 12;
+      width:100%;
+      height:100%;
+      min-height:440px;
+      margin-top:12px;
+      overflow:visible;
+    }
+    .grid-line{stroke:rgba(237,230,211,0.18);stroke-width:1}
+    .axis-label{
+      fill:#EDE6D3;
+      opacity:0;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:11px;
+      letter-spacing:0.18em;
+    }
+    .regular-line{
+      stroke:rgba(237,230,211,0.3);
+      stroke-width:1.5;
+      stroke-dasharray:2 4;
+      fill:none;
+    }
+    .obsessed-line{
+      stroke:#C8FF00;
+      stroke-width:3;
+      fill:none;
+      filter:drop-shadow(0 0 8px rgba(200,255,0,0.55));
+    }
+    .family-line{
+      stroke:#EDE6D3;
+      stroke-width:2;
+      fill:none;
+    }
+    .chart-callout{
+      position:absolute;
+      left:58%;
+      top:20%;
+      color:#C8FF00;
+      min-width:320px;
+    }
+    .tier-section{padding:80px 0 90px;background:#0B0B0C}
+    .tier-head{grid-column:1 / span 4}
+    .tier-copy{grid-column:6 / span 5;color:rgba(237,230,211,0.72)}
+    .table-shell{
+      grid-column:1 / span 12;
+      margin-top:42px;
+      overflow-x:auto;
+      border-top:1px solid rgba(237, 230, 211, 0.18);
+    }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      min-width:900px;
+    }
+    th,td{
+      text-align:left;
+      vertical-align:top;
+      padding:18px 16px;
+      border-bottom:1px solid rgba(237, 230, 211, 0.18);
+      border-right:1px solid rgba(237, 230, 211, 0.18);
+      border-radius:2px;
+    }
+    th:first-child,td:first-child{border-left:1px solid rgba(237, 230, 211, 0.18);width:28%}
+    th{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:11px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:rgba(237,230,211,0.68);
+    }
+    .tier-name{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:28px;
+      line-height:.95;
+      letter-spacing:-0.01em;
+      text-transform:uppercase;
+      color:#EDE6D3;
+    }
+    .tier-price{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:64px;
+      line-height:.85;
+      letter-spacing:-0.04em;
+      font-variant-numeric:tabular-nums;
+      margin-top:10px;
+      color:#EDE6D3;
+    }
+    .featured-col{
+      background:rgba(200,255,0,0.08);
+      border-left:1px solid #C8FF00 !important;
+      border-right:1px solid #C8FF00 !important;
+    }
+    .featured-col .tier-name,.featured-col .tier-price{color:#C8FF00}
+    .indicator{
+      display:inline-block;
+      min-width:18px;
+      color:#C8FF00;
+      transform:scale(1);
+      transform-origin:center;
+    }
+    .empty{color:rgba(237,230,211,0.38)}
+    .table-cta{
+      height:44px;
+      width:100%;
+      border:1px solid rgba(237, 230, 211, 0.18);
+      background:transparent;
+      color:#EDE6D3;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 14px;
+      text-decoration:none;
+      position:relative;
+      overflow:hidden;
+    }
+    .table-cta::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:#EDE6D3;
+      transform:translateY(100%);
+      transition:transform 280ms cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    .table-cta span{position:relative;z-index:1}
+    .table-cta:hover{color:#0B0B0C}
+    .table-cta:hover::before{transform:translateY(0)}
+    .table-cta .arrow{transform:translateX(-16px);transition:transform 280ms cubic-bezier(0.33, 1, 0.68, 1)}
+    .table-cta:hover .arrow{transform:translateX(0)}
+    .obsessed-cta{
+      height:56px;
+      border-radius:999px;
+      background:#C8FF00;
+      color:#0B0B0C;
+      border-color:#C8FF00;
+      font-weight:700;
+    }
+    .obsessed-cta::before{background:#EDE6D3}
+    .heat-section{padding:80px 0 92px;background:#1A1A1C}
+    .heat-left{grid-column:1 / span 7}
+    .dial-right{grid-column:8 / span 5}
+    .heatmap{
+      display:grid;
+      grid-template-columns:repeat(52,14px);
+      grid-template-rows:repeat(7,14px);
+      gap:1px;
+      margin-top:28px;
+      max-width:779px;
+      overflow:visible;
+    }
+    .heat-cell{
+      width:14px;
+      height:14px;
+      background:#1A1A1C;
+      border:1px solid rgba(237, 230, 211, 0.18);
+      transition:transform 120ms ease,border-color 120ms ease;
+      position:relative;
+    }
+    .heat-cell:hover{
+      transform:scale(1.15);
+      border-color:#C8FF00;
+      z-index:2;
+    }
+    .heat-cell:hover::after{
+      content:attr(data-drop);
+      position:absolute;
+      left:18px;
+      top:-1px;
+      width:max-content;
+      max-width:190px;
+      padding:5px 7px;
+      background:#0B0B0C;
+      border:1px solid #C8FF00;
+      color:#C8FF00;
+      font-family:'JetBrains Mono', monospace;
+      font-size:10px;
+      z-index:3;
+      pointer-events:none;
+    }
+    .dials{
+      display:grid;
+      grid-template-columns:repeat(3,180px);
+      gap:18px;
+      margin-top:28px;
+      justify-content:end;
+    }
+    .dial{
+      width:180px;
+      min-height:236px;
+      border-top:1px solid rgba(237, 230, 211, 0.18);
+      padding-top:14px;
+    }
+    .dial svg{width:180px;height:180px;display:block}
+    .dial-bg{stroke:rgba(237,230,211,0.18);stroke-width:2;fill:none}
+    .dial-ring{stroke:#C8FF00;stroke-width:2;fill:none;transform:rotate(-90deg);transform-origin:90px 90px}
+    .dial-num{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:36px;
+      letter-spacing:-0.04em;
+      fill:#EDE6D3;
+      text-anchor:middle;
+      dominant-baseline:middle;
+    }
+    .dial-label{margin-top:8px;color:rgba(237,230,211,0.72)}
+    .intel-section{padding:80px 0;background:#0B0B0C}
+    .intel-head{grid-column:1 / span 3}
+    .intel-grid{
+      grid-column:4 / span 9;
+      columns:3 260px;
+      column-gap:24px;
+    }
+    .wire{
+      break-inside:avoid;
+      border-top:1px solid rgba(237, 230, 211, 0.18);
+      padding:14px 0 24px;
+      margin:0 0 24px;
+    }
+    .wire-symbol{color:#C8FF00}
+    .wire h3{
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:28px;
+      line-height:1;
+      letter-spacing:-0.01em;
+      text-transform:uppercase;
+      margin:12px 0;
+    }
+    .wire p{color:rgba(237,230,211,0.72)}
+    .faq-section{padding:70px 0 82px;background:#1A1A1C}
+    .faq-head{grid-column:1 / span 4}
+    .faq-list{grid-column:5 / span 7;border-top:1px solid rgba(237, 230, 211, 0.18)}
+    .faq-item{border-bottom:1px solid rgba(237, 230, 211, 0.18)}
+    .faq-q{
+      width:100%;
+      background:transparent;
+      border:0;
+      min-height:62px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      text-align:left;
+      padding:0;
+      color:#EDE6D3;
+    }
+    .faq-q span:first-child::before{content:"Q. ";color:#C8FF00}
+    .faq-q b{font-weight:400;color:#C8FF00;transition:transform 160ms ease}
+    .faq-a{
+      max-height:0;
+      overflow:hidden;
+      color:rgba(237,230,211,0.72);
+      transition:max-height 260ms ease;
+    }
+    .faq-a p{padding:0 0 18px}
+    .faq-item.open .faq-a{max-height:160px}
+    .faq-item.open .faq-q b{transform:rotate(45deg)}
+    .final-cta{
+      min-height:64vh;
+      background:#E8341B;
+      color:#0B0B0C;
+      display:flex;
+      align-items:center;
+      clip-path:inset(0 0 0 0);
+      overflow:hidden;
+    }
+    .cta-inner{padding:64px 0}
+    .enlist{
+      grid-column:1 / span 9;
+      font-family:'Archivo', sans-serif;
+      font-weight:900;
+      font-size:clamp(96px,18vw,260px);
+      line-height:.78;
+      letter-spacing:-0.055em;
+      text-transform:uppercase;
+      color:#0B0B0C;
+    }
+    .cta-meta{
+      grid-column:2 / span 8;
+      margin-top:24px;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:13px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+    }
+    .red-button{
+      grid-column:10 / span 3;
+      align-self:end;
+      height:56px;
+      border:1px solid #0B0B0C;
+      background:#0B0B0C;
+      color:#E8341B;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 16px;
+      text-decoration:none;
+      margin-bottom:8px;
+    }
+    .footer{
+      height:56px;
+      border-top:1px solid rgba(237, 230, 211, 0.18);
+      background:#0B0B0C;
+      display:flex;
+      align-items:center;
+    }
+    .foot-left{grid-column:1 / span 4}
+    .foot-right{grid-column:7 / span 6;color:rgba(237,230,211,0.62)}
+    .controls{
+      position:fixed;
+      right:16px;
+      bottom:16px;
+      z-index:9997;
+      display:flex;
+      gap:8px;
+    }
+    .controls button{
+      height:32px;
+      background:#0B0B0C;
+      border:1px solid rgba(237, 230, 211, 0.18);
+      color:#EDE6D3;
+      padding:0 10px;
+      font-size:10px;
+      letter-spacing:0.18em;
+      text-transform:uppercase;
+    }
+    .controls button:hover{border-color:#C8FF00;color:#C8FF00}
+    @media (max-width:1100px){
+      .dials{grid-template-columns:repeat(2,180px);justify-content:start}
+      .mast-copy{grid-column:1 / span 9}
+      .mast-side{grid-column:1 / span 12;min-height:auto;padding-top:32px;display:grid;grid-template-columns:repeat(2,1fr)}
+      .access-slab{margin-top:0}
+    }
+    @media (max-width:767px){
+      .grid-12{width:min(100% - 28px,1440px);grid-template-columns:repeat(4,minmax(0,1fr));column-gap:14px}
+      .ticker{height:44px}
+      .masthead{min-height:86vh;padding:34px 0}
+      .mast-copy,.mast-side,.chart-wrap,.heat-left,.dial-right,.intel-head,.intel-grid,.faq-head,.faq-list,.enlist,.cta-meta,.red-button,.foot-left,.foot-right,.tier-head,.tier-copy,.table-shell{
+        grid-column:1 / span 4;
+      }
+      .mega{font-size:clamp(72px,19vw,118px)}
+      .mast-side{display:block}
+      .sparkline{height:72px}
+      .access-slab{margin-top:18px}
+      .chart-pin{min-height:72vh}
+      .chart-wrap{display:block;min-height:calc(72vh - 88px)}
+      .hype-svg{min-height:360px}
+      .family-line,.family-axis{display:none}
+      .chart-callout{left:16px;top:auto;bottom:28px;min-width:260px}
+      .tier-section,.heat-section,.intel-section,.faq-section{padding:54px 0}
+      table{min-width:0;display:block}
+      thead{display:none}
+      tbody,tr,td{display:block;width:100%}
+      tr{border-top:1px solid rgba(237, 230, 211, 0.18)}
+      td,th{border-left:1px solid rgba(237, 230, 211, 0.18)}
+      td::before{
+        content:attr(data-label);
+        display:block;
+        font-family:'JetBrains Mono', monospace;
+        font-weight:700;
+        font-size:11px;
+        letter-spacing:0.18em;
+        text-transform:uppercase;
+        color:rgba(237,230,211,0.62);
+        margin-bottom:8px;
+      }
+      .heatmap{
+        grid-template-columns:repeat(26,10px);
+        grid-auto-rows:10px;
+      }
+      .heat-cell{width:10px;height:10px}
+      .dials{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+      .dial{width:100%;min-height:auto}
+      .dial svg{width:100%;height:auto}
+      .intel-grid{columns:1}
+      .final-cta{min-height:58vh}
+      .red-button{margin-top:28px}
+      .footer{height:auto;padding:16px 0}
+      .foot-right{margin-top:8px}
+      .controls{display:none}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .ticker-track{animation:none}
+      .live-cursor::after{animation:none}
+      *{scroll-behavior:auto!important}
+    }
+  </style>
+</head>
+<body>
+  <svg class="grain-svg" aria-hidden="true">
+    <filter id="terminalGrain">
+      <feTurbulence baseFrequency="0.9" numOctaves="2"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#terminalGrain)"></rect>
+  </svg>
+
+  <div class="cursor" aria-hidden="true"></div>
+
+  <div class="ticker" id="top">
+    <div class="ticker-track" aria-label="14,237,891 MEMBERS 421 DROPS SHIPPED 96s MEDIAN SELL-OUT CANCEL ANYTIME FOUNDING RATE LOCKED">
+      <span class="ticker-item acid">>> LIVE HYPE INDEX</span>
+      <span class="ticker-item live-cursor" data-static="14,237,891 MEMBERS"><span class="countup" data-target="14237891">14,237,891</span> MEMBERS</span>
+      <span class="ticker-item">+1,204 TODAY</span>
+      <span class="ticker-item">421 DROPS SHIPPED</span>
+      <span class="ticker-item">96s MEDIAN SELL-OUT</span>
+      <span class="ticker-item">CANCEL ANYTIME</span>
+      <span class="ticker-item">FOUNDING RATE LOCKED</span>
+      <span class="ticker-item acid">>> LIVE HYPE INDEX</span>
+      <span class="ticker-item live-cursor"><span class="countup" data-target="14237891">14,237,891</span> MEMBERS</span>
+      <span class="ticker-item">+1,204 TODAY</span>
+      <span class="ticker-item">421 DROPS SHIPPED</span>
+      <span class="ticker-item">96s MEDIAN SELL-OUT</span>
+      <span class="ticker-item">CANCEL ANYTIME</span>
+      <span class="ticker-item">FOUNDING RATE LOCKED</span>
+    </div>
+  </div>
+
+  <main>
+    <section class="masthead section">
+      <div class="grid-12">
+        <div class="mast-copy">
+          <h1 class="mega" aria-label="COMPLEX ALLEGIANCE. A SUBSCRIPTION TO BEING EARLY.">
+            <span class="mega-line"><span>COMPLEX</span></span>
+            <span class="mega-line"><span>ALLEGIANCE.</span></span>
+            <span class="mega-line"><span>A SUBSCRIPTION</span></span>
+            <span class="mega-line"><span>TO BEING</span></span>
+            <span class="mega-line"><span>EARLY.</span></span>
+          </h1>
+          <div class="mast-rule"></div>
+          <p class="mast-note caption">The culture-intelligence terminal for drops, access windows, member velocity, and every signal that moves before the timeline catches up.</p>
+        </div>
+        <aside class="mast-side">
+          <div>
+            <div class="terminal-stack">
+              <div class="terminal-row label"><span>>></span><b>ALLEGIANCE/</b></div>
+              <div class="terminal-row label"><span>>></span><b>ISSUE 001</b></div>
+              <div class="terminal-row label"><span>>></span><b>VOL. INFINITE</b></div>
+              <div class="terminal-row label"><span>>></span><b>LIVE FEED</b></div>
+            </div>
+            <svg class="sparkline" viewBox="0 0 360 92" role="img" aria-label="Tiny live feed sparkline">
+              <line x1="0" y1="70" x2="360" y2="70" class="grid-line"/>
+              <line x1="0" y1="46" x2="360" y2="46" class="grid-line"/>
+              <line x1="0" y1="22" x2="360" y2="22" class="grid-line"/>
+              <polyline points="0,72 28,66 50,68 82,58 115,63 142,44 166,48 194,30 220,37 250,18 276,24 306,12 360,8" fill="none" stroke="#C8FF00" stroke-width="2"/>
+              <text x="12" y="18" fill="#EDE6D3" font-family="'JetBrains Mono', monospace" font-size="10">>> ACCESS VELOCITY</text>
+            </svg>
+          </div>
+          <div class="access-slab" aria-label="Obsessed membership access slab">
+            <div class="slab-top label"><span>OBSESSED</span><span>FEATURED</span></div>
+            <div class="slab-price">$9/MO</div>
+            <p class="caption">24HR HEAD START · MONTHLY INTEL DROPS · PRICE PULSE ALERTS</p>
+            <a href="#tiers" class="slab-cta" data-interactive><span>COMPARE TIERS</span><span class="arrow">→</span></a>
+            <div class="slab-bottom caption" style="margin-top:16px"><span>ID: CX-009</span><span>LIVE</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="chart-section section" id="hype">
+      <div class="chart-pin">
+        <div class="grid-12">
+          <div class="chart-wrap">
+            <div class="chart-title">
+              <div class="label" style="color:#C8FF00">03 / SCRUB THE SIGNAL</div>
+              <h2 class="section-title" style="margin-top:10px">THE HYPE INDEX</h2>
+              <p class="axis-note caption">Y axis: ACCESS LEVEL · X axis: DROP TIMELINE 2024→2026</p>
+            </div>
+            <svg class="hype-svg" viewBox="0 0 1280 520" preserveAspectRatio="none" role="img" aria-label="Hype Index chart comparing Regular, Obsessed, and Family access levels">
+              <defs>
+                <clipPath id="chartClip"><rect x="70" y="35" width="1160" height="420"/></clipPath>
+              </defs>
+              <line x1="70" y1="455" x2="1230" y2="455" class="grid-line"/>
+              <line x1="70" y1="350" x2="1230" y2="350" class="grid-line"/>
+              <line x1="70" y1="245" x2="1230" y2="245" class="grid-line"/>
+              <line x1="70" y1="140" x2="1230" y2="140" class="grid-line"/>
+              <line x1="70" y1="35" x2="70" y2="455" class="grid-line"/>
+              <line x1="1230" y1="35" x2="1230" y2="455" class="grid-line"/>
+              <text x="76" y="28" class="axis-label">ACCESS LEVEL</text>
+              <text x="1010" y="493" class="axis-label">DROP TIMELINE 2024→2026</text>
+              <text x="90" y="422" class="axis-label">REGULAR</text>
+              <text x="90" y="322" class="axis-label family-axis">FAMILY</text>
+              <text x="90" y="118" class="axis-label">OBSESSED</text>
+              <g clip-path="url(#chartClip)">
+                <path class="regular-line chart-path" d="M70 426 C180 416 260 433 360 420 C470 407 570 433 680 418 C780 406 890 423 1000 412 C1090 404 1160 412 1230 398"/>
+                <path class="obsessed-line chart-path" d="M70 408 C150 392 230 365 320 338 C430 306 510 260 610 214 C710 170 800 142 910 118 C1010 96 1115 74 1230 52"/>
+                <path class="family-line chart-path" d="M70 390 C180 370 270 350 370 326 C480 294 570 272 675 244 C790 211 895 188 1010 158 C1110 130 1172 104 1230 82"/>
+              </g>
+            </svg>
+            <div class="chart-callout label" id="chartCallout" aria-live="polite"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tier-section section" id="tiers">
+      <div class="grid-12">
+        <div class="tier-head">
+          <div class="label" style="color:#C8FF00">04 / TABLE OUTPUT</div>
+          <h2 class="section-title" style="margin-top:10px">TIER COMPARISON</h2>
+        </div>
+        <p class="tier-copy caption">Not perks. Signals. Each column is a different latency against culture: Regular watches, Obsessed moves early, Family gets pulled into the room.</p>
+        <div class="table-shell">
+          <table aria-label="Complex Allegiance tier comparison data table">
+            <thead>
+              <tr>
+                <th>Benefit Row</th>
+                <th>REGULAR (Free)</th>
+                <th class="featured-col">OBSESSED ($9/mo)</th>
+                <th>FAMILY ($29/mo)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="tier-row">
+                <td data-label="Benefit Row"><span class="label">TIER</span></td>
+                <td data-label="REGULAR (Free)"><div class="tier-name">REGULAR</div><div class="tier-price">Free</div></td>
+                <td data-label="OBSESSED ($9/mo)" class="featured-col"><div class="tier-name">OBSESSED</div><div class="tier-price">$9</div></td>
+                <td data-label="FAMILY ($29/mo)"><div class="tier-name">FAMILY</div><div class="tier-price">$29</div></td>
+              </tr>
+              <tr class="tier-row">
+                <td data-label="Benefit Row">Public drop calendar</td>
+                <td data-label="REGULAR (Free)"><span class="indicator">●</span> Week-of view</td>
+                <td data-label="OBSESSED ($9/mo)" class="featured-col"><span class="indicator">●</span> 24hr head start</td>
+                <td data-label="FAMILY ($29/mo)"><span class="indicator">●</span> Concierge reminders</td>
+              </tr>
+              <tr class="tier-row">
+                <td data-label="Benefit Row">Monthly intel drops</td>
+                <td data-label="REGULAR (Free)"><span class="indicator empty">○</span> Recap only</td>
+                <td data-label="OBSESSED ($9/mo)" class="featured-col"><span class="indicator">●</span> Full briefing</td>
+                <td data-label="FAMILY ($29/mo)"><span class="indicator">●</span> Private addendum</td>
+              </tr>
+              <tr class="tier-row">
+                <td data-label="Benefit Row">Price pulse alerts</td>
+                <td data-label="REGULAR (Free)"><span class="indicator empty">—</span> No signal</td>
+                <td data-label="OBSESSED ($9/mo)" class="featured-col"><span class="indicator">●</span> Live flips + dips</td>
+                <td data-label="FAMILY ($29/mo)"><span class="indicator">●</span> Sourcing desk</td>
+              </tr>
+              <tr class="tier-row">
+                <td data-label="Benefit Row">Backchannel access</td>
+                <td data-label="REGULAR (Free)"><span class="indicator empty">○</span> Community comments</td>
+                <td data-label="OBSESSED ($9/mo)" class="featured-col"><span class="indicator">●</span> Discord intel room</td>
+                <td data-label="FAMILY ($29/mo)"><span class="indicator">●</span> Private operator chat</td>
+              </tr>
+              <tr class="tier-row">
+                <td data-label="Benefit Row">Member-only buys</td>
+                <td data-label="REGULAR (Free)"><span class="indicator empty">—</span> Standby</td>
+                <td data-label="OBSESSED ($9/mo)" class="featured-col"><span class="indicator">●</span> Priority window</td>
+                <td data-label="FAMILY ($29/mo)"><span class="indicator">●</span> Reserved allocation</td>
+              </tr>
+              <tr class="tier-row">
+                <td data-label="Benefit Row">Events + market briefs</td>
+                <td data-label="REGULAR (Free)"><span class="indicator empty">—</span> Public stream</td>
+                <td data-label="OBSESSED ($9/mo)" class="featured-col"><span class="indicator empty">○</span> Digital room</td>
+                <td data-label="FAMILY ($29/mo)"><span class="indicator">●</span> Invite list</td>
+              </tr>
+              <tr class="tier-row">
+                <td data-label="Benefit Row"><span class="label">CTA</span></td>
+                <td data-label="REGULAR (Free)"><a class="table-cta" href="#final" data-interactive><span>START REGULAR</span><span class="arrow">→</span></a></td>
+                <td data-label="OBSESSED ($9/mo)" class="featured-col"><a class="table-cta obsessed-cta" href="#final" data-interactive><span>GO OBSESSED</span><span class="arrow">→</span></a></td>
+                <td data-label="FAMILY ($29/mo)"><a class="table-cta" href="#final" data-interactive><span>REQUEST FAMILY</span><span class="arrow">→</span></a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="heat-section section">
+      <div class="grid-12">
+        <div class="heat-left">
+          <div class="label" style="color:#C8FF00">05 / 52-WEEK RELEASE FIELD</div>
+          <h2 class="section-title" style="margin-top:10px">DROP HEATMAP</h2>
+          <p class="caption" style="margin-top:12px;color:rgba(237,230,211,0.72)">Each cell is a drop. Acid density tracks sell-out velocity. Hover the grid for field notes.</p>
+          <div class="heatmap" id="heatmap" aria-label="52 week drop heatmap with seven rows"></div>
+        </div>
+        <div class="dial-right">
+          <div class="label">RADIAL READOUTS</div>
+          <div class="dials">
+            <div class="dial" data-value="96" data-suffix="s" data-progress="0.82">
+              <svg viewBox="0 0 180 180" aria-label="96 seconds median sell-out radial dial">
+                <circle class="dial-bg" cx="90" cy="90" r="70"></circle>
+                <circle class="dial-ring" cx="90" cy="90" r="70"></circle>
+                <text class="dial-num" x="90" y="90"><tspan class="dial-count">96</tspan>s</text>
+              </svg>
+              <p class="dial-label caption">median sell-out</p>
+            </div>
+            <div class="dial" data-value="421" data-suffix="" data-progress="0.74">
+              <svg viewBox="0 0 180 180" aria-label="421 drops shipped radial dial">
+                <circle class="dial-bg" cx="90" cy="90" r="70"></circle>
+                <circle class="dial-ring" cx="90" cy="90" r="70"></circle>
+                <text class="dial-num" x="90" y="90"><tspan class="dial-count">421</tspan></text>
+              </svg>
+              <p class="dial-label caption">drops shipped</p>
+            </div>
+            <div class="dial" data-value="24" data-suffix="hr" data-progress="0.68">
+              <svg viewBox="0 0 180 180" aria-label="24 hour head start radial dial">
+                <circle class="dial-bg" cx="90" cy="90" r="70"></circle>
+                <circle class="dial-ring" cx="90" cy="90" r="70"></circle>
+                <text class="dial-num" x="90" y="90"><tspan class="dial-count">24</tspan>hr</text>
+              </svg>
+              <p class="dial-label caption">head start</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="intel-section section">
+      <div class="grid-12">
+        <div class="intel-head">
+          <div class="label" style="color:#C8FF00">06 / NEWSWIRE</div>
+          <h2 class="section-title" style="margin-top:10px">INTEL FEED</h2>
+        </div>
+        <div class="intel-grid">
+          <article class="wire">
+            <div class="label"><span class="wire-symbol">CX-021</span> · 08:42 EST</div>
+            <h3>Archive denim spikes after one repost from the Atlanta tunnel.</h3>
+            <p class="caption">Resale ask moved before the broader feed understood the reference.</p>
+          </article>
+          <article class="wire">
+            <div class="label"><span class="wire-symbol">SNK-114</span> · 11:06 EST</div>
+            <h3>Friends-and-family colorway detected in three separate warmup tunnels.</h3>
+            <p class="caption">Probability of public shock drop moved from 22 to 61.</p>
+          </article>
+          <article class="wire">
+            <div class="label"><span class="wire-symbol">ART-009</span> · 15:19 EST</div>
+            <h3>Gallery merch sells faster than tour merch for the first time this quarter.</h3>
+            <p class="caption">The new flex is knowing the room, not the arena.</p>
+          </article>
+          <article class="wire">
+            <div class="label"><span class="wire-symbol">VLT-302</span> · 18:33 EST</div>
+            <h3>Vault inventory suggests one capsule is being held for members only.</h3>
+            <p class="caption">Allocation pattern mirrors last summer’s ninety-six second sell-out.</p>
+          </article>
+          <article class="wire">
+            <div class="label"><span class="wire-symbol">EVT-040</span> · 21:10 EST</div>
+            <h3>Three-city pop-up route forms a triangle around All-Star weekend.</h3>
+            <p class="caption">Family tier gets the first room list when coordinates clear.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq-section section">
+      <div class="grid-12">
+        <div class="faq-head">
+          <div class="label" style="color:#C8FF00">07 / FIELD QUESTIONS</div>
+          <h2 class="section-title" style="margin-top:10px">FAQ</h2>
+        </div>
+        <div class="faq-list">
+          <div class="faq-item open">
+            <button class="faq-q" data-interactive><span>Is this a store?</span><b>+</b></button>
+            <div class="faq-a"><p>No. It is the signal layer before the store, the calendar, and the resale panic. We tell you what is moving and why.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" data-interactive><span>Why is Obsessed the move?</span><b>+</b></button>
+            <div class="faq-a"><p>Because $9/mo is the speed tier: head starts, intel drops, price pulse alerts, and a room that cares before the algorithm does.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" data-interactive><span>Can I cancel?</span><b>+</b></button>
+            <div class="faq-a"><p>Yes. Cancel anytime. Founding rate stays locked while your subscription is active.</p></div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-q" data-interactive><span>What makes Family different?</span><b>+</b></button>
+            <div class="faq-a"><p>Reserved allocation, private briefs, invite-list moments, and a sourcing desk when culture stops being theoretical.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta section" id="final">
+      <div class="grid-12 cta-inner">
+        <h2 class="enlist">ENLIST</h2>
+        <p class="cta-meta">>> $9/MO · CANCEL ANYTIME · FOUNDING RATE LOCKED.</p>
+        <a class="red-button" href="#top" data-interactive><span>ENTER THE INDEX</span><span>→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="grid-12">
+      <div class="foot-left label">© COMPLEX</div>
+      <div class="foot-right caption">© COMPLEX · A SUBSCRIPTION TO BEING EARLY.</div>
+    </div>
+  </footer>
+
+  <div class="controls" aria-label="Animation controls">
+    <button type="button" id="playBoot" data-interactive>Play</button>
+    <button type="button" id="resetBoot" data-interactive>Reset</button>
+  </div>
+
+  <script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script>
+    const tiers = [
+      {name:"REGULAR", price:"Free", benefits:["Public drop calendar","Weekly culture recaps","Community comments","Raffle reminders"], cta_label:"START REGULAR", is_featured:false},
+      {name:"OBSESSED", price:"$9/mo", benefits:["24hr head start","Monthly intel drops","Discord backchannel","Price pulse alerts","Member-only buys"], cta_label:"GO OBSESSED", is_featured:true},
+      {name:"FAMILY", price:"$29/mo", benefits:["Concierge sourcing","Private events","Market map briefs","Archive access","Reserved allocation","Family line"], cta_label:"REQUEST FAMILY", is_featured:false}
+    ];
+    const supporting_sections = [
+      {section_purpose:"drop heatmap", content:"52-week calendar grid where acid intensity equals sell-out velocity"},
+      {section_purpose:"radial dials", content:"96s median sell-out, 421 drops shipped, 24hr head start"},
+      {section_purpose:"intel feed", content:"monthly intel drop examples styled as Complex newswire signals"}
+    ];
+    const stats_or_ticker_items = [
+      {text:"14,237,891 MEMBERS"},
+      {text:"421 DROPS SHIPPED"},
+      {text:"96s MEDIAN SELL-OUT"},
+      {text:"CANCEL ANYTIME"},
+      {text:"FOUNDING RATE LOCKED"}
+    ];
+    const footer = {copyright_line:"© COMPLEX", tagline:"A SUBSCRIPTION TO BEING EARLY."};
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const formatter = new Intl.NumberFormat('en-US');
+
+    function easeOutExpo(t){return t === 1 ? 1 : 1 - Math.pow(2, -10 * t)}
+    function easeInOutQuart(t){return t < .5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2}
+
+    function countUp(el, target, duration=1200, easing=easeOutExpo){
+      if(reduceMotion){el.textContent = formatter.format(target); return}
+      const start = performance.now();
+      function frame(now){
+        const p = Math.min((now - start) / duration, 1);
+        el.textContent = formatter.format(Math.round(target * easing(p)));
+        if(p < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function bootSequence(){
+      document.querySelectorAll(".countup").forEach(el => {
+        el.textContent = "0";
+        countUp(el, Number(el.dataset.target), 1200, easeOutExpo);
+      });
+      if(window.gsap && !reduceMotion){
+        gsap.killTweensOf([".ticker",".mega-line span"]);
+        gsap.fromTo(".ticker",{y:-44},{y:0,duration:.5,ease:"cubic-bezier(0.16, 1, 0.3, 1)"});
+        gsap.fromTo(".mega-line span",
+          {clipPath:"inset(0 0 100% 0)", y:18},
+          {clipPath:"inset(0 0 0 0)", y:0, duration:.7, stagger:.08, ease:"power4.out", delay:.12}
+        );
+      }
+    }
+
+    function resetStatic(){
+      document.querySelectorAll(".countup").forEach(el => el.textContent = formatter.format(Number(el.dataset.target)));
+      if(window.gsap){
+        gsap.set(".ticker",{y:0});
+        gsap.set(".mega-line span",{clipPath:"inset(0 0 0 0)", y:0});
+        gsap.set(".chart-path",{strokeDashoffset:0});
+        gsap.set(".axis-label",{opacity:1});
+        document.getElementById("chartCallout").textContent = ">> OBSESSED · $9 · 24HR HEAD START";
+      }
+    }
+
+    function buildHeatmap(){
+      const heat = document.getElementById("heatmap");
+      const names = ["RAFFLE LEAK","TUNNEL FIT","VAULT RESTOCK","GALLERY DROP","CAPSULE WATCH","PAIR SIGNAL","POP-UP ROUTE","ARCHIVE SPIKE"];
+      for(let row=0; row<7; row++){
+        for(let col=0; col<52; col++){
+          const index = row * 52 + col;
+          const wave = Math.abs(Math.sin((col + row * 3) * .38));
+          const spike = (col % 11 === row % 5) ? .34 : 0;
+          const velocity = Math.min(.9, .08 + wave * .42 + spike);
+          const cell = document.createElement("div");
+          cell.className = "heat-cell";
+          cell.dataset.velocity = velocity.toFixed(2);
+          cell.dataset.index = index;
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          cell.dataset.drop = ">> WK " + String(col+1).padStart(2,"0") + " · " + names[(index + col) % names.length];
+          heat.appendChild(cell);
+        }
+      }
+    }
+
+    function serpentineFill(){
+      const cells = Array.from(document.querySelectorAll(".heat-cell"));
+      const ordered = [];
+      for(let r=0; r<7; r++){
+        const row = cells.filter(c => Number(c.dataset.row) === r);
+        if(r % 2) row.reverse();
+        ordered.push(...row);
+      }
+      ordered.forEach((cell, i) => {
+        setTimeout(() => {
+          const a = Number(cell.dataset.velocity);
+          cell.style.backgroundColor = "rgba(200,255,0," + a + ")";
+        }, i * 12);
+      });
+    }
+
+    function typeCallout(){
+      const el = document.getElementById("chartCallout");
+      const text = ">> OBSESSED · $9 · 24HR HEAD START";
+      if(el.dataset.typed === "true") return;
+      el.dataset.typed = "true";
+      el.textContent = "";
+      if(reduceMotion){el.textContent = text; return}
+      [...text].forEach((ch,i) => setTimeout(() => el.textContent += ch, i * 40));
+    }
+
+    function setupCursor(){
+      const cursor = document.querySelector(".cursor");
+      if(!cursor || window.innerWidth < 901) return;
+      let x = 0, y = 0, tx = 0, ty = 0, raf;
+      window.addEventListener("mousemove", e => { tx = e.clientX; ty = e.clientY; });
+      function loop(){
+        x += (tx - x) * .22;
+        y += (ty - y) * .22;
+        cursor.style.left = x + "px";
+        cursor.style.top = y + "px";
+        raf = requestAnimationFrame(loop);
+      }
+      loop();
+      document.querySelectorAll("[data-interactive], a, button, .heat-cell").forEach(el => {
+        el.addEventListener("mouseenter", () => cursor.classList.add("hot"));
+        el.addEventListener("mouseleave", () => cursor.classList.remove("hot"));
+      });
+      window.addEventListener("mousedown", () => cursor.classList.add("down"));
+      window.addEventListener("mouseup", () => cursor.classList.remove("down"));
+      window.addEventListener("beforeunload", () => cancelAnimationFrame(raf));
+    }
+
+    function setupFAQ(){
+      document.querySelectorAll(".faq-q").forEach(btn => {
+        btn.addEventListener("click", () => {
+          btn.closest(".faq-item").classList.toggle("open");
+        });
+      });
+    }
+
+    function setupAnimations(){
+      if(!window.gsap || !window.ScrollTrigger) return;
+      gsap.registerPlugin(ScrollTrigger);
+
+      const paths = document.querySelectorAll(".chart-path");
+      paths.forEach(path => {
+        const len = path.getTotalLength();
+        path.style.strokeDasharray = len;
+        path.style.strokeDashoffset = reduceMotion ? 0 : len;
+      });
+      if(reduceMotion){
+        gsap.set(".axis-label",{opacity:1});
+        typeCallout();
+      } else {
+        const tl = gsap.timeline({
+          scrollTrigger:{
+            trigger:".chart-section",
+            start:"top top",
+            end:"+=200%",
+            pin:".chart-pin",
+            scrub:true,
+            onUpdate:self => { if(self.progress >= .8) typeCallout(); }
+          }
+        });
+        tl.to(".regular-line",{strokeDashoffset:0,duration:.34,ease:"none"},0)
+          .to(".obsessed-line",{strokeDashoffset:0,duration:.38,ease:"none"},.22)
+          .to(".family-line",{strokeDashoffset:0,duration:.36,ease:"none"},.52)
+          .to(".axis-label",{opacity:1,duration:.18,stagger:.025,ease:"none"},.18);
+      }
+
+      gsap.fromTo(".tier-row",
+        {y:12, opacity:0},
+        {y:0, opacity:1, duration:.4, stagger:.06, ease:"power2.out",
+          scrollTrigger:{trigger:".table-shell", start:"top 82%", once:true}
+        }
+      );
+      gsap.fromTo(".indicator",
+        {scale:0},
+        {scale:1, duration:.34, stagger:.03, ease:"back.out(2)",
+          scrollTrigger:{trigger:".table-shell", start:"top 78%", once:true}
+        }
+      );
+
+      ScrollTrigger.create({
+        trigger:".heatmap",
+        start:"top 82%",
+        once:true,
+        onEnter:serpentineFill
+      });
+
+      document.querySelectorAll(".dial").forEach(dial => {
+        const circle = dial.querySelector(".dial-ring");
+        const count = dial.querySelector(".dial-count");
+        const r = 70;
+        const c = 2 * Math.PI * r;
+        const targetOffset = c * (1 - Number(dial.dataset.progress));
+        circle.style.strokeDasharray = c;
+        circle.style.strokeDashoffset = reduceMotion ? targetOffset : c;
+        ScrollTrigger.create({
+          trigger:dial,
+          start:"top 86%",
+          once:true,
+          onEnter:() => {
+            gsap.to(circle,{strokeDashoffset:targetOffset,duration:1.4,ease:"power2.inOut"});
+            if(reduceMotion){count.textContent = dial.dataset.value; return}
+            const obj = {v:0};
+            gsap.to(obj,{v:Number(dial.dataset.value),duration:1.4,ease:t => easeInOutQuart(t),onUpdate:()=>{count.textContent = Math.round(obj.v)}});
+          }
+        });
+      });
+
+      gsap.fromTo(".final-cta",
+        {clipPath:"inset(50% 0 50% 0)"},
+        {clipPath:"inset(0 0 0 0)",duration:.7,ease:"expo.out",
+          scrollTrigger:{trigger:".final-cta", start:"top 78%", once:true}
+        }
+      );
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      buildHeatmap();
+      setupCursor();
+      setupFAQ();
+      bootSequence();
+      setupAnimations();
+      document.getElementById("playBoot").addEventListener("click", () => {
+        window.scrollTo({top:0, behavior: reduceMotion ? "auto" : "smooth"});
+        setTimeout(bootSequence, 120);
+      });
+      document.getElementById("resetBoot").addEventListener("click", resetStatic);
+    });
+  </script>
+</body>
+</html>
