@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zack Chang — FY26 Annual Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400;1,9..144,900&family=Inter+Tight:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bone:#F4EDE0;
+      --ink:#141210;
+      --persimmon:#C8442A;
+      --graphite:#8B8275;
+      --gutter:88px;
+      --ease:cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    *{box-sizing:border-box}
+    html{
+      background:#F4EDE0;
+      color:#141210;
+      font-variant-numeric:tabular-nums;
+      scroll-behavior:smooth;
+    }
+    body{
+      margin:0;
+      min-height:100%;
+      background:#F4EDE0;
+      color:#141210;
+      font-family:'Inter Tight', sans-serif;
+      font-weight:400;
+      font-size:17px;
+      line-height:1.55;
+      overflow-x:hidden;
+    }
+    a{color:inherit;text-decoration:none}
+    button{
+      appearance:none;
+      border:1px solid #141210;
+      background:#F4EDE0;
+      color:#141210;
+      font-family:'JetBrains Mono', monospace;
+      font-size:10px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      padding:8px 10px;
+      cursor:pointer;
+    }
+    button:hover{background:#141210;color:#F4EDE0}
+    ::selection{background:#C8442A;color:#F4EDE0}
+
+    .paper-texture{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      mix-blend-mode:multiply;
+      opacity:.35;
+      pointer-events:none;
+      z-index:1;
+    }
+    .ink-corner{
+      position:absolute;
+      top:14px;
+      left:22px;
+      width:360px;
+      height:360px;
+      object-fit:cover;
+      mix-blend-mode:multiply;
+      opacity:.55;
+      pointer-events:none;
+      z-index:0;
+      animation:inkCornerIn 1200ms var(--ease) both;
+    }
+    @keyframes inkCornerIn{
+      from{opacity:0}
+      to{opacity:.55}
+    }
+
+    .defs{position:absolute;width:0;height:0;overflow:hidden}
+
+    .meta-strip{
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      height:24px;
+      z-index:20;
+      background:rgba(244,237,224,.93);
+      border-bottom:1px solid #141210;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 var(--gutter);
+      font-family:'JetBrains Mono', monospace;
+      color:#8B8275;
+      font-size:11px;
+      line-height:24px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .meta-strip nav{
+      display:flex;
+      gap:24px;
+      height:24px;
+      align-items:center;
+    }
+    .meta-strip a{
+      position:relative;
+      transition:color 120ms linear;
+    }
+    .meta-strip a:after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:2px;
+      height:1px;
+      background:#C8442A;
+      transform:scaleX(0);
+      transform-origin:left;
+      transition:transform 160ms var(--ease);
+    }
+    .meta-strip a:hover{color:#141210}
+    .meta-strip a:hover:after{transform:scaleX(1)}
+
+    .controls{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:30;
+      display:flex;
+      gap:8px;
+      opacity:.82;
+    }
+
+    .page{
+      position:relative;
+      z-index:2;
+      max-width:1440px;
+      margin:0 auto;
+      padding-top:24px;
+    }
+    .section{
+      position:relative;
+      padding:88px var(--gutter) 96px;
+    }
+    .hairline{
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      border-top:1px solid #141210;
+      transform:scaleX(1);
+      transform-origin:left;
+    }
+    .figure .hairline{
+      transform:scaleX(0);
+    }
+    .figure.revealed .hairline{
+      animation:ruleDraw 300ms var(--ease) forwards;
+    }
+    @keyframes ruleDraw{
+      to{transform:scaleX(1)}
+    }
+    .reveal-item{
+      opacity:0;
+      transform:translateY(12px);
+    }
+    .figure.revealed .reveal-item{
+      animation:contentUp 500ms var(--ease) forwards;
+      animation-delay:calc(var(--i, 0) * 60ms);
+    }
+    @keyframes contentUp{
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .mono{
+      font-family:'JetBrains Mono', monospace;
+      color:#8B8275;
+      font-size:11px;
+      line-height:1.25;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight:400;
+    }
+    .body-copy{
+      max-width:680px;
+      font-family:'Inter Tight', sans-serif;
+      font-size:17px;
+      line-height:1.55;
+      font-weight:400;
+    }
+    .section-title{
+      margin:0;
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-weight:400;
+      font-size:48px;
+      line-height:.98;
+      letter-spacing:-.025em;
+    }
+    .ink{
+      color:#C8442A;
+      text-shadow:0 0 .6px #C8442A;
+      font-variant-numeric:tabular-nums;
+      transition:filter 200ms var(--ease);
+    }
+    .ink:hover{
+      filter:url(#ink-bleed);
+    }
+
+    .hero{
+      min-height:calc(100vh - 24px);
+      padding-top:88px;
+      overflow:hidden;
+    }
+    .stamp{
+      position:absolute;
+      top:72px;
+      right:var(--gutter);
+      width:220px;
+      height:82px;
+      object-fit:contain;
+      opacity:.88;
+      transform:rotate(-4deg);
+      filter:contrast(1.05);
+      mix-blend-mode:multiply;
+      z-index:4;
+    }
+    .hero-name{
+      position:relative;
+      z-index:3;
+      margin:0;
+      max-width:1050px;
+      font-family:'Fraunces', serif;
+      font-weight:900;
+      font-style:italic;
+      font-size:clamp(96px, 14vw, 220px);
+      line-height:.92;
+      letter-spacing:-.03em;
+      opacity:1;
+    }
+    body.playing .hero-name{
+      animation:nameIn 600ms linear both;
+    }
+    @keyframes nameIn{
+      from{opacity:0}
+      to{opacity:1}
+    }
+    .hero-deck{
+      position:relative;
+      z-index:3;
+      margin-top:24px;
+      display:grid;
+      grid-template-columns:minmax(0,680px) 1fr;
+      gap:40px;
+      align-items:start;
+    }
+    .hero-deck p{
+      margin:0;
+      max-width:640px;
+      font-size:23px;
+      line-height:1.18;
+      letter-spacing:-.018em;
+    }
+    .hero-role{
+      margin-top:12px;
+    }
+    .hero-numbers{
+      display:grid;
+      grid-template-columns:repeat(5, minmax(0,1fr));
+      gap:0;
+      border-top:1px solid #141210;
+      border-left:1px solid #141210;
+    }
+    .hero-numbers div{
+      min-height:74px;
+      padding:10px 12px;
+      border-right:1px solid #141210;
+      border-bottom:1px solid #141210;
+    }
+    .hero-numbers strong{
+      display:block;
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-weight:900;
+      font-size:29px;
+      line-height:1;
+      letter-spacing:-.03em;
+      color:#C8442A;
+      text-shadow:0 0 .6px #C8442A;
+    }
+    .hero-chart-wrap{
+      position:relative;
+      z-index:3;
+      margin-top:68px;
+    }
+    .chart-grid{
+      display:grid;
+      grid-template-columns:86px 1fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    .axis-y{
+      height:420px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      align-items:flex-end;
+      padding:32px 0 52px;
+    }
+    .axis-y span{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:#8B8275;
+      font-family:'JetBrains Mono', monospace;
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .axis-y span:after{
+      content:"";
+      display:block;
+      width:18px;
+      border-top:1px solid #141210;
+    }
+    .hero-chart{
+      width:100%;
+      height:420px;
+      display:block;
+      overflow:visible;
+    }
+    .chart-area{
+      clip-path:inset(0 0 0 0);
+      transform-origin:left;
+    }
+    .chart-line{
+      stroke-dasharray:1;
+      stroke-dashoffset:0;
+    }
+    body.playing .chart-line{
+      animation:pathDraw 1400ms var(--ease) 600ms both;
+    }
+    body.playing .chart-area{
+      animation:areaReveal 800ms var(--ease) 1000ms both;
+    }
+    @keyframes pathDraw{
+      from{stroke-dashoffset:1}
+      to{stroke-dashoffset:0}
+    }
+    @keyframes areaReveal{
+      from{clip-path:inset(0 100% 0 0)}
+      to{clip-path:inset(0 0 0 0)}
+    }
+    .chart-caption{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns:86px 1fr auto;
+      gap:18px;
+      align-items:start;
+    }
+    .chart-caption p{
+      margin:0;
+    }
+
+    .fig-label{
+      margin-bottom:32px;
+      display:grid;
+      grid-template-columns:190px minmax(0,1fr);
+      gap:24px;
+      align-items:baseline;
+    }
+
+    .now-grid{
+      display:grid;
+      grid-template-columns:minmax(0,680px) minmax(320px,1fr);
+      gap:64px;
+      align-items:start;
+    }
+    .now-copy p{
+      margin:0 0 22px;
+    }
+    .stat-grid{
+      border-top:1px solid #141210;
+      border-left:1px solid #141210;
+      display:grid;
+      grid-template-columns:1fr;
+    }
+    .stat{
+      min-height:142px;
+      border-right:1px solid #141210;
+      border-bottom:1px solid #141210;
+      padding:16px;
+      display:grid;
+      grid-template-columns:138px 1fr;
+      gap:18px;
+      align-items:center;
+    }
+    .stat-num{
+      font-family:'Fraunces', serif;
+      font-weight:900;
+      font-style:italic;
+      font-size:54px;
+      line-height:.9;
+      letter-spacing:-.035em;
+      color:#C8442A;
+      text-shadow:0 0 .6px #C8442A;
+    }
+    .stat-copy strong{
+      display:block;
+      font-weight:500;
+      font-size:18px;
+      line-height:1.12;
+      margin-bottom:8px;
+    }
+    .mini-svg{
+      width:100%;
+      height:42px;
+      margin-top:10px;
+      display:block;
+    }
+
+    .gantt-meta{
+      display:grid;
+      grid-template-columns:190px minmax(0,1fr);
+      gap:24px;
+      margin-bottom:28px;
+    }
+    .gantt-svg{
+      width:100%;
+      height:430px;
+      display:block;
+      overflow:visible;
+      border-top:1px solid #141210;
+      border-bottom:1px solid #141210;
+    }
+    .gantt-fill{
+      transform:scaleX(1);
+      transform-origin:left;
+      transform-box:fill-box;
+      clip-path:inset(0 0 0 0);
+    }
+    .figure:not(.revealed) .gantt-fill{
+      transform:scaleX(0);
+      clip-path:inset(0 100% 0 0);
+    }
+    .figure.revealed .gantt-fill{
+      animation:ganttFill var(--dur,700ms) var(--ease) forwards;
+      animation-delay:var(--delay,0ms);
+    }
+    @keyframes ganttFill{
+      from{transform:scaleX(0);clip-path:inset(0 100% 0 0)}
+      to{transform:scaleX(1);clip-path:inset(0 0 0 0)}
+    }
+    .role-notes{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:0;
+      border-left:1px solid #141210;
+      border-bottom:1px solid #141210;
+    }
+    .role-note{
+      padding:14px;
+      min-height:156px;
+      border-right:1px solid #141210;
+    }
+    .role-note h3{
+      margin:8px 0 6px;
+      font-family:'Inter Tight', sans-serif;
+      font-weight:500;
+      font-size:18px;
+      line-height:1.05;
+      letter-spacing:-.01em;
+    }
+    .role-note p{
+      margin:0;
+      color:#141210;
+      font-size:15px;
+      line-height:1.35;
+    }
+    .role-note ul{
+      margin:8px 0 0;
+      padding-left:14px;
+      font-size:14px;
+      line-height:1.32;
+    }
+    .role-note li{margin:0 0 4px}
+
+    .mobile-gantt{display:none}
+
+    .toolkit-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:0;
+      border-top:1px solid #141210;
+      border-left:1px solid #141210;
+    }
+    .tool-row{
+      display:grid;
+      grid-template-columns:44px minmax(110px,1fr) minmax(88px,240px) 62px;
+      gap:12px;
+      align-items:center;
+      min-height:58px;
+      padding:0 14px;
+      border-right:1px solid #141210;
+      border-bottom:1px solid #141210;
+    }
+    .tool-name{
+      font-family:'Inter Tight', sans-serif;
+      font-weight:500;
+      font-size:18px;
+      line-height:1;
+      letter-spacing:-.01em;
+    }
+    .tool-track{
+      height:6px;
+      width:100%;
+      background:rgba(20,18,16,.10);
+      overflow:hidden;
+    }
+    .tool-fill{
+      height:6px;
+      width:var(--w);
+      background:#C8442A;
+      transform-origin:left;
+      clip-path:inset(0 0 0 0);
+    }
+    .figure:not(.revealed) .tool-fill{
+      transform:scaleX(0);
+      clip-path:inset(0 100% 0 0);
+    }
+    .figure.revealed .tool-fill{
+      animation:toolFill 500ms var(--ease) forwards;
+      animation-delay:var(--d);
+    }
+    @keyframes toolFill{
+      from{transform:scaleX(0);clip-path:inset(0 100% 0 0)}
+      to{transform:scaleX(1);clip-path:inset(0 0 0 0)}
+    }
+
+    .writing-table{
+      border-top:1px solid #141210;
+    }
+    .writing-row{
+      display:grid;
+      grid-template-columns:80px minmax(0,1fr) 90px;
+      gap:24px;
+      align-items:baseline;
+      min-height:86px;
+      padding:18px 0;
+      border-bottom:1px solid #141210;
+    }
+    .writing-title{
+      font-family:'Fraunces', serif;
+      font-size:38px;
+      line-height:1;
+      font-style:italic;
+      font-weight:400;
+      letter-spacing:-.025em;
+      transition:color 120ms linear;
+    }
+    .writing-row:hover .writing-title{color:#C8442A}
+
+    .contact{
+      padding-bottom:66px;
+    }
+    .contact-grid{
+      display:grid;
+      grid-template-columns:190px minmax(0,1fr);
+      gap:24px;
+      align-items:start;
+    }
+    .email-link{
+      display:inline-block;
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-weight:900;
+      font-size:clamp(64px, 8.2vw, 132px);
+      line-height:.9;
+      letter-spacing:-.045em;
+      color:#C8442A;
+      text-shadow:0 0 .6px #C8442A;
+    }
+    .email-link:hover{
+      filter:url(#ink-bleed);
+    }
+    .contact-links{
+      margin-top:28px;
+      display:flex;
+      gap:28px;
+      font-family:'JetBrains Mono', monospace;
+      color:#8B8275;
+      font-size:11px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .contact-links a{
+      border-bottom:1px solid #141210;
+      padding-bottom:3px;
+    }
+    .contact-links a:hover{
+      color:#C8442A;
+      border-bottom-color:#C8442A;
+    }
+
+    footer{
+      position:relative;
+      z-index:2;
+      max-width:1440px;
+      margin:0 auto;
+      padding:18px var(--gutter) 36px;
+      border-top:1px solid #141210;
+      display:grid;
+      grid-template-columns:190px 1fr auto;
+      gap:24px;
+      font-family:'JetBrains Mono', monospace;
+      color:#8B8275;
+      font-size:11px;
+      line-height:1.35;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+
+    .cursor-caption{
+      position:fixed;
+      left:0;
+      top:0;
+      z-index:40;
+      pointer-events:none;
+      opacity:.7;
+      transform:translate(8px,8px);
+      font-family:'JetBrains Mono', monospace;
+      color:#8B8275;
+      font-size:11px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      mix-blend-mode:multiply;
+      display:none;
+      white-space:nowrap;
+    }
+
+    @media (hover:hover) and (pointer:fine){
+      .cursor-caption{display:block}
+    }
+
+    @media (max-width:900px){
+      :root{--gutter:40px}
+      .hero-deck,
+      .now-grid,
+      .fig-label,
+      .gantt-meta,
+      .contact-grid{
+        grid-template-columns:1fr;
+      }
+      .hero-numbers{grid-template-columns:repeat(3, minmax(0,1fr))}
+      .stamp{width:170px;height:64px}
+      .role-notes{grid-template-columns:1fr 1fr}
+      .toolkit-grid{grid-template-columns:1fr}
+      footer{grid-template-columns:1fr}
+    }
+
+    @media (max-width:640px){
+      :root{--gutter:24px}
+      .meta-strip{
+        padding:0 12px;
+        font-size:9px;
+      }
+      .meta-strip nav{gap:10px}
+      .controls{display:none}
+      .section{padding:58px var(--gutter) 68px}
+      .hero{
+        padding-top:58px;
+        min-height:auto;
+      }
+      .hero-name{
+        font-size:clamp(64px, 18vw, 110px);
+        line-height:.94;
+      }
+      .ink-corner{
+        width:240px;
+        height:240px;
+        left:-40px;
+      }
+      .stamp{
+        position:relative;
+        top:auto;
+        right:auto;
+        margin:10px 0 28px auto;
+        display:block;
+      }
+      .hero-deck p{
+        font-size:19px;
+        line-height:1.22;
+      }
+      .hero-numbers{grid-template-columns:1fr 1fr}
+      .hero-numbers strong{font-size:24px}
+      .hero-chart-wrap{margin-top:44px}
+      .chart-grid{
+        grid-template-columns:54px 1fr;
+        gap:10px;
+      }
+      .axis-y{
+        height:260px;
+        padding:26px 0 40px;
+      }
+      .axis-y span{
+        font-size:9px;
+        letter-spacing:.08em;
+      }
+      .axis-y span:after{width:10px}
+      .hero-chart{height:260px}
+      .chart-caption{
+        grid-template-columns:1fr;
+        gap:8px;
+      }
+      .section-title{font-size:40px}
+      .stat{
+        grid-template-columns:1fr;
+        min-height:0;
+      }
+      .stat-num{font-size:46px}
+      .gantt-svg{display:none}
+      .mobile-gantt{
+        display:block;
+        border-top:1px solid #141210;
+      }
+      .mobile-job{
+        border-bottom:1px solid #141210;
+        padding:14px 0 18px;
+      }
+      .mobile-job .mbar{
+        height:var(--h);
+        width:var(--w);
+        background:#C8442A;
+        margin:10px 0 8px;
+        transform-origin:left;
+      }
+      .figure:not(.revealed) .mobile-job .mbar{transform:scaleX(0)}
+      .figure.revealed .mobile-job .mbar{
+        animation:ganttFill var(--dur,700ms) var(--ease) forwards;
+        animation-delay:var(--delay,0ms);
+      }
+      .role-notes{grid-template-columns:1fr}
+      .tool-row{
+        grid-template-columns:34px 1fr;
+        gap:8px;
+        padding:12px;
+      }
+      .tool-track,.tool-row .mono:last-child{
+        grid-column:2;
+      }
+      .writing-row{
+        grid-template-columns:44px 1fr;
+      }
+      .writing-row .mono:last-child{
+        grid-column:2;
+      }
+      .writing-title{font-size:30px}
+      .email-link{font-size:clamp(64px, 16vw, 84px)}
+    }
+  </style>
+</head>
+<body>
+  <svg class="defs" aria-hidden="true">
+    <filter id="ink-bleed">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="noise"></feTurbulence>
+      <feDisplacementMap id="bleedMap" in="SourceGraphic" in2="noise" scale="0.6" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+    </filter>
+  </svg>
+
+  <img class="paper-texture" src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-1/bone-paper-grain.jpg" alt="Warm bone cream cotton paper grain" width="1440" height="900" loading="eager" onerror="this.style.display='none'">
+
+  <header class="meta-strip">
+    <div>ZC · ISSUE 01 · FY26</div>
+    <nav aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#work">Work</a>
+      <a href="#writing">Writing</a>
+      <a href="mailto:hi@zackchang.com">Hi →</a>
+    </nav>
+  </header>
+
+  <div class="controls" aria-label="Animation controls">
+    <button type="button" id="playBtn">Play</button>
+    <button type="button" id="resetBtn">Reset</button>
+  </div>
+
+  <div class="cursor-caption" id="cursorCaption">Fig. 01 — GMV trajectory · 2024–2026</div>
+
+  <main class="page">
+    <section class="section hero" data-fig="Fig. 01 — GMV trajectory · 2024–2026">
+      <img class="ink-corner" src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-1/ink-bleed-corner.jpg" alt="Black ink bleeding into cream cotton paper" width="900" height="900" loading="eager" onerror="this.style.display='none'">
+      <img class="stamp" src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-1/issue-stamp.jpg" alt="ZC Issue 01 FY26 annual report stamp" width="480" height="180" loading="eager" onerror="this.style.display='none'">
+
+      <h1 class="hero-name">Zack<br>Chang</h1>
+
+      <div class="hero-deck">
+        <div>
+          <p>An annual report. Product, commerce, and the quiet work of shipping alone.</p>
+          <div class="mono hero-role">Current role · Product / Commerce / AI systems at Complex · motion moment: FIG. 01 draws the receipts.</div>
+        </div>
+
+        <div class="hero-numbers" aria-label="Above the fold numbers">
+          <div><strong class="ink">$30M</strong><span class="mono">GMV target</span></div>
+          <div><strong class="ink">55k</strong><span class="mono">MAU</span></div>
+          <div><strong class="ink">100k+</strong><span class="mono">Merchants</span></div>
+          <div><strong class="ink">+15%</strong><span class="mono">Engagement</span></div>
+          <div><strong class="ink">WSJ+Forbes</strong><span class="mono">Press</span></div>
+        </div>
+      </div>
+
+      <div class="hero-chart-wrap">
+        <div class="chart-grid">
+          <div class="axis-y" aria-hidden="true">
+            <span id="gmvCounter" class="ink">$30M</span>
+            <span>$15M</span>
+            <span>$3.7M</span>
+          </div>
+
+          <svg class="hero-chart" viewBox="0 0 1040 420" role="img" aria-label="FIG 01 Complex Shop GMV chart from $3.7M to $30M">
+            <line x1="0" y1="340" x2="1040" y2="340" stroke="#141210" stroke-width="1"></line>
+            <line x1="0" y1="210" x2="1040" y2="210" stroke="#141210" stroke-width="1" opacity=".25"></line>
+            <line x1="0" y1="80" x2="1040" y2="80" stroke="#141210" stroke-width="1" opacity=".25"></line>
+
+            <path class="chart-area" d="M0,340 L0,306 C110,298 170,294 255,276 C350,257 410,244 500,218 C600,188 666,165 760,122 C864,75 940,54 1040,32 L1040,340 Z" fill="#C8442A" opacity=".86"></path>
+            <path class="chart-line" pathLength="1" d="M0,306 C110,298 170,294 255,276 C350,257 410,244 500,218 C600,188 666,165 760,122 C864,75 940,54 1040,32" fill="none" stroke="#141210" stroke-width="3"></path>
+
+            <text x="0" y="392" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">2024</text>
+            <text x="452" y="392" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">2025</text>
+            <text x="985" y="392" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">2026</text>
+          </svg>
+        </div>
+
+        <div class="chart-caption">
+          <div class="mono">FIG. 01</div>
+          <p class="mono">Complex Shop GMV. Unit: USD millions. Source line: <span class="ink">$3.7M→$30M</span>.</p>
+          <div class="mono">Annual report / cover figure</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section figure" data-fig="Fig. 02 — Now · Complex narrative">
+      <div class="hairline"></div>
+      <div class="fig-label reveal-item" style="--i:0">
+        <div class="mono">FIG. 02 — NOW</div>
+        <h2 class="section-title">Operating notes.</h2>
+      </div>
+
+      <div class="now-grid">
+        <div class="now-copy body-copy reveal-item" style="--i:1">
+          <p>I work inside Complex at the seam where commerce, editorial taste, and internal tools meet. The current mandate is simple: make the shop feel less like a storefront bolted onto culture and more like a system that can move with it.</p>
+          <p>The year is measured in things that changed behavior: a <span class="ink">+15%</span> engagement lift from tighter product surfaces, <span class="ink">2 tools</span> shipped for internal teams, and one viral hip-hop moment that proved the right commerce mechanic can travel as fast as the story.</p>
+        </div>
+
+        <div class="stat-grid reveal-item" style="--i:2">
+          <div class="stat">
+            <div class="stat-num ink">+15%</div>
+            <div class="stat-copy">
+              <strong>Engagement lift</strong>
+              <span class="mono">FIG. 02A · Product surface</span>
+              <svg class="mini-svg" viewBox="0 0 220 42" aria-hidden="true">
+                <path d="M0 34 L42 30 L88 28 L130 18 L170 14 L220 6" fill="none" stroke="#C8442A" stroke-width="3"></path>
+                <line x1="0" y1="36" x2="220" y2="36" stroke="#141210" stroke-width="1"></line>
+              </svg>
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-num ink">2</div>
+            <div class="stat-copy">
+              <strong>Internal tools shipped</strong>
+              <span class="mono">FIG. 02B · AI workflow</span>
+              <svg class="mini-svg" viewBox="0 0 220 42" aria-hidden="true">
+                <rect x="0" y="20" width="86" height="10" fill="#C8442A"></rect>
+                <rect x="104" y="8" width="116" height="22" fill="#C8442A"></rect>
+                <line x1="0" y1="36" x2="220" y2="36" stroke="#141210" stroke-width="1"></line>
+              </svg>
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-num ink">viral</div>
+            <div class="stat-copy">
+              <strong>Hip-hop commerce moment</strong>
+              <span class="mono">FIG. 02C · Culture velocity</span>
+              <svg class="mini-svg" viewBox="0 0 220 42" aria-hidden="true">
+                <circle cx="24" cy="24" r="6" fill="#C8442A"></circle>
+                <circle cx="68" cy="19" r="9" fill="#C8442A"></circle>
+                <circle cx="122" cy="15" r="12" fill="#C8442A"></circle>
+                <circle cx="190" cy="11" r="17" fill="#C8442A"></circle>
+                <line x1="0" y1="36" x2="220" y2="36" stroke="#141210" stroke-width="1"></line>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="work" class="section figure" data-fig="Fig. 03 — Career timeline · 2015–2026">
+      <div class="hairline"></div>
+      <div class="fig-label reveal-item" style="--i:0">
+        <div class="mono">FIG. 03 — CAREER</div>
+        <h2 class="section-title">Weighted by outcome.</h2>
+      </div>
+
+      <div class="gantt-meta reveal-item" style="--i:1">
+        <div class="mono">Axis · 2015 / 2019 / 2021 / 2024 / 2026</div>
+        <div class="body-copy">Horizontal bars encode time. Bar height encodes outcome magnitude. Complex is deliberately thickest because the current operating line carries the largest commercial number.</div>
+      </div>
+
+      <svg class="gantt-svg reveal-item" style="--i:2" viewBox="0 0 1264 430" role="img" aria-label="Career Gantt timeline from Levi's through Complex">
+        <line x1="0" y1="50" x2="1264" y2="50" stroke="#141210" stroke-width="1"></line>
+        <text x="0" y="30" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">2015</text>
+        <text x="368" y="30" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">2019</text>
+        <text x="598" y="30" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">2021</text>
+        <text x="943" y="30" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">2024</text>
+        <text x="1212" y="30" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">2026</text>
+
+        <line x1="0" y1="50" x2="0" y2="388" stroke="#141210" stroke-width="1" opacity=".45"></line>
+        <line x1="402" y1="50" x2="402" y2="388" stroke="#141210" stroke-width="1" opacity=".2"></line>
+        <line x1="632" y1="50" x2="632" y2="388" stroke="#141210" stroke-width="1" opacity=".2"></line>
+        <line x1="977" y1="50" x2="977" y2="388" stroke="#141210" stroke-width="1" opacity=".2"></line>
+        <line x1="1264" y1="50" x2="1264" y2="388" stroke="#141210" stroke-width="1" opacity=".45"></line>
+
+        <text x="0" y="94" fill="#141210" font-family="'Inter Tight', sans-serif" font-size="18" font-weight="500">Levi's · product marketing</text>
+        <rect class="gantt-fill" style="--delay:0ms;--dur:700ms" x="0" y="112" width="402" height="28" fill="#C8442A"></rect>
+        <text x="414" y="132" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">WSJ/Forbes</text>
+
+        <text x="414" y="177" fill="#141210" font-family="'Inter Tight', sans-serif" font-size="18" font-weight="500">Amazon · merchant systems</text>
+        <rect class="gantt-fill" style="--delay:220ms;--dur:700ms" x="414" y="194" width="210" height="22" fill="#C8442A"></rect>
+        <text x="638" y="211" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">100k+ merchants</text>
+
+        <text x="638" y="258" fill="#141210" font-family="'Inter Tight', sans-serif" font-size="18" font-weight="500">NTWRK · product lead</text>
+        <rect class="gantt-fill" style="--delay:440ms;--dur:700ms" x="638" y="278" width="338" height="36" fill="#C8442A"></rect>
+        <text x="991" y="302" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">55k MAU</text>
+
+        <text x="991" y="96" fill="#141210" font-family="'Inter Tight', sans-serif" font-size="18" font-weight="500">Complex · commerce product</text>
+        <rect class="gantt-fill" style="--delay:720ms;--dur:1000ms" x="991" y="118" width="273" height="56" fill="#C8442A"></rect>
+        <text x="991" y="195" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">$3.7M→$30M GMV</text>
+
+        <text x="991" y="246" fill="#141210" font-family="'Inter Tight', sans-serif" font-size="18" font-weight="500">Complex · internal AI tools</text>
+        <rect class="gantt-fill" style="--delay:940ms;--dur:1000ms" x="991" y="264" width="194" height="38" fill="#C8442A"></rect>
+        <text x="991" y="326" fill="#8B8275" font-family="'JetBrains Mono', monospace" font-size="11" letter-spacing="1.3">2 shipped</text>
+      </svg>
+
+      <div class="mobile-gantt reveal-item" style="--i:2">
+        <div class="mobile-job"><span class="mono">2015–2019 · Levi's</span><div class="mbar" style="--w:68%;--h:28px;--delay:0ms"></div><strong>Product marketing · WSJ/Forbes</strong></div>
+        <div class="mobile-job"><span class="mono">2019–2021 · Amazon</span><div class="mbar" style="--w:44%;--h:22px;--delay:220ms"></div><strong>Merchant systems · 100k+ merchants</strong></div>
+        <div class="mobile-job"><span class="mono">2021–2024 · NTWRK</span><div class="mbar" style="--w:72%;--h:36px;--delay:440ms"></div><strong>Product lead · 55k MAU</strong></div>
+        <div class="mobile-job"><span class="mono">2024–2026 · Complex</span><div class="mbar" style="--w:100%;--h:56px;--delay:720ms;--dur:1000ms"></div><strong>Commerce product · $3.7M→$30M GMV</strong></div>
+      </div>
+
+      <div class="role-notes reveal-item" style="--i:3">
+        <article class="role-note">
+          <span class="mono">2015–2019 · Levi's · Tier 01</span>
+          <h3>Brand/product marketing</h3>
+          <p>Outcome: <span class="ink">WSJ/Forbes</span>. One line in the archive; press proved the story could carry.</p>
+        </article>
+        <article class="role-note">
+          <span class="mono">2019–2021 · Amazon · Tier 02</span>
+          <h3>Merchant systems</h3>
+          <p>Outcome: <span class="ink">100k+ merchants</span>.</p>
+          <ul><li>Operational tooling for seller workflows.</li><li>Scaled decisions into repeatable process.</li></ul>
+        </article>
+        <article class="role-note">
+          <span class="mono">2021–2024 · NTWRK · Tier 03</span>
+          <h3>Product lead</h3>
+          <p>Outcome: <span class="ink">55k MAU</span>.</p>
+          <ul><li>Commerce experiences for culture drops.</li><li>Built surfaces where urgency and editorial met.</li></ul>
+        </article>
+        <article class="role-note">
+          <span class="mono">2024–2026 · Complex · Tier 04</span>
+          <h3>Commerce product + AI tools</h3>
+          <p>Outcome: <span class="ink">$3.7M→$30M GMV</span>.</p>
+          <ul><li>Current Complex role gets the largest weight.</li><li>Shipped <span class="ink">2</span> internal tools alongside commerce systems.</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section figure" data-fig="Fig. 04 — AI toolkit scorecard">
+      <div class="hairline"></div>
+      <div class="fig-label reveal-item" style="--i:0">
+        <div class="mono">FIG. 04 — TOOLKIT SCORECARD</div>
+        <h2 class="section-title">Ten instruments, ranked by use.</h2>
+      </div>
+
+      <div class="toolkit-grid reveal-item" style="--i:1">
+        <div class="tool-row"><span class="mono">01</span><span class="tool-name">Claude Code</span><span class="tool-track"><span class="tool-fill" style="--w:100%;--d:0ms"></span></span><span class="mono">daily</span></div>
+        <div class="tool-row"><span class="mono">02</span><span class="tool-name">Codex</span><span class="tool-track"><span class="tool-fill" style="--w:94%;--d:80ms"></span></span><span class="mono">daily</span></div>
+        <div class="tool-row"><span class="mono">03</span><span class="tool-name">ChatGPT</span><span class="tool-track"><span class="tool-fill" style="--w:88%;--d:160ms"></span></span><span class="mono">daily</span></div>
+        <div class="tool-row"><span class="mono">04</span><span class="tool-name">Gemini</span><span class="tool-track"><span class="tool-fill" style="--w:80%;--d:240ms"></span></span><span class="mono">weekly</span></div>
+        <div class="tool-row"><span class="mono">05</span><span class="tool-name">Cursor</span><span class="tool-track"><span class="tool-fill" style="--w:74%;--d:320ms"></span></span><span class="mono">weekly</span></div>
+        <div class="tool-row"><span class="mono">06</span><span class="tool-name">Replit</span><span class="tool-track"><span class="tool-fill" style="--w:68%;--d:400ms"></span></span><span class="mono">build</span></div>
+        <div class="tool-row"><span class="mono">07</span><span class="tool-name">v0</span><span class="tool-track"><span class="tool-fill" style="--w:62%;--d:480ms"></span></span><span class="mono">proto</span></div>
+        <div class="tool-row"><span class="mono">08</span><span class="tool-name">Perplexity</span><span class="tool-track"><span class="tool-fill" style="--w:56%;--d:560ms"></span></span><span class="mono">research</span></div>
+        <div class="tool-row"><span class="mono">09</span><span class="tool-name">Midjourney</span><span class="tool-track"><span class="tool-fill" style="--w:50%;--d:640ms"></span></span><span class="mono">image</span></div>
+        <div class="tool-row"><span class="mono">10</span><span class="tool-name">Runway</span><span class="tool-track"><span class="tool-fill" style="--w:44%;--d:720ms"></span></span><span class="mono">motion</span></div>
+      </div>
+    </section>
+
+    <section id="writing" class="section figure" data-fig="Fig. 05 — Writing table of contents">
+      <div class="hairline"></div>
+      <div class="fig-label reveal-item" style="--i:0">
+        <div class="mono">FIG. 05 — WRITING</div>
+        <h2 class="section-title">Table of contents.</h2>
+      </div>
+
+      <div class="writing-table reveal-item" style="--i:1">
+        <a class="writing-row" href="#">
+          <span class="mono">01</span>
+          <span class="writing-title">Why Commerce Products Need Editors</span>
+          <span class="mono">p. 014</span>
+        </a>
+        <a class="writing-row" href="#">
+          <span class="mono">02</span>
+          <span class="writing-title">The Annual Report as Personal Site</span>
+          <span class="mono">p. 026</span>
+        </a>
+        <a class="writing-row" href="#">
+          <span class="mono">03</span>
+          <span class="writing-title">Shipping AI Tools Without Theatre</span>
+          <span class="mono">p. 039</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section figure contact" data-fig="Colophon — Contact">
+      <div class="hairline"></div>
+      <div class="contact-grid reveal-item" style="--i:0">
+        <div class="mono">COLOPHON — CONTACT</div>
+        <div>
+          <a class="email-link" href="mailto:hi@zackchang.com">hi@zackchang.com</a>
+          <div class="contact-links">
+            <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+            <a href="https://github.com/" target="_blank" rel="noreferrer">GitHub ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>© 2026</div>
+    <div>Location · New York / Los Angeles</div>
+    <div>Ship the receipt, then write the note.</div>
+  </footer>
+
+  <script>
+    (function(){
+      const body = document.body;
+      const counter = document.getElementById('gmvCounter');
+      const playBtn = document.getElementById('playBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const bleedMap = document.getElementById('bleedMap');
+      let counterRaf = 0;
+      let bleedRaf = 0;
+
+      function setCounter(value){
+        if(value >= 29.95){
+          counter.textContent = '$30M';
+        } else {
+          counter.textContent = '$' + value.toFixed(1) + 'M';
+        }
+      }
+
+      function countUp(){
+        cancelAnimationFrame(counterRaf);
+        setCounter(3.7);
+        const startDelay = 1000;
+        const duration = 1000;
+        const startValue = 3.7;
+        const endValue = 30;
+        const base = performance.now();
+
+        function tick(now){
+          const elapsed = now - base - startDelay;
+          if(elapsed < 0){
+            counterRaf = requestAnimationFrame(tick);
+            return;
+          }
+          const t = Math.min(1, elapsed / duration);
+          const eased = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          setCounter(startValue + (endValue - startValue) * eased);
+          if(t < 1) counterRaf = requestAnimationFrame(tick);
+        }
+        counterRaf = requestAnimationFrame(tick);
+      }
+
+      function play(){
+        body.classList.remove('playing');
+        void body.offsetWidth;
+        body.classList.add('playing');
+        countUp();
+      }
+
+      function reset(){
+        cancelAnimationFrame(counterRaf);
+        body.classList.remove('playing');
+        setCounter(30);
+      }
+
+      playBtn.addEventListener('click', play);
+      resetBtn.addEventListener('click', reset);
+
+      window.addEventListener('load', function(){
+        setTimeout(play, 80);
+      });
+
+      const observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            entry.target.classList.add('revealed');
+          }
+        });
+      }, { threshold: 0.35 });
+
+      document.querySelectorAll('.figure').forEach(function(section){
+        observer.observe(section);
+      });
+
+      const caption = document.getElementById('cursorCaption');
+      let currentFig = 'Fig. 01 — GMV trajectory · 2024–2026';
+      document.addEventListener('mousemove', function(e){
+        caption.style.transform = 'translate(' + (e.clientX + 8) + 'px,' + (e.clientY + 8) + 'px)';
+        caption.textContent = currentFig;
+      });
+
+      const figObserver = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting){
+            currentFig = entry.target.getAttribute('data-fig') || currentFig;
+          }
+        });
+      }, { threshold: 0.28 });
+      document.querySelectorAll('[data-fig]').forEach(function(el){ figObserver.observe(el); });
+
+      function animateBleed(toScale){
+        cancelAnimationFrame(bleedRaf);
+        const from = parseFloat(bleedMap.getAttribute('scale') || '0');
+        const start = performance.now();
+        const duration = 200;
+        function frame(now){
+          const t = Math.min(1, (now - start) / duration);
+          const eased = t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+          const value = from + (toScale - from) * eased;
+          bleedMap.setAttribute('scale', value.toFixed(3));
+          if(t < 1) bleedRaf = requestAnimationFrame(frame);
+        }
+        bleedRaf = requestAnimationFrame(frame);
+      }
+
+      document.querySelectorAll('.ink, .email-link').forEach(function(el){
+        el.addEventListener('mouseenter', function(){ animateBleed(0.6); });
+        el.addEventListener('mouseleave', function(){ animateBleed(0); });
+      });
+    })();
+  </script>
+</body>
+</html>

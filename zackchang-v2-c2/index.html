@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZC // LAB NOTEBOOK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0A0A0A;
+      --bone: #F2EDE4;
+      --amber: #FFB627;
+      --rule: #3A3A3A;
+      --ghost: #7A7A7A;
+    }
+
+    * {
+      box-sizing: border-box;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    body {
+      background-color: var(--ink);
+      color: var(--bone);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 400;
+      font-size: 14px;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      cursor: none;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background-color: var(--amber);
+      color: var(--ink);
+    }
+
+    /* Text Colors */
+    .text-amber { color: var(--amber); }
+    .text-ghost { color: var(--ghost); }
+    .text-bone { color: var(--bone); }
+    .font-bold { font-weight: 700; }
+
+    /* Environment / Texture */
+    .crt-video {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 45vw;
+      height: 70vh;
+      object-fit: cover;
+      mix-blend-mode: screen;
+      opacity: 0.35;
+      z-index: 0;
+      pointer-events: none;
+      clip-path: polygon(30% 0, 100% 0, 100% 100%, 30% 100%);
+    }
+
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 1px, rgba(255,255,255,0.025) 1px, rgba(255,255,255,0.025) 2px);
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    .vellum-bg {
+      position: fixed;
+      inset: 0;
+      background-image: url('https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-2/vellum-grain.jpg');
+      background-size: cover;
+      background-position: center;
+      mix-blend-mode: soft-light;
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: 9997;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 4vw;
+      position: relative;
+      z-index: 10;
+    }
+
+    .top-nav {
+      height: 64px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    
+    .zc-logo {
+      width: 24px;
+      height: 24px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 12px;
+      mix-blend-mode: screen;
+    }
+
+    /* Hero */
+    .hero {
+      padding-top: 64px;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-block {
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.8;
+    }
+    
+    .meta-block-inner {
+      width: 100%;
+    }
+
+    .typewriter-line {
+      display: block;
+      white-space: pre-wrap;
+    }
+
+    .caret {
+      color: var(--amber);
+      animation: blink 1.06s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .pixel-name {
+      font-family: 'DotGothic16', monospace;
+      font-weight: 400;
+      font-size: clamp(80px, 14vw, 200px);
+      line-height: 0.85;
+      letter-spacing: -0.02em;
+      margin: 12vh 0 0 0;
+      text-align: left;
+      opacity: 0;
+      clip-path: inset(0 100% 0 0);
+    }
+
+    /* Sections */
+    .section-header {
+      font-size: 18px;
+      font-weight: 700;
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 16px 0;
+      margin: 120px 0 48px 0;
+      display: flex;
+      justify-content: space-between;
+      color: var(--bone);
+    }
+    .section-header span.right {
+      color: var(--ghost);
+      font-weight: 400;
+      font-size: 14px;
+    }
+
+    /* Draw Rule Logic */
+    .draw-rule {
+      position: relative;
+    }
+    .draw-rule::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background-color: var(--rule);
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path 600ms cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 5;
+    }
+    .draw-rule.is-visible::after {
+      clip-path: inset(0 0 0 0);
+    }
+
+    /* Now Shipping */
+    .editorial-copy {
+      max-width: 640px;
+      margin-bottom: 48px;
+      line-height: 1.6;
+      color: var(--bone);
+    }
+    .editorial-copy p { margin-top: 0; margin-bottom: 24px; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+    }
+    .stat-cell {
+      background: var(--ink);
+      padding: 48px;
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-number {
+      font-size: 56px;
+      font-weight: 700;
+      color: var(--amber);
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--bone);
+    }
+
+    /* Selected Work */
+    .work-rows {
+      display: flex;
+      flex-direction: column;
+    }
+    .work-row {
+      display: grid;
+      grid-template-columns: 100px 1fr 280px;
+      padding: 32px 0;
+      text-decoration: none;
+      color: inherit;
+      transition: background 220ms ease-out;
+    }
+    .work-row:hover {
+      background: #111111;
+    }
+    
+    .work-row .view-bracket {
+      position: absolute;
+      right: 0;
+      top: 32px;
+      color: var(--amber);
+      opacity: 0;
+      transform: translateX(20px);
+      transition: all 220ms ease-out;
+    }
+    .work-row:hover .view-bracket {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .work-row .year { color: var(--ghost); }
+    .work-row .company { font-weight: 700; margin-bottom: 8px; font-size: 16px; }
+    .work-row .role { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 16px; color: var(--ghost); }
+    .work-row ul { list-style: none; padding: 0; margin: 0; }
+    .work-row li { position: relative; padding-left: 24px; color: var(--ghost); margin-bottom: 6px; }
+    .work-row li::before { content: "—"; position: absolute; left: 0; color: var(--rule); }
+
+    .work-row .outcome { text-align: right; padding-right: 32px; }
+    .work-row .outcome-num { font-size: 16px; font-weight: 700; color: var(--amber); margin-bottom: 4px; }
+    .work-row .outcome-sub { font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ghost); }
+
+    /* Single Line Row variation */
+    .work-row.single-line {
+      padding: 24px 0;
+    }
+    .work-row.single-line .company { margin-bottom: 0; display: inline; }
+    .work-row.single-line .role { display: inline; margin-left: 12px; }
+    .work-row.single-line .view-bracket { top: 24px; }
+
+    /* Toolkit */
+    .toolkit-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+    }
+    .toolkit-cell {
+      background: var(--ink);
+      padding: 32px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .toolkit-cell span {
+      display: block;
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--ghost);
+      margin-bottom: 24px;
+    }
+
+    /* Writing */
+    .writing-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .writing-link {
+      display: flex;
+      justify-content: space-between;
+      padding: 24px 0;
+      text-decoration: none;
+      color: var(--bone);
+      font-size: 14px;
+      transition: color 200ms ease;
+    }
+    .writing-link:hover { color: var(--amber); }
+
+    /* Contact */
+    .contact-content {
+      padding: 80px 0 160px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .contact-logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 64px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 600ms ease-out;
+      mix-blend-mode: screen;
+    }
+    .contact-logo.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hero-email {
+      font-size: clamp(40px, 8vw, 96px);
+      color: var(--amber);
+      text-decoration: none;
+      margin-bottom: 64px;
+      display: inline-block;
+    }
+    .hero-email.is-hovered .caret {
+      animation: none !important;
+      opacity: 1 !important;
+    }
+    .social-links {
+      display: flex;
+      gap: 48px;
+    }
+    .social-links a {
+      color: var(--bone);
+      text-decoration: none;
+      transition: color 200ms ease;
+    }
+    .social-links a:hover {
+      color: var(--amber);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 32px 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--ghost);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    /* Controls */
+    .controls {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      gap: 16px;
+      z-index: 10000;
+    }
+    .controls button {
+      background: var(--ink);
+      border: 1px solid var(--rule);
+      color: var(--ghost);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 10px 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 200ms ease;
+      cursor: pointer;
+    }
+    .controls button:hover {
+      color: var(--amber);
+      border-color: var(--amber);
+    }
+
+    /* Custom Cursor */
+    #custom-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 6px;
+      background-color: var(--amber);
+      pointer-events: none;
+      z-index: 10001;
+      transform-origin: center;
+      transition: width 0.15s, height 0.15s, background-color 0.15s, border 0.15s;
+    }
+
+    /* Utilities */
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .crt-video { width: 100vw; clip-path: none; opacity: 0.15; }
+    }
+
+    @media (max-width: 640px) {
+      .stat-grid { grid-template-columns: 1fr; }
+      .work-row { grid-template-columns: 1fr; gap: 12px; padding: 24px 0; }
+      .work-row .view-bracket { display: none; }
+      .work-row .outcome { text-align: left; padding-right: 0; margin-top: 16px; }
+      .work-row.single-line .company, .work-row.single-line .role { display: block; margin-left: 0; margin-bottom: 4px; }
+      .toolkit-grid { grid-template-columns: repeat(2, 1fr); }
+      .pixel-name { font-size: clamp(56px, 18vw, 80px); }
+      .meta-block { align-items: flex-start; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+    }
+
+    @media (pointer: coarse) {
+      #custom-cursor { display: none !important; }
+      body { cursor: auto; }
+      .controls button { cursor: auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .crt-video { display: none; }
+      #custom-cursor { display: none !important; }
+      body { cursor: auto; }
+      .caret { animation: none !important; }
+      .pixel-name, .contact-logo, .reveal-on-scroll { opacity: 1 !important; transform: none !important; clip-path: inset(0 0 0 0) !important; transition: none !important; }
+      .draw-rule::after { clip-path: inset(0 0 0 0) !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="custom-cursor"></div>
+  <video class="crt-video" src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-2/crt-phosphor-loop.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <div class="scanlines"></div>
+  <div class="vellum-bg"></div>
+
+  <div class="container">
+    <header class="top-nav">
+      <span><img src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-2/zc-monogram.jpg" class="zc-logo" alt="ZC"> [zc.log]</span>
+      <span class="text-ghost">[SYS: 26.06.21]</span>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="meta-block">
+          <div class="meta-block-inner">
+            <div class="typewriter-line" data-text="ZC"></div>
+            <div class="typewriter-line" data-text="HEAD OF PRODUCT / CREATIVE TECHNOLOG"></div>
+            <br>
+            <div class="typewriter-line" data-text="ROLE  : [Complex · Remote]"></div>
+            <div class="typewriter-line" data-text="SINCE : [02.2026]"></div>
+            <div class="typewriter-line" data-text="STACK : [Claude · Codex · LangGraph]"></div>
+            <div class="typewriter-line" data-text="MAIL  : [hi@zackchang.com]"></div>
+          </div>
+        </div>
+        <h1 class="pixel-name">ZACK<br>CHANG</h1>
+      </section>
+
+      <section class="now-shipping">
+        <h2 class="section-header">## 01 / NOW SHIPPING <span class="right">[scroll ↓]</span></h2>
+        <div class="editorial-copy">
+          <p>Currently leading the commerce product suite at Complex, scaling our digital storefronts and integrating high-volume livestream shopping experiences directly into culture.</p>
+          <p>Focused on building agent-driven editorial tools that connect our media engine to culturally relevant product drops, driving unprecedented conversion across the app ecosystem.</p>
+        </div>
+        <div class="stat-grid draw-rule">
+          <div class="stat-cell">
+            <div class="stat-number live-value" data-target="15" data-prefix="+" data-suffix="%" data-ease="linear">0%</div>
+            <div class="stat-label">ENGAGEMENT<br>LIFT</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-number live-value" data-target="2" data-ease="linear">0</div>
+            <div class="stat-label">INTERNAL<br>TOOLS</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-number">VIRAL</div>
+            <div class="stat-label">HIP-HOP<br>MOMENT</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="selected-work">
+        <h2 class="section-header">## 02 / SELECTED WORK</h2>
+        <div class="work-rows">
+          <a href="#" class="work-row draw-rule">
+            <div class="year">2024–2026</div>
+            <div class="details">
+              <div class="company">COMPLEX</div>
+              <div class="role">Director of Product · Commerce</div>
+              <ul>
+                <li>Launched Complex Shop</li>
+                <li>App: 55k MAU · 3× conv</li>
+                <li>Agent-driven editorial scaling</li>
+                <li>Spec-driven development pipeline</li>
+              </ul>
+            </div>
+            <div class="outcome">
+              <div class="outcome-num"><span class="live-value" data-target="30" data-prefix="$3.7M → $" data-suffix="M" data-ease="cubic" data-duration="900">0</span></div>
+              <div class="outcome-sub">GMV / 12mo</div>
+            </div>
+            <div class="view-bracket">[VIEW]</div>
+          </a>
+
+          <a href="#" class="work-row draw-rule">
+            <div class="year">2021–2024</div>
+            <div class="details">
+              <div class="company">NTWRK</div>
+              <div class="role">Product Lead · Livestream</div>
+              <ul>
+                <li>Scaled creator network tooling</li>
+                <li>Optimized real-time drop infra</li>
+              </ul>
+            </div>
+            <div class="outcome">
+              <div class="outcome-num"><span class="live-value" data-target="2000" data-suffix="+" data-ease="cubic" data-duration="900">0</span> sellers</div>
+              <div class="outcome-sub">30k MAU</div>
+            </div>
+            <div class="view-bracket">[VIEW]</div>
+          </a>
+
+          <a href="#" class="work-row draw-rule">
+            <div class="year">2020–2021</div>
+            <div class="details">
+              <div class="company">AMAZON</div>
+              <div class="role">Senior PM · Multichannel Ful.</div>
+              <ul>
+                <li>Supply chain routing logic</li>
+                <li>FBA integration expansion</li>
+              </ul>
+            </div>
+            <div class="outcome">
+              <div class="outcome-num"><span class="live-value" data-target="100" data-suffix="k+" data-ease="cubic" data-duration="900">0</span></div>
+              <div class="outcome-sub">merchants</div>
+            </div>
+            <div class="view-bracket">[VIEW]</div>
+          </a>
+
+          <a href="#" class="work-row single-line draw-rule">
+            <div class="year">2015–2019</div>
+            <div class="details">
+              <div class="company">LEVI'S</div>
+              <div class="role">Senior PM · Omnichannel</div>
+            </div>
+            <div class="outcome">
+              <div class="outcome-num">WSJ + FORBES</div>
+            </div>
+            <div class="view-bracket">[VIEW]</div>
+          </a>
+        </div>
+      </section>
+
+      <section class="toolkit">
+        <h2 class="section-header">## 03 / TOOLKIT</h2>
+        <div class="toolkit-grid draw-rule">
+          <div class="toolkit-cell"><span>01</span>CLAUDE</div>
+          <div class="toolkit-cell"><span>02</span>CODEX</div>
+          <div class="toolkit-cell"><span>03</span>GHOSTTY</div>
+          <div class="toolkit-cell"><span>04</span>FLORA</div>
+          <div class="toolkit-cell"><span>05</span>PAPER</div>
+          <div class="toolkit-cell"><span>06</span>LANGGRAPH</div>
+          <div class="toolkit-cell"><span>07</span>BRAINTRUST</div>
+          <div class="toolkit-cell"><span>08</span>OBSIDIAN</div>
+          <div class="toolkit-cell"><span>09</span>HERMES</div>
+          <div class="toolkit-cell"><span>10</span>OPENCLAW</div>
+        </div>
+      </section>
+
+      <section class="writing">
+        <h2 class="section-header">## 04 / WRITING</h2>
+        <div class="writing-list">
+          <a href="#" class="writing-link draw-rule">
+            <span><span class="text-ghost">→</span> Notes on agent-driven editorial</span>
+            <span class="text-ghost">[#]</span>
+          </a>
+          <a href="#" class="writing-link draw-rule">
+            <span><span class="text-ghost">→</span> Why the Creative Pipeline replaced our brief</span>
+            <span class="text-ghost">[#]</span>
+          </a>
+          <a href="#" class="writing-link draw-rule">
+            <span><span class="text-ghost">→</span> Spec-driven dev for product teams</span>
+            <span class="text-ghost">[#]</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="contact">
+        <h2 class="section-header">## 05 / CONTACT</h2>
+        <div class="contact-content">
+          <img src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-2/zc-monogram.jpg" class="contact-logo reveal-on-scroll" alt="ZC">
+          <a href="mailto:hi@zackchang.com" class="hero-email hover-target">hi@zackchang.com<span class="caret">_</span></a>
+          <div class="social-links">
+            <a href="#" class="hover-target font-bold">[LINKEDIN]</a>
+            <a href="#" class="hover-target font-bold">[GITHUB]</a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      <span>© 2026 ZC · BROOKLYN, NY</span>
+      <span>"SHIP, DON'T PITCH" <span class="text-bone" style="margin-left: 8px;">[zc.log]</span></span>
+    </footer>
+  </div>
+
+  <div class="controls">
+    <button id="btn-play">[ PLAY ]</button>
+    <button id="btn-reset">[ RESET ]</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      
+      // Custom Cursor
+      const cursor = document.getElementById('custom-cursor');
+      let mouseX = window.innerWidth / 2;
+      let mouseY = window.innerHeight / 2;
+      let cursorX = mouseX;
+      let cursorY = mouseY;
+      
+      if (!isReducedMotion && window.matchMedia('(pointer: fine)').matches) {
+        window.addEventListener('mousemove', (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+        });
+
+        function updateCursor() {
+          cursorX += (mouseX - cursorX) * 0.12;
+          cursorY += (mouseY - cursorY) * 0.12;
+          cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0) translate(-50%, -50%)`;
+          requestAnimationFrame(updateCursor);
+        }
+        requestAnimationFrame(updateCursor);
+
+        document.querySelectorAll('a, button, .hover-target, .work-row').forEach(el => {
+          el.addEventListener('mouseenter', () => {
+            cursor.style.width = '16px';
+            cursor.style.height = '16px';
+            cursor.style.backgroundColor = 'transparent';
+            cursor.style.border = '2px solid #FFB627';
+          });
+          el.addEventListener('mouseleave', () => {
+            cursor.style.width = '6px';
+            cursor.style.height = '6px';
+            cursor.style.backgroundColor = '#FFB627';
+            cursor.style.border = 'none';
+          });
+        });
+      }
+
+      // Hero Email Hover
+      const heroEmail = document.querySelector('.hero-email');
+      if(heroEmail) {
+        heroEmail.addEventListener('mouseenter', function() { this.classList.add('is-hovered'); });
+        heroEmail.addEventListener('mouseleave', function() { this.classList.remove('is-hovered'); });
+      }
+
+      // Intersection Observers for Scroll Reveal & Counters
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.reveal-on-scroll, .draw-rule:not(.work-row)').forEach(el => {
+        if(!isReducedMotion) observer.observe(el);
+        else el.classList.add('is-visible');
+      });
+
+      // Staggered Work Rows & Counters
+      let delayCounter = 0;
+      let lastIntersectTime = 0;
+
+      function animateCounter(el) {
+        if(isReducedMotion) return;
+        const duration = parseFloat(el.dataset.duration) || 1400;
+        const target = parseFloat(el.dataset.target);
+        const prefix = el.dataset.prefix || '';
+        const suffix = el.dataset.suffix || '';
+        const isFloat = el.dataset.float === "true";
+        const easeType = el.dataset.ease || 'linear';
+        
+        let startTimestamp = null;
+        const step = (timestamp) => {
+          if (!startTimestamp) startTimestamp = timestamp;
+          const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+          const ease = easeType === 'linear' ? progress : 1 - Math.pow(1 - progress, 3);
+          const current = ease * target;
+          
+          let formatted = isFloat ? current.toFixed(1) : Math.floor(current);
+          el.textContent = `${prefix}${formatted}${suffix}`;
+          
+          if (progress < 1) {
+            window.requestAnimationFrame(step);
+          } else {
+            el.textContent = `${prefix}${target}${suffix}`;
+          }
+        };
+        window.requestAnimationFrame(step);
+      }
+
+      const rowObserver = new IntersectionObserver((entries) => {
+        const now = Date.now();
+        if (now - lastIntersectTime > 100) delayCounter = 0;
+        lastIntersectTime = now;
+        
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const delay = delayCounter * 200;
+            delayCounter++;
+            setTimeout(() => {
+              entry.target.classList.add('is-visible');
+              const num = entry.target.querySelector('.live-value');
+              if (num) animateCounter(num);
+            }, delay);
+            rowObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.work-row, .stat-grid').forEach(row => {
+        if(!isReducedMotion) rowObserver.observe(row);
+        else row.classList.add('is-visible');
+      });
+
+      // Typewriter & Reveal Timeline
+      let typewriterIntervals = [];
+      let typewriterTimeouts = [];
+
+      function runTypewriter() {
+        if (isReducedMotion) {
+          forceCompleteState();
+          return;
+        }
+
+        const lines = document.querySelectorAll('.typewriter-line');
+        let charDelay = 18;
+        let currentDelay = 200;
+
+        lines.forEach((line, index) => {
+          const text = line.getAttribute('data-text');
+          const timeout = setTimeout(() => {
+            let charIndex = 0;
+            const interval = setInterval(() => {
+              line.textContent += text[charIndex];
+              charIndex++;
+              if (charIndex >= text.length) {
+                clearInterval(interval);
+                if (index === lines.length - 1) {
+                  line.innerHTML = text + '<span class="caret">_</span>';
+                  const pixelName = document.querySelector('.pixel-name');
+                  pixelName.style.transition = 'clip-path 900ms cubic-bezier(0.16, 1, 0.3, 1), opacity 10ms';
+                  pixelName.style.opacity = '1';
+                  pixelName.style.clipPath = 'inset(0 0 0 0)';
+                }
+              }
+            }, charDelay);
+            typewriterIntervals.push(interval);
+          }, currentDelay);
+          typewriterTimeouts.push(timeout);
+          currentDelay += text.length * charDelay + 100;
+        });
+      }
+
+      function forceCompleteState() {
+        const lines = document.querySelectorAll('.typewriter-line');
+        lines.forEach((line, index) => {
+          if (index === lines.length - 1) {
+            line.innerHTML = line.dataset.text + '<span class="caret">_</span>';
+          } else {
+            line.textContent = line.dataset.text;
+          }
+        });
+        const pixelName = document.querySelector('.pixel-name');
+        pixelName.style.transition = 'none';
+        pixelName.style.opacity = '1';
+        pixelName.style.clipPath = 'inset(0 0 0 0)';
+        
+        document.querySelectorAll('.live-value').forEach(el => {
+          el.textContent = (el.dataset.prefix || '') + el.dataset.target + (el.dataset.suffix || '');
+        });
+        document.querySelectorAll('.draw-rule, .reveal-on-scroll, .work-row, .stat-grid').forEach(el => {
+          el.classList.add('is-visible');
+          observer.unobserve(el);
+          rowObserver.unobserve(el);
+        });
+      }
+
+      // Initial run
+      runTypewriter();
+
+      // Controls
+      document.getElementById('btn-play').addEventListener('click', () => {
+        window.scrollTo(0,0);
+        
+        // Clear logic
+        typewriterTimeouts.forEach(clearTimeout);
+        typewriterIntervals.forEach(clearInterval);
+        typewriterTimeouts = [];
+        typewriterIntervals = [];
+
+        document.querySelectorAll('.typewriter-line').forEach(el => el.textContent = '');
+        
+        const pixelName = document.querySelector('.pixel-name');
+        pixelName.style.transition = 'none';
+        pixelName.style.opacity = '0';
+        pixelName.style.clipPath = 'inset(0 100% 0 0)';
+        
+        document.querySelectorAll('.live-value').forEach(el => {
+          el.textContent = el.dataset.float === 'true' ? '0.0' : '0';
+          if(el.dataset.prefix && !el.textContent.includes(el.dataset.prefix)) {
+            el.textContent = el.dataset.prefix + el.textContent;
+          }
+        });
+        
+        document.querySelectorAll('.draw-rule, .reveal-on-scroll, .work-row, .stat-grid').forEach(el => {
+          el.classList.remove('is-visible');
+          if(el.classList.contains('work-row') || el.classList.contains('stat-grid')) {
+             rowObserver.observe(el);
+          } else {
+             observer.observe(el);
+          }
+        });
+        
+        setTimeout(runTypewriter, 100);
+      });
+
+      document.getElementById('btn-reset').addEventListener('click', () => {
+        typewriterTimeouts.forEach(clearTimeout);
+        typewriterIntervals.forEach(clearInterval);
+        forceCompleteState();
+      });
+    });
+  </script>
+</body>
+</html>

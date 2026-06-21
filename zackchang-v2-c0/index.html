@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zack Chang — Issue 02 / 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Fraunces:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ------------------------------------------------------------------
+     Zack Chang — Vellum Museum Scorecard
+     palette: #F2EAD5 vellum · #0E0E10 ink · #C8412B persimmon · #7A6E54 olive
+     type:    DotGothic16 (pixel) · Fraunces (serif) · JetBrains Mono (meta)
+  ------------------------------------------------------------------ */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --vellum: #F2EAD5;
+    --ink: #0E0E10;
+    --persimmon: #C8412B;
+    --olive: #7A6E54;
+    --tilt-x: 0deg;
+    --tilt-y: 0deg;
+  }
+
+  html, body { background: #F2EAD5; color: #0E0E10; }
+
+  body {
+    font-family: 'Fraunces', serif;
+    font-size: 21px;
+    line-height: 1.55;
+    perspective: 1200px;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  /* Pixel-grid background plane — pinned, sits on a far Z plane */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, #0E0E10 0.5px, transparent 0.5px);
+    background-size: 4px 4px;
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 1;
+    transform: translateZ(-200px);
+  }
+
+  /* Vellum paper texture — full-bleed fixed, multiply blend */
+  .vellum-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: multiply;
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  main { position: relative; z-index: 3; }
+
+  /* ---------- META / MONO ---------- */
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    line-height: 1.0;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .meta--muted { color: var(--olive); }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative;
+    min-height: 800px;
+    height: 100vh;
+    padding: 40px 96px 120px;
+    overflow: hidden;
+    transform-style: preserve-3d;
+  }
+  .stage { transform-style: preserve-3d; position: relative; width: 100%; height: 100%; }
+
+  .id-stamp-tl {
+    position: absolute;
+    top: 40px;
+    left: 96px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 6;
+  }
+  .id-stamp-tr {
+    position: absolute;
+    top: 40px;
+    right: 96px;
+    z-index: 6;
+  }
+
+  .archive-stamp {
+    width: 64px;
+    height: 64px;
+    opacity: 0.85;
+    transform: rotate(-3deg);
+    mix-blend-mode: multiply;
+  }
+
+  /* Ink-bleed accent on a far Z plane */
+  .plane-far {
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 640px;
+    height: 640px;
+    transform: translateZ(-400px) scale(1.5);
+    z-index: 4;
+    pointer-events: none;
+  }
+  .plane-far img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    opacity: 0.85;
+    /* JPG has cream background — multiply blends it into vellum */
+  }
+
+  /* GMV scoreboard */
+  .scoreboard {
+    position: absolute;
+    right: 96px;
+    top: 180px;
+    z-index: 5;
+    text-align: right;
+  }
+  .scoreboard__digits {
+    display: inline-flex;
+    gap: 2px;
+    padding: 18px 22px;
+    background: rgba(14, 14, 16, 0.04);
+    border: 1px solid var(--ink);
+    box-shadow: inset 0 1px 0 rgba(0,0,0,0.3), inset 0 -1px 0 rgba(255,255,255,0.4);
+  }
+  .scoreboard__digit {
+    font-family: 'DotGothic16', monospace;
+    font-weight: 400;
+    font-size: clamp(64px, 9vw, 144px);
+    line-height: 0.85;
+    color: var(--persimmon);
+    min-width: 0.6em;
+    text-align: center;
+  }
+  .scoreboard__label {
+    margin-top: 16px;
+    color: var(--olive);
+  }
+
+  /* Hero name — the typographic monument */
+  .plane-near {
+    position: absolute;
+    left: 96px;
+    bottom: 120px;
+    z-index: 7;
+    transform: translateZ(60px) rotate3d(0, 1, 0, var(--tilt-y)) rotate3d(1, 0, 0, var(--tilt-x));
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .hero-name {
+    font-family: 'DotGothic16', monospace;
+    font-weight: 400;
+    font-size: clamp(96px, 18vw, 280px);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin: 0;
+    /* pixel-sweep reveal */
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 1200ms steps(28, jump-end);
+  }
+  body.loaded .hero-name { clip-path: inset(0 0 0 0); }
+
+  .hero-caption {
+    position: absolute;
+    left: 96px;
+    bottom: 40px;
+    z-index: 7;
+    padding-top: 20px;
+    border-top: 1px solid var(--ink);
+    width: calc(100% - 192px);
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 600ms cubic-bezier(0.22, 1, 0.36, 1) 1700ms;
+  }
+  body.loaded .hero-caption { clip-path: inset(0 0 0 0); }
+
+  /* Fade-up util for identity stamps */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  body.loaded .fade-up { opacity: 1; transform: translateY(0); }
+  body.loaded .fade-up.delay-1 { transition-delay: 400ms; }
+  body.loaded .fade-up.delay-2 { transition-delay: 500ms; }
+  body.loaded .fade-up.delay-3 { transition-delay: 600ms; }
+
+  /* ---------- SECTIONS / HAIRLINE STRUCTURE ---------- */
+  section.block {
+    position: relative;
+    padding: 120px 96px;
+    border-top: 1px solid var(--ink);
+    /* hairline draw-in */
+    /* the border itself can't be clip-pathed; use a ::before */
+  }
+  section.block::before {
+    content: "";
+    position: absolute;
+    top: -1px; left: 0;
+    width: 100%; height: 1px;
+    background: var(--vellum); /* covers the border until reveal */
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  section.block.is-in::before { clip-path: inset(0 100% 0 0); }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 32px;
+    align-items: baseline;
+    margin-bottom: 64px;
+  }
+  .section-num {
+    font-family: 'DotGothic16', monospace;
+    font-weight: 400;
+    font-size: 56px;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .section-title { color: var(--olive); }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1),
+                transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .is-in .reveal { opacity: 1; transform: translateY(0); }
+  .is-in .reveal:nth-child(2) { transition-delay: 60ms; }
+  .is-in .reveal:nth-child(3) { transition-delay: 120ms; }
+  .is-in .reveal:nth-child(4) { transition-delay: 180ms; }
+  .is-in .reveal:nth-child(5) { transition-delay: 240ms; }
+
+  /* ---------- 02 CURRENTLY ---------- */
+  .currently {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: 96px;
+    align-items: start;
+  }
+  .currently__copy {
+    max-width: 560px;
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 21px;
+    line-height: 1.55;
+  }
+  .currently__copy p + p { margin-top: 18px; }
+  .currently__copy em { font-style: italic; color: var(--olive); }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--ink);
+  }
+  .tile {
+    padding: 28px 20px;
+    border-right: 1px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 200px;
+  }
+  .tile:last-child { border-right: none; }
+  .tile__num {
+    font-family: 'DotGothic16', monospace;
+    font-weight: 400;
+    font-size: clamp(20px, 2.4vw, 36px);
+    color: var(--persimmon);
+    line-height: 1;
+  }
+  .tile__num--big {
+    font-size: clamp(28px, 3.2vw, 48px);
+  }
+  .tile__label {
+    margin-top: 18px;
+    color: var(--olive);
+  }
+
+  /* ---------- 03 ARCHIVE (wall labels) ---------- */
+  .archive { display: flex; flex-direction: column; }
+  .archive__row {
+    display: grid;
+    grid-template-columns: 90px 1fr 1fr auto;
+    gap: 40px;
+    align-items: baseline;
+    border-top: 1px solid var(--ink);
+    position: relative;
+  }
+  .archive__row::before {
+    content: "";
+    position: absolute;
+    top: -1px; left: 0;
+    width: 100%; height: 1px;
+    background: var(--vellum);
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .is-in .archive__row::before { clip-path: inset(0 100% 0 0); }
+  .is-in .archive__row:nth-child(1)::before { transition-delay: 0ms; }
+  .is-in .archive__row:nth-child(2)::before { transition-delay: 100ms; }
+  .is-in .archive__row:nth-child(3)::before { transition-delay: 200ms; }
+  .is-in .archive__row:nth-child(4)::before { transition-delay: 300ms; }
+
+  .archive__row:last-child { border-bottom: 1px solid var(--ink); }
+
+  .archive__row--complex { padding: 64px 0; }
+  .archive__row--ntwrk   { padding: 40px 0; }
+  .archive__row--amazon  { padding: 32px 0; }
+  .archive__row--levis   { padding: 20px 0; }
+
+  .archive__year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--olive);
+    font-weight: 500;
+  }
+  .archive__company {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(28px, 3.4vw, 52px);
+    line-height: 0.95;
+    color: var(--ink);
+  }
+  .archive__role {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .archive__role small {
+    display: block;
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--olive);
+  }
+  .archive__outcome {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(20px, 2.2vw, 32px);
+    color: var(--persimmon);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .archive__row--levis .archive__company { font-size: clamp(22px, 2.4vw, 32px); }
+  .archive__row--levis .archive__outcome { font-size: clamp(15px, 1.4vw, 20px); }
+
+  /* ---------- 04 TOOLKIT ---------- */
+  .toolkit {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0;
+    border: 1px solid var(--ink);
+  }
+  .toolkit__cell {
+    border: 1px solid var(--ink);
+    padding: 32px 24px;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+    cursor: pointer;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .toolkit__cell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--persimmon);
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 240ms cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 0;
+  }
+  .toolkit__cell:hover::before { clip-path: inset(0 0 0 0); }
+  .toolkit__cell > * { position: relative; z-index: 1; transition: color 240ms ease; }
+  .toolkit__cell:hover .toolkit__num,
+  .toolkit__cell:hover .toolkit__name { color: var(--vellum); }
+
+  .toolkit__num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(20px, 2.4vw, 36px);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--olive);
+    line-height: 1;
+  }
+  .toolkit__name {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(22px, 1.8vw, 30px);
+    line-height: 1.05;
+    color: var(--ink);
+  }
+
+  /* ---------- 05 NOTES ---------- */
+  .notes { display: flex; flex-direction: column; }
+  .notes__row {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 40px;
+    align-items: baseline;
+    padding: 36px 0;
+    border-top: 1px solid var(--ink);
+    text-decoration: none;
+    color: var(--ink);
+    transition: color 200ms ease;
+  }
+  .notes__row:last-child { border-bottom: 1px solid var(--ink); }
+  .notes__row:hover { color: var(--persimmon); }
+  .notes__num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    color: var(--olive);
+  }
+  .notes__title {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(24px, 2.6vw, 40px);
+    line-height: 1.1;
+  }
+  .notes__arrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--olive);
+  }
+
+  /* ---------- 06 CONTACT ---------- */
+  .contact { display: flex; flex-direction: column; gap: 32px; }
+  .contact__email {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(56px, 8vw, 124px);
+    line-height: 0.95;
+    color: var(--ink);
+    text-decoration: none;
+    background-image: linear-gradient(var(--persimmon), var(--persimmon));
+    background-repeat: no-repeat;
+    background-size: 0% 4px;
+    background-position: 0 100%;
+    transition: background-size 500ms cubic-bezier(0.22, 1, 0.36, 1), color 300ms ease;
+    display: inline-block;
+    align-self: flex-start;
+  }
+  .contact__email:hover {
+    background-size: 100% 4px;
+    color: var(--persimmon);
+  }
+  .contact__secondary {
+    display: flex;
+    gap: 40px;
+    margin-top: 24px;
+  }
+  .contact__secondary a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 4px;
+    transition: color 200ms ease, border-color 200ms ease;
+  }
+  .contact__secondary a:hover {
+    color: var(--persimmon);
+    border-color: var(--persimmon);
+  }
+
+  /* ---------- 07 FOOTER ---------- */
+  footer.foot {
+    border-top: 1px solid var(--ink);
+    padding: 48px 96px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 40px;
+    align-items: center;
+    position: relative;
+    z-index: 3;
+  }
+  .foot__stamp {
+    width: 96px;
+    height: 96px;
+    opacity: 0.85;
+    transform: rotate(-3deg);
+    mix-blend-mode: multiply;
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 768px) {
+    .hero { padding: 24px 24px 80px; min-height: 700px; }
+    .id-stamp-tl { left: 24px; top: 24px; }
+    .id-stamp-tr { right: 24px; top: 24px; }
+    .scoreboard {
+      position: relative;
+      right: auto; top: auto;
+      margin-top: 100px;
+      text-align: left;
+    }
+    .scoreboard__digit { font-size: clamp(40px, 12vw, 72px); }
+    .plane-near {
+      left: 24px;
+      bottom: 80px;
+    }
+    .hero-name { font-size: clamp(64px, 22vw, 140px); }
+    .hero-caption { left: 24px; bottom: 24px; width: calc(100% - 48px); font-size: 9px; }
+    .plane-far { width: 360px; height: 360px; top: -40px; right: -120px; }
+    section.block { padding: 80px 24px; }
+    .section-head { grid-template-columns: 56px 1fr; gap: 16px; margin-bottom: 40px; }
+    .section-num { font-size: 36px; }
+    .currently { grid-template-columns: 1fr; gap: 40px; }
+    .tiles { grid-template-columns: 1fr; }
+    .tile { border-right: none; border-bottom: 1px solid var(--ink); }
+    .tile:last-child { border-bottom: none; }
+    .archive__row {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .archive__outcome { text-align: left; white-space: normal; }
+    .toolkit { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(5, 1fr); }
+    .notes__row { grid-template-columns: 56px 1fr; }
+    .notes__arrow { display: none; }
+    footer.foot { padding: 32px 24px; grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .hero-name, .hero-caption, section.block::before, .archive__row::before {
+      clip-path: inset(0 0 0 0) !important;
+    }
+    .plane-near { transform: translateZ(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Vellum paper texture overlay -->
+<img class="vellum-overlay" src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-0/vellum-paper.jpg" alt="" width="1920" height="1080" loading="eager" aria-hidden="true">
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="stage">
+
+      <!-- Identity stamps -->
+      <div class="id-stamp-tl">
+        <img class="archive-stamp fade-up delay-1" src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-0/zc-archive-stamp.jpg" alt="ZC Issue 02 / 2026 archive stamp" width="64" height="64">
+        <span class="meta fade-up delay-1">ZC&nbsp;&nbsp;/&nbsp;&nbsp;2026</span>
+      </div>
+      <div class="id-stamp-tr">
+        <span class="meta fade-up delay-2">INDEX&nbsp;&nbsp;→&nbsp;&nbsp;01–07</span>
+      </div>
+
+      <!-- Far plane: ink-bleed corner -->
+      <div class="plane-far">
+        <img src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-0/ink-bleed-corner.jpg" alt="" aria-hidden="true" width="1200" height="1200">
+      </div>
+
+      <!-- Scoreboard -->
+      <div class="scoreboard">
+        <div class="scoreboard__digits" id="scoreboard" aria-label="GMV grew from $3.7M to $30M in 12 months">
+          <span class="scoreboard__digit">$</span>
+          <span class="scoreboard__digit" data-target="3">3</span>
+          <span class="scoreboard__digit">.</span>
+          <span class="scoreboard__digit" data-target="7">7</span>
+          <span class="scoreboard__digit">M</span>
+          <span class="scoreboard__digit" style="color:var(--ink); margin: 0 12px;">→</span>
+          <span class="scoreboard__digit" data-target="3">3</span>
+          <span class="scoreboard__digit" data-target="0">0</span>
+          <span class="scoreboard__digit">M</span>
+        </div>
+        <div class="meta scoreboard__label">GMV&nbsp;&nbsp;·&nbsp;&nbsp;12 MONTHS</div>
+      </div>
+
+      <!-- Near plane: name monument -->
+      <div class="plane-near">
+        <h1 class="hero-name">ZACK<br>CHANG</h1>
+      </div>
+
+      <!-- Role caption (hairline above) -->
+      <div class="hero-caption">
+        <span class="meta">HEAD OF PRODUCT &amp; CREATIVE TECHNOLOGIST&nbsp;&nbsp;·&nbsp;&nbsp;COMPLEX&nbsp;&nbsp;·&nbsp;&nbsp;2026&nbsp;&nbsp;→</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 CURRENTLY ============ -->
+  <section class="block" id="currently">
+    <header class="section-head">
+      <span class="section-num">02</span>
+      <span class="meta section-title">CURRENTLY&nbsp;&nbsp;/&nbsp;&nbsp;COMPLEX NETWORKS</span>
+    </header>
+    <div class="currently">
+      <div class="currently__copy reveal">
+        <p>I run product and creative tech at <strong>Complex</strong>, where we turned an editorial title into a commerce engine — taking GMV from <em>$3.7M to $30M in twelve months</em> without losing the voice that makes Complex Complex.</p>
+        <p>Day to day I ship interactive editorial that lifts engagement, breaks containment in hip-hop culture, and quietly runs on two internal AI tools I built so a small team can punch above its weight.</p>
+      </div>
+      <div class="tiles reveal">
+        <div class="tile">
+          <span class="tile__num tile__num--big">+15%</span>
+          <span class="meta tile__label">ENGAGEMENT<br>LIFT&nbsp;·&nbsp;Q4 ’25</span>
+        </div>
+        <div class="tile">
+          <span class="tile__num">VIRAL</span>
+          <span class="meta tile__label">HIP-HOP<br>MOMENT&nbsp;·&nbsp;55K MAU</span>
+        </div>
+        <div class="tile">
+          <span class="tile__num">02</span>
+          <span class="meta tile__label">INTERNAL<br>AI TOOLS SHIPPED</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 ARCHIVE ============ -->
+  <section class="block" id="archive">
+    <header class="section-head">
+      <span class="section-num">03</span>
+      <span class="meta section-title">SELECTED WORK&nbsp;&nbsp;/&nbsp;&nbsp;EXHIBITION LABELS</span>
+    </header>
+
+    <div class="archive">
+
+      <!-- COMPLEX — 3x weight -->
+      <div class="archive__row archive__row--complex">
+        <div class="archive__year">2024 – 2026</div>
+        <div class="archive__company">COMPLEX</div>
+        <div class="archive__role">
+          Head of Product &amp; Creative Technologist
+          <small>Editorial-to-commerce engine · interactive features · internal AI tooling · hip-hop verticals</small>
+        </div>
+        <div class="archive__outcome">$3.7M → $30M GMV ↑</div>
+      </div>
+
+      <!-- NTWRK -->
+      <div class="archive__row archive__row--ntwrk">
+        <div class="archive__year">2021 – 2024</div>
+        <div class="archive__company">NTWRK</div>
+        <div class="archive__role">
+          Product Lead, Seller Platform
+          <small>Live-drop commerce · seller onboarding · checkout</small>
+        </div>
+        <div class="archive__outcome">2,000+ sellers · 55K MAU</div>
+      </div>
+
+      <!-- AMAZON -->
+      <div class="archive__row archive__row--amazon">
+        <div class="archive__year">2020 – 2021</div>
+        <div class="archive__company">AMAZON</div>
+        <div class="archive__role">
+          Senior PM, Marketplace
+          <small>Merchant tools · catalog · growth</small>
+        </div>
+        <div class="archive__outcome">100K+ merchants</div>
+      </div>
+
+      <!-- LEVI'S — one line -->
+      <div class="archive__row archive__row--levis">
+        <div class="archive__year">2015 – 2019</div>
+        <div class="archive__company">LEVI’S</div>
+        <div class="archive__role">Senior PM, Digital</div>
+        <div class="archive__outcome">WSJ + Forbes coverage</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 04 TOOLKIT ============ -->
+  <section class="block" id="toolkit">
+    <header class="section-head">
+      <span class="section-num">04</span>
+      <span class="meta section-title">AI TOOLKIT&nbsp;&nbsp;/&nbsp;&nbsp;10 CELLS, ONE OPERATOR</span>
+    </header>
+
+    <div class="toolkit" role="list">
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">01</span><span class="toolkit__name">Claude Code</span></div>
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">02</span><span class="toolkit__name">Codex</span></div>
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">03</span><span class="toolkit__name">Ghostty</span></div>
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">04</span><span class="toolkit__name">Flora</span></div>
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">05</span><span class="toolkit__name">Paper</span></div>
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">06</span><span class="toolkit__name">LangGraph</span></div>
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">07</span><span class="toolkit__name">Braintrust</span></div>
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">08</span><span class="toolkit__name">Obsidian</span></div>
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">09</span><span class="toolkit__name">Hermes</span></div>
+      <div class="toolkit__cell" role="listitem"><span class="toolkit__num">10</span><span class="toolkit__name">OpenClaw</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 05 NOTES ============ -->
+  <section class="block" id="notes">
+    <header class="section-head">
+      <span class="section-num">05</span>
+      <span class="meta section-title">NOTES&nbsp;&nbsp;/&nbsp;&nbsp;WRITING, READING, NOW</span>
+    </header>
+
+    <div class="notes">
+      <a class="notes__row" href="#">
+        <span class="notes__num">N.01</span>
+        <span class="notes__title">How Complex Became a Commerce Engine Without Losing Its Voice</span>
+        <span class="notes__arrow">READ →</span>
+      </a>
+      <a class="notes__row" href="#">
+        <span class="notes__num">N.02</span>
+        <span class="notes__title">Shipping As a One-Person Team in the Year of the Agent</span>
+        <span class="notes__arrow">READ →</span>
+      </a>
+      <a class="notes__row" href="#">
+        <span class="notes__num">N.03</span>
+        <span class="notes__title">Notes on Editorial Interfaces, Pixel Type, and Other Stubbornness</span>
+        <span class="notes__arrow">READ →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ 06 CONTACT ============ -->
+  <section class="block" id="contact">
+    <header class="section-head">
+      <span class="section-num">06</span>
+      <span class="meta section-title">CONTACT&nbsp;&nbsp;/&nbsp;&nbsp;DIRECT LINE</span>
+    </header>
+
+    <div class="contact">
+      <a class="contact__email reveal" href="mailto:hi@zackchang.com">hi@zackchang.com</a>
+      <div class="contact__secondary reveal">
+        <a href="#" class="meta">LINKEDIN&nbsp;→</a>
+        <a href="#" class="meta">GITHUB&nbsp;→</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 FOOTER ============ -->
+  <footer class="foot">
+    <span class="meta">© 2026&nbsp;&nbsp;·&nbsp;&nbsp;REMOTE&nbsp;&nbsp;·&nbsp;&nbsp;STILL SHIPPING</span>
+    <span class="meta meta--muted">ISSUE 02&nbsp;&nbsp;/&nbsp;&nbsp;ZC ARCHIVE</span>
+    <img class="foot__stamp" src="https://changzack.github.io/prototypes/_assets/zackchang-v2/concept-0/zc-archive-stamp.jpg" alt="ZC archive stamp" width="96" height="96">
+  </footer>
+
+</main>
+
+<script>
+(() => {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---- Phase 0: trigger loaded class so reveals begin ----
+  requestAnimationFrame(() => {
+    document.body.classList.add('loaded');
+  });
+
+  // ---- Cursor parallax (rAF lerp) on .plane-near and .plane-far ----
+  const planeNear = document.querySelector('.plane-near');
+  const planeFar = document.querySelector('.plane-far');
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  if (!reduced) {
+    let targetX = 0, targetY = 0;
+    let curX = 0, curY = 0;
+    const LERP = 0.08;
+
+    if (!isMobile) {
+      window.addEventListener('mousemove', (e) => {
+        const nx = (e.clientX / window.innerWidth) * 2 - 1;   // -1..+1
+        const ny = (e.clientY / window.innerHeight) * 2 - 1;
+        targetY = nx * 4;     // tilt-y, ±4deg
+        targetX = -ny * 2;    // tilt-x, ±2deg
+      });
+    } else {
+      // mobile: ambient sine-wave tilt, 0.6deg amplitude, 8s period
+      let t0 = performance.now();
+      setInterval(() => {
+        const t = (performance.now() - t0) / 1000;
+        targetY = Math.sin((t / 8) * Math.PI * 2) * 0.6;
+        targetX = Math.cos((t / 8) * Math.PI * 2) * 0.6;
+      }, 1000 / 30);
+    }
+
+    function tick() {
+      curX += (targetX - curX) * LERP;
+      curY += (targetY - curY) * LERP;
+      if (planeNear) {
+        planeNear.style.setProperty('--tilt-x', curX.toFixed(3) + 'deg');
+        planeNear.style.setProperty('--tilt-y', curY.toFixed(3) + 'deg');
+      }
+      if (planeFar) {
+        // opposite tilt for true parallax depth
+        planeFar.style.transform =
+          `translateZ(-400px) scale(1.5) rotate3d(0,1,0, ${(-curY).toFixed(3)}deg) rotate3d(1,0,0, ${(-curX).toFixed(3)}deg)`;
+      }
+      requestAnimationFrame(tick);
+    }
+    // start parallax after name reveal completes
+    setTimeout(() => requestAnimationFrame(tick), 1900);
+  }
+
+  // ---- GMV scoreboard counter ----
+  const digits = Array.from(document.querySelectorAll('#scoreboard .scoreboard__digit[data-target]'));
+  let scoreFired = false;
+  function runScoreboard() {
+    if (scoreFired) return;
+    scoreFired = true;
+    if (reduced) {
+      digits.forEach(d => d.textContent = d.dataset.target);
+      return;
+    }
+    const TOTAL = 1800;
+    const start = performance.now();
+    const FRAME_MS = 1000 / 60;
+    const CYCLE_FRAMES = 6;
+    // each digit locks left-to-right at start + i * (TOTAL / digits.length)
+    const lockTimes = digits.map((_, i) =>
+      start + (i + 1) * (TOTAL / digits.length)
+    );
+
+    function step(now) {
+      let allLocked = true;
+      digits.forEach((d, i) => {
+        if (now >= lockTimes[i]) {
+          d.textContent = d.dataset.target;
+        } else {
+          allLocked = false;
+          // cycle 0-9 every CYCLE_FRAMES frames
+          const frame = Math.floor((now - start) / FRAME_MS);
+          const v = (frame + i) % 10;
+          d.textContent = String(v);
+        }
+      });
+      if (!allLocked) requestAnimationFrame(step);
+      else {
+        // subtle box-shadow pulse on lock
+        const cell = document.querySelector('.scoreboard__digits');
+        if (cell) {
+          cell.animate(
+            [
+              { boxShadow: 'inset 0 1px 0 rgba(0,0,0,0.3), inset 0 -1px 0 rgba(255,255,255,0.4), 0 0 0 0 rgba(200,65,43,0.6)' },
+              { boxShadow: 'inset 0 1px 0 rgba(0,0,0,0.3), inset 0 -1px 0 rgba(255,255,255,0.4), 0 0 24px 4px rgba(200,65,43,0.0)' }
+            ],
+            { duration: 700, easing: 'ease-out' }
+          );
+        }
+      }
+    }
+    requestAnimationFrame(step);
+  }
+  // trigger scoreboard 1.5s after load (overlap with name reveal)
+  setTimeout(runScoreboard, 1500);
+
+  // ---- IntersectionObserver for section reveals ----
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('section.block').forEach((s) => io.observe(s));
+
+})();
+</script>
+</body>
+</html>
