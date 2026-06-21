@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Zack Chang — Head of Product &amp; Creative Technologist</title>
+<meta name="description" content="Zack Chang. Product leader who builds with AI. Currently Head of Product &amp; Creative Technologist at Complex." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+  /* ─── design tokens ─────────────────────────────────────────── */
+  :root {
+    --bg: #f6f4ee;
+    --bg-sub: #efece4;
+    --ink: #161613;
+    --ink-soft: #2c2c28;
+    --muted: #8a877d;
+    --muted-2: #b9b6ab;
+    --rule: #d9d4c4;
+    --accent: #c0432e;      /* persimmon — used sparingly */
+    --accent-soft: #d96a55;
+    --link: #161613;
+    --link-hover: #c0432e;
+    --serif: "Instrument Serif", "Cormorant", Georgia, serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --display: "Inter Tight", "Inter", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    /* respect system dark but keep brand cream-light by default;
+       we'll honor it only at user request — see below */
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    font-feature-settings: "ss01","cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: var(--link); text-decoration: none; transition: color .12s ease, background .12s ease; }
+  a:hover { color: var(--link-hover); }
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  /* ─── layout shell ──────────────────────────────────────────── */
+  .shell { max-width: 1180px; margin: 0 auto; padding: 32px 32px 96px; display: grid; grid-template-columns: 200px 1fr; gap: 80px; }
+  @media (max-width: 880px) {
+    .shell { grid-template-columns: 1fr; gap: 0; padding: 20px 22px 80px; }
+  }
+
+  /* ─── sidebar nav ───────────────────────────────────────────── */
+  aside.nav {
+    position: sticky; top: 32px; align-self: start;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em;
+    color: var(--muted);
+  }
+  aside.nav .id { color: var(--ink); font-size: 12px; margin-bottom: 28px; line-height: 1.3; }
+  aside.nav .id b { display: block; font-family: var(--sans); font-weight: 600; font-size: 14px; color: var(--ink); letter-spacing: -.005em; }
+  aside.nav .id span { color: var(--muted); }
+  aside.nav ul { list-style: none; padding: 0; margin: 0 0 28px; }
+  aside.nav li { margin: 6px 0; }
+  aside.nav li a { display: flex; align-items: baseline; gap: 8px; color: var(--ink-soft); }
+  aside.nav li a span.idx { color: var(--muted-2); width: 18px; display: inline-block; }
+  aside.nav li a:hover { color: var(--link-hover); }
+  aside.nav .meta { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 36px; line-height: 1.7; }
+  aside.nav .meta .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #4caf6a; box-shadow: 0 0 0 3px rgba(76,175,106,.18); margin-right: 7px; vertical-align: 1px; animation: pulse 2.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(76,175,106,.18); } 50% { box-shadow: 0 0 0 6px rgba(76,175,106,.04); } }
+
+  @media (max-width: 880px) {
+    aside.nav { position: static; display: flex; flex-wrap: wrap; align-items: baseline; gap: 16px; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+    aside.nav .id { margin-bottom: 0; width: 100%; }
+    aside.nav ul { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; }
+    aside.nav li { margin: 0; }
+    aside.nav li a span.idx { display: none; }
+    aside.nav .meta { width: 100%; margin-top: 8px; }
+  }
+
+  /* ─── main column ───────────────────────────────────────────── */
+  main { min-width: 0; }
+  section { padding: 18px 0 12px; }
+  section + section { border-top: 1px solid var(--rule); margin-top: 32px; padding-top: 36px; }
+
+  /* meta line above each section */
+  .section-meta { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--muted); text-transform: uppercase; margin-bottom: 18px; display: flex; gap: 14px; align-items: baseline; }
+  .section-meta b { color: var(--ink); font-weight: 500; }
+
+  /* ─── hero ──────────────────────────────────────────────────── */
+  .hero { padding-top: 8px; padding-bottom: 4px; }
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(54px, 9vw, 132px);
+    line-height: .92;
+    letter-spacing: -.038em;
+    margin: 6px 0 16px;
+    color: var(--ink);
+  }
+  .hero h1 .serif {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -.01em;
+    color: var(--ink-soft);
+    padding: 0 .04em;
+  }
+  .hero .role {
+    font-family: var(--sans);
+    font-size: clamp(15px, 1.4vw, 17px);
+    color: var(--ink-soft);
+    max-width: 38ch;
+    line-height: 1.45;
+    margin: 12px 0 24px;
+  }
+  .hero .role em { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 1.08em; color: var(--ink); }
+
+  .now {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 12px; color: var(--ink-soft);
+    background: var(--bg-sub); border: 1px solid var(--rule);
+    padding: 7px 12px; border-radius: 999px;
+    margin-bottom: 30px;
+  }
+  .now .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(192,67,46,.16); }
+
+  /* scoreboard */
+  .scoreboard {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0; margin: 28px 0 6px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .scoreboard .cell {
+    padding: 14px 16px 14px 0;
+    border-right: 1px solid var(--rule);
+  }
+  .scoreboard .cell:last-child { border-right: 0; }
+  .scoreboard .num {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(22px, 2.6vw, 30px);
+    letter-spacing: -.02em;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .scoreboard .num small { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: 6px; vertical-align: 6px; font-weight: 400; letter-spacing: 0; }
+  .scoreboard .label { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: .02em; line-height: 1.4; max-width: 22ch; }
+  @media (max-width: 720px) {
+    .scoreboard { grid-template-columns: repeat(2, 1fr); }
+    .scoreboard .cell { border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    .scoreboard .cell:nth-child(2n) { border-right: 0; }
+    .scoreboard .cell:nth-last-child(-n+2) { border-bottom: 0; }
+  }
+
+  /* ─── now writing ────────────────────────────────────────────── */
+  .currently p {
+    font-size: 17px;
+    line-height: 1.62;
+    max-width: 60ch;
+    color: var(--ink-soft);
+    margin: 4px 0 10px;
+  }
+  .currently p strong { color: var(--ink); font-weight: 500; }
+  .currently ul { margin: 14px 0 4px; padding: 0; list-style: none; max-width: 64ch; }
+  .currently ul li {
+    padding: 10px 0;
+    border-top: 1px solid var(--rule);
+    display: grid; grid-template-columns: 22px 1fr;
+    gap: 14px;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+  .currently ul li:last-child { border-bottom: 1px solid var(--rule); }
+  .currently ul li .ix { font-family: var(--mono); font-size: 11px; color: var(--muted); padding-top: 4px; }
+  .currently ul li strong { color: var(--ink); font-weight: 500; }
+
+  /* ─── work archive ───────────────────────────────────────────── */
+  .archive { list-style: none; padding: 0; margin: 4px 0 0; }
+  .archive li {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 28px;
+    padding: 22px 0 22px;
+    border-top: 1px solid var(--rule);
+    transition: background .14s ease;
+  }
+  .archive li:last-child { border-bottom: 1px solid var(--rule); }
+  .archive li:hover { background: linear-gradient(to right, var(--bg-sub) 0%, transparent 60%); }
+  .archive .year { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 6px; letter-spacing: .01em; }
+  .archive .row { min-width: 0; }
+  .archive .top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 6px; }
+  .archive .co { font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: -.018em; color: var(--ink); }
+  .archive .role-t { font-family: var(--sans); font-size: 14px; color: var(--ink-soft); font-weight: 400; }
+  .archive .headline {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: -.012em;
+    color: var(--ink);
+    margin: 4px 0 10px;
+  }
+  .archive .headline .accent { color: var(--accent); font-family: var(--mono); font-weight: 500; font-size: .85em; vertical-align: 1px; margin-right: 4px; letter-spacing: 0; }
+  .archive .bullets { margin: 0; padding: 0; list-style: none; }
+  .archive .bullets li {
+    display: block;
+    padding: 0;
+    border: 0;
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    line-height: 1.55;
+    padding-left: 16px;
+    position: relative;
+    margin: 3px 0;
+    background: transparent;
+  }
+  .archive .bullets li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--muted-2);
+    font-family: var(--mono);
+  }
+  @media (max-width: 720px) {
+    .archive li { grid-template-columns: 1fr; gap: 4px; padding: 18px 0; }
+    .archive .year { padding-top: 0; }
+  }
+
+  /* ─── stack / toolkit ───────────────────────────────────────── */
+  .stack {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    margin-top: 4px;
+    border-top: 1px solid var(--rule);
+  }
+  @media (max-width: 720px) { .stack { grid-template-columns: 1fr; } }
+  .stack .tool {
+    padding: 14px 18px 14px 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: baseline; gap: 18px;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 19px;
+    letter-spacing: -.012em;
+    color: var(--ink);
+    transition: color .12s, background .12s;
+  }
+  .stack .tool .ix { font-family: var(--mono); font-weight: 500; font-size: 11px; color: var(--muted); width: 24px; }
+  .stack .tool .desc { font-family: var(--sans); font-size: 13px; color: var(--muted); margin-left: auto; font-weight: 400; max-width: 22ch; text-align: right; line-height: 1.35; }
+  .stack .tool:hover { color: var(--accent); }
+  .stack .tool:nth-child(odd) { padding-right: 24px; border-right: 1px solid var(--rule); padding-left: 0; }
+  .stack .tool:nth-child(even) { padding-left: 20px; }
+  @media (max-width: 720px) {
+    .stack .tool:nth-child(odd) { border-right: 0; padding-right: 0; }
+    .stack .tool:nth-child(even) { padding-left: 0; }
+    .stack .tool .desc { max-width: 16ch; }
+  }
+
+  /* ─── writing index ────────────────────────────────────────── */
+  .writing { list-style: none; padding: 0; margin: 4px 0 0; }
+  .writing li {
+    display: grid; grid-template-columns: 1fr auto; gap: 18px;
+    padding: 14px 0;
+    border-top: 1px solid var(--rule);
+    align-items: baseline;
+  }
+  .writing li:last-child { border-bottom: 1px solid var(--rule); }
+  .writing .title { font-family: var(--display); font-weight: 500; font-size: 17px; letter-spacing: -.012em; color: var(--ink); }
+  .writing .title:hover { color: var(--accent); }
+  .writing .when { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+  /* ─── contact ──────────────────────────────────────────────── */
+  .contact { padding-top: 8px; }
+  .contact .big-email {
+    display: inline-block;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(36px, 6.4vw, 76px);
+    letter-spacing: -.03em;
+    color: var(--ink);
+    line-height: 1.04;
+    margin: 8px 0 18px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 4px;
+  }
+  .contact .big-email:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .contact .links { font-family: var(--mono); font-size: 13px; color: var(--muted); display: flex; gap: 22px; flex-wrap: wrap; }
+  .contact .links a { color: var(--ink-soft); display: inline-flex; align-items: center; gap: 6px; }
+  .contact .links a:hover { color: var(--accent); }
+  .contact .links a .arrow { display: inline-block; transition: transform .15s; }
+  .contact .links a:hover .arrow { transform: translate(2px, -2px); }
+  .contact .sign-off { font-family: var(--serif); font-style: italic; font-size: 17px; color: var(--muted); margin-top: 32px; max-width: 40ch; line-height: 1.4; }
+
+  /* footer */
+  footer {
+    margin-top: 60px; padding-top: 22px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+
+  /* reveal anim */
+  .reveal { opacity: 0; transform: translateY(8px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* hero name char stagger */
+  .hero h1 .ch { display: inline-block; opacity: 0; transform: translateY(14px); animation: charIn .55s cubic-bezier(.2,.7,.2,1) forwards; }
+  @keyframes charIn { to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ─── sidebar ─── -->
+  <aside class="nav">
+    <div class="id">
+      <b>Zack Chang</b>
+      <span>Head of Product &amp; Creative Technologist</span>
+    </div>
+
+    <ul>
+      <li><a href="#now"><span class="idx">01</span> Now</a></li>
+      <li><a href="#work"><span class="idx">02</span> Work</a></li>
+      <li><a href="#stack"><span class="idx">03</span> Stack</a></li>
+      <li><a href="#writing"><span class="idx">04</span> Writing</a></li>
+      <li><a href="#contact"><span class="idx">05</span> Contact</a></li>
+    </ul>
+
+    <div class="meta">
+      <div><span class="dot"></span>Available for advisory</div>
+      <div id="loc-line">— NYC · <span id="clock">—</span></div>
+    </div>
+  </aside>
+
+  <!-- ─── main ─── -->
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="section-meta">
+        <span>① Index</span>
+        <span>— Personal site of <b>Zack Chang</b></span>
+        <span>— Updated <span id="updated">today</span></span>
+      </div>
+
+      <h1 id="hero-name">Zack&nbsp;<span class="serif">Chang.</span></h1>
+
+      <p class="role">
+        Product leader who ships. <em>Builds with AI.</em>
+        Currently Head of Product &amp; Creative Technologist
+        at <strong>Complex</strong> — owning vision and shipping features
+        myself via spec-driven development with Claude and Codex.
+      </p>
+
+      <a class="now" href="#now">
+        <span class="dot"></span>
+        Currently: an editorial quiz pipeline on LangGraph
+      </a>
+
+      <!-- scoreboard — the numbers, surfaced -->
+      <div class="scoreboard" aria-label="career-defining numbers">
+        <div class="cell">
+          <div class="num" data-counter="30">$30M<small>GMV</small></div>
+          <div class="label">Complex Shop · $3.7M → $30M in 12 months</div>
+        </div>
+        <div class="cell">
+          <div class="num">55K<small>MAU</small></div>
+          <div class="label">Complex App · top 50 US Shopping</div>
+        </div>
+        <div class="cell">
+          <div class="num">100K+<small>SELLERS</small></div>
+          <div class="label">Amazon · merchants on tools I owned</div>
+        </div>
+        <div class="cell">
+          <div class="num">+15%<small>ENG</small></div>
+          <div class="label">editorial features lifting top-revenue pages</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOW / CURRENTLY -->
+    <section id="now" class="currently">
+      <div class="section-meta"><span>② Now</span><span>— Feb 2026 → present</span></div>
+
+      <p>
+        <strong>Head of Product &amp; Creative Technologist</strong> at Complex
+        (Commerce &amp; Media). Player-coach, single-person team, shipping
+        full-stack via spec-driven development with Claude Code and Codex.
+        I authored a Jobs-to-Be-Done product strategy that became the
+        basis for company OKRs.
+      </p>
+
+      <ul>
+        <li><span class="ix">01</span><span><strong>Editorial Poll &amp; Quiz Generator</strong> — agentic LangGraph workflow that drafts quizzes, fact-checks, and scores against Complex's editorial voice. Editors add interactive units to articles in minutes.</span></li>
+        <li><span class="ix">02</span><span><strong>Creative Pipeline</strong> — accelerates 0→1 initiatives via AI-assisted concept generation, research, moodboarding, design-system creation, and prototyping. (This site was built with it.)</span></li>
+        <li><span class="ix">03</span><span><strong>Editorial features</strong> shipped this year lifted engagement <strong>+15%</strong> on the highest-revenue pages, went viral in the hip-hop community, and were featured on multiple influencer Twitch streams.</span></li>
+        <li><span class="ix">04</span><span><strong>Data-governance tool</strong> that retired stale documentation and migrated the data taxonomy from Confluence to GitHub.</span></li>
+      </ul>
+    </section>
+
+    <!-- WORK ARCHIVE -->
+    <section id="work">
+      <div class="section-meta"><span>③ Work</span><span>— 2015 → 2026</span><span>— Selected</span></div>
+
+      <ul class="archive">
+
+        <li>
+          <div class="year">2024 — 2026</div>
+          <div class="row">
+            <div class="top">
+              <span class="co">Complex</span>
+              <span class="role-t">Director of Product · Commerce &amp; Mobile App</span>
+            </div>
+            <div class="headline"><span class="accent">▸</span>$3.7M → $30M GMV in twelve months.</div>
+            <ul class="bullets">
+              <li>0→1 launch of Complex Shop. Scaled via site optimization, A/B testing, and personalization.</li>
+              <li>0→1 launch of Complex App: 55K MAU, +15% AOV vs. web, 3× conversion. Top 50 US Shopping category.</li>
+              <li>+25% 7-day retention from an AI-powered personalization feed (OpenAI embeddings + Pinecone vector DB).</li>
+              <li>Managed two Senior PMs.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li>
+          <div class="year">2021 — 2024</div>
+          <div class="row">
+            <div class="top">
+              <span class="co">NTWRK</span>
+              <span class="role-t">Product Lead · Livestream Shopping &amp; Mobile App</span>
+            </div>
+            <div class="headline"><span class="accent">▸</span>Scaled a livestream marketplace to 2,000+ sellers and 30K MAU.</div>
+            <ul class="bullets">
+              <li>Launched NTWRK Live Marketplace &amp; Auctions — third-party sellers selling through fully shoppable livestreams.</li>
+              <li>Owned both the consumer app experience and merchant tooling.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li>
+          <div class="year">2020 — 2021</div>
+          <div class="row">
+            <div class="top">
+              <span class="co">Amazon</span>
+              <span class="role-t">Senior PM · Multichannel Fulfillment</span>
+            </div>
+            <div class="headline"><span class="accent">▸</span>Tools used by 100K+ monthly global merchants.</div>
+            <ul class="bullets">
+              <li>Launched the Amazon Logistics Tracking API — Amazon Logistics' first public tracking API. Adopted by Etsy, eBay, Wish.</li>
+              <li>Built storage-optimization models with engineers, data scientists, and economists. Led COVID shipping ops.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li>
+          <div class="year">2015 — 2019</div>
+          <div class="row">
+            <div class="top">
+              <span class="co">Levi Strauss &amp; Co.</span>
+              <span class="role-t">Senior PM · Omnichannel Retail &amp; Innovation</span>
+            </div>
+            <div class="headline"><span class="accent">▸</span>Featured in the Wall Street Journal &amp; Forbes.</div>
+            <ul class="bullets">
+              <li>Led the launch of Levi's first consumer-facing mobile app.</li>
+              <li>Implemented an early-NLP fit &amp; style chatbot on Levi.com and Facebook Messenger.</li>
+            </ul>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- STACK -->
+    <section id="stack">
+      <div class="section-meta"><span>④ Stack</span><span>— What I build with</span></div>
+
+      <div class="stack">
+        <div class="tool"><span class="ix">01</span>Claude Code <span class="desc">spec-driven dev, full-stack agent</span></div>
+        <div class="tool"><span class="ix">02</span>Codex <span class="desc">parallel-pair work, refactors</span></div>
+        <div class="tool"><span class="ix">03</span>LangGraph <span class="desc">multi-agent editorial workflows</span></div>
+        <div class="tool"><span class="ix">04</span>Braintrust <span class="desc">eval-first prompt &amp; pipeline ops</span></div>
+        <div class="tool"><span class="ix">05</span>Hermes <span class="desc">orchestration runtime</span></div>
+        <div class="tool"><span class="ix">06</span>OpenClaw <span class="desc">creative-pipeline harness</span></div>
+        <div class="tool"><span class="ix">07</span>Ghostty <span class="desc">primary terminal</span></div>
+        <div class="tool"><span class="ix">08</span>Flora <span class="desc">visual reference workspace</span></div>
+        <div class="tool"><span class="ix">09</span>Paper <span class="desc">writing &amp; spec drafts</span></div>
+        <div class="tool"><span class="ix">10</span>Obsidian <span class="desc">notes &amp; knowledge graph</span></div>
+      </div>
+    </section>
+
+    <!-- WRITING -->
+    <section id="writing">
+      <div class="section-meta"><span>⑤ Writing</span><span>— Notes from the workshop</span></div>
+
+      <ul class="writing">
+        <li><a href="#" class="title">Notes on agent-driven editorial: when the LLM should write copy and when it shouldn't</a><span class="when">Forthcoming</span></li>
+        <li><a href="#" class="title">Why the Creative Pipeline replaced our brief doc</a><span class="when">Forthcoming</span></li>
+        <li><a href="#" class="title">Spec-driven development for product teams</a><span class="when">Forthcoming</span></li>
+        <li><a href="#" class="title">Reading list — what's stuck in my head this quarter</a><span class="when">Forthcoming</span></li>
+      </ul>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="contact">
+      <div class="section-meta"><span>⑥ Contact</span><span>— Direct only. No forms.</span></div>
+
+      <a class="big-email" href="mailto:hi@zackchang.com">hi@zackchang.com</a>
+
+      <div class="links">
+        <a href="#" target="_blank" rel="noopener">LinkedIn <span class="arrow">↗</span></a>
+        <a href="#" target="_blank" rel="noopener">GitHub <span class="arrow">↗</span></a>
+        <a href="#" target="_blank" rel="noopener">Twitter / X <span class="arrow">↗</span></a>
+        <a href="#" target="_blank" rel="noopener">Read.cv <span class="arrow">↗</span></a>
+      </div>
+
+      <p class="sign-off">If something here resonates — a role, a project, a question — write me directly. I read everything.</p>
+    </section>
+
+    <footer>
+      <span>© 2026 Zack Chang · NYC · Built in a single HTML file</span>
+      <span>v1 · this page is on its way to better</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // ── hero name char stagger ──
+  (function staggerHero(){
+    const el = document.getElementById('hero-name');
+    if (!el) return;
+    const text = el.innerHTML;
+    // wrap each visible char in <span class="ch">…</span> while preserving the .serif span
+    el.innerHTML = text.replace(/(<span class="serif">.*?<\/span>|&nbsp;|.)/g, function(m){
+      if (m.startsWith('<') || m === ' ') return m;
+      if (m === '&nbsp;') return '<span class="ch" style="width:.3em;display:inline-block;"></span>';
+      return '<span class="ch">'+m+'</span>';
+    });
+    document.querySelectorAll('.hero h1 .ch').forEach((c, i) => {
+      c.style.animationDelay = (60 + i * 28) + 'ms';
+    });
+  })();
+
+  // ── reveal-on-scroll ──
+  (function revealOnScroll(){
+    const els = document.querySelectorAll('section, .archive li, .stack .tool, .writing li, .scoreboard');
+    els.forEach(el => el.classList.add('reveal'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -40px 0px', threshold: 0.06 });
+    els.forEach(el => io.observe(el));
+  })();
+
+  // ── live clock (NYC) ──
+  (function clock(){
+    function fmt(d){
+      let h = d.getHours(), m = d.getMinutes();
+      const ampm = h >= 12 ? 'pm' : 'am';
+      h = h % 12 || 12;
+      return h + ':' + (m < 10 ? '0' + m : m) + ampm;
+    }
+    function tick(){
+      const opt = { timeZone: 'America/New_York' };
+      const nyc = new Date(new Date().toLocaleString('en-US', opt));
+      const el = document.getElementById('clock');
+      if (el) el.textContent = fmt(nyc) + ' EST';
+    }
+    tick(); setInterval(tick, 30 * 1000);
+  })();
+
+  // ── updated stamp ──
+  (function updated(){
+    const d = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const el = document.getElementById('updated');
+    if (el) el.textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  })();
+
+  // ── counter on $30M ──
+  (function countNumber(){
+    const el = document.querySelector('[data-counter="30"]');
+    if (!el) return;
+    const startText = '$3M';
+    const endText = '$30M';
+    let raf;
+    function run(){
+      let i = 3;
+      const max = 30;
+      const small = el.querySelector('small');
+      function step(){
+        if (i >= max) { el.firstChild.textContent = '$30M'; if (small) small.textContent = 'GMV'; return; }
+        i++;
+        el.firstChild.textContent = '$' + i + 'M';
+        raf = requestAnimationFrame(() => setTimeout(step, 28));
+      }
+      el.firstChild.textContent = startText;
+      step();
+    }
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) { run(); io.disconnect(); }});
+    }, { threshold: .6 });
+    io.observe(el);
+  })();
+</script>
+
+</body>
+</html>
