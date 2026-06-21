@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kappo Tsan | Eight Seats</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;1,500&family=JetBrains+Mono:wght@400&family=Noto+Serif+JP:wght@400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sumi: #0B0908;
+            --bone: #F1E7D6;
+            --persimmon: #C2461E;
+            --cedar: #2A1B11;
+            --lantern: #8C7A5E;
+            
+            --font-primary: 'Cormorant Garamond', serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-accent: 'Noto Serif JP', serif;
+            
+            --gutter: 64px;
+            --grid: 8px;
+        }
+
+        @media (max-width: 768px) {
+            :root { --gutter: 24px; }
+        }
+
+        /* Reset & Base */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--sumi);
+            color: var(--bone);
+            font-family: var(--font-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--sumi); }
+        ::-webkit-scrollbar-thumb { background: var(--cedar); }
+
+        /* Grain Overlay */
+        .grain-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.06;
+            mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.92' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 56px;
+            background-color: var(--sumi);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--gutter);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--lantern);
+            opacity: 0; /* Animated in JS */
+        }
+        .top-bar-hairline {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%; height: 1px;
+            background-color: var(--persimmon);
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+        .seat-counter { display: flex; align-items: center; gap: 8px; opacity: 0; }
+        .seat-dot { width: 6px; height: 6px; background-color: var(--persimmon); border-radius: 50%; }
+
+        /* Ink Bleed Utility */
+        .ink-section {
+            mask-image: radial-gradient(circle at 18% 50%, black 0%, transparent 5%);
+            -webkit-mask-image: radial-gradient(circle at 18% 50%, black 0%, transparent 5%);
+        }
+
+        /* Hero */
+        .hero {
+            height: 88vh;
+            margin-top: 56px;
+            display: flex;
+        }
+        .hero-left {
+            width: 60%;
+            height: 100%;
+            position: relative;
+        }
+        .hero-video-wrapper {
+            width: 100%;
+            height: 100%;
+            mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+            filter: contrast(1.05) saturate(0.92);
+        }
+        .hero-video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .hero-right {
+            width: 40%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: var(--gutter);
+            position: relative;
+            z-index: 2;
+        }
+        .wordmark {
+            font-size: clamp(88px, 18vw, 280px);
+            font-weight: 300;
+            line-height: 0.92;
+            letter-spacing: -0.02em;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .wordmark .char {
+            display: inline-block;
+            transform: translateY(18px);
+            filter: blur(8px);
+            opacity: 0;
+        }
+        .hero-subtitle {
+            font-size: 21px;
+            font-weight: 500;
+            font-style: italic;
+            margin-top: 24px;
+            max-width: 320px;
+            line-height: 1.4;
+        }
+        .hero-subtitle .accent-word { color: var(--persimmon); }
+        .mark-2026 {
+            width: 96px; height: 96px;
+            margin-top: 64px;
+            mix-blend-mode: lighten;
+        }
+        @keyframes slowRotate {
+            0% { transform: rotate(0.5deg); }
+            100% { transform: rotate(-0.5deg); }
+        }
+        .rotate-idle { animation: slowRotate 6s ease-in-out infinite alternate; }
+
+        /* Chef Pinned Section */
+        .chef {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 var(--gutter);
+            gap: var(--gutter);
+            background-color: var(--sumi);
+        }
+        .chef-left {
+            width: 70%;
+            height: 80vh;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid transparent; /* Container boundary */
+        }
+        .chef-left::after {
+            content: '';
+            position: absolute;
+            inset: 24px;
+            border: 1px solid var(--persimmon);
+            pointer-events: none;
+            z-index: 2;
+        }
+        .chef-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transform: scale(1.08);
+            transform-origin: center;
+        }
+        .chef-right {
+            width: 30%;
+            font-size: 21px;
+            line-height: 1.55;
+            font-weight: 300;
+        }
+        .chef-right p {
+            margin-bottom: 24px;
+            clip-path: inset(0 100% 0 0);
+        }
+        .chef-name {
+            font-weight: 500;
+            font-style: italic;
+            color: var(--bone);
+        }
+
+        /* Rituals */
+        .rituals {
+            display: flex;
+            height: 70vh;
+        }
+        .ritual-omakase {
+            width: 50%;
+            background-color: var(--sumi);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .omakase-hairline {
+            position: absolute;
+            right: 48px; top: 50%;
+            transform: translateY(-50%);
+            width: 1px; height: 160px;
+            background-color: var(--persimmon);
+        }
+        .vert-type {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 64px;
+            font-weight: 300;
+            font-style: italic;
+            letter-spacing: 0.1em;
+        }
+        .ritual-izakaya {
+            width: 50%;
+            background-color: var(--cedar);
+            box-shadow: inset 0 1px 0 rgba(194,70,30,0.18);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .izakaya-hairline {
+            position: absolute;
+            bottom: 48px; left: 50%;
+            transform: translateX(-50%);
+            width: 160px; height: 1px;
+            background-color: var(--bone);
+        }
+        .horiz-ticker {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--lantern);
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            margin-bottom: 32px;
+        }
+        .horiz-ticker-inner {
+            display: inline-block;
+            animation: tickerScroll 20s linear infinite;
+        }
+        @keyframes tickerScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .ritual-subtitle {
+            font-size: 32px; font-weight: 500; font-style: italic;
+        }
+
+        /* Menu */
+        .menu {
+            padding: 120px var(--gutter);
+            display: flex;
+            flex-direction: column;
+            gap: 80px;
+        }
+        .menu-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 48px;
+        }
+        .menu-numeral {
+            font-size: 64px;
+            font-weight: 500;
+            line-height: 1;
+            position: relative;
+            display: flex;
+        }
+        .menu-numeral .char-num {
+            display: inline-block;
+            transform: translateY(40px);
+            opacity: 0;
+        }
+        .menu-hairline {
+            position: absolute;
+            bottom: -8px; left: 0;
+            width: 64px; height: 1px;
+            background-color: var(--persimmon);
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+        .menu-content {
+            display: flex;
+            align-items: center;
+            gap: 48px;
+            flex: 1;
+            border-bottom: 1px solid rgba(140,122,94,0.2);
+            padding-bottom: 32px;
+        }
+        .menu-img {
+            width: 280px; height: 280px;
+            object-fit: cover;
+            border: 1px solid var(--persimmon);
+        }
+        .no-img { display: none; }
+        .menu-text { flex: 1; }
+        .menu-title {
+            font-size: 40px;
+            font-weight: 500;
+            font-style: italic;
+            margin-bottom: 16px;
+        }
+        .menu-desc {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--lantern);
+        }
+
+        /* Room */
+        .room {
+            width: 100vw;
+            margin: 120px 0;
+            position: relative;
+        }
+        .room-wrapper {
+            width: 100%; height: 78vh;
+            border-top: 1px solid var(--persimmon);
+            border-bottom: 1px solid var(--persimmon);
+        }
+        .room-img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0.92;
+            mix-blend-mode: normal;
+        }
+        .room-caption {
+            margin-top: 48px;
+            padding-left: var(--gutter);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--lantern);
+        }
+
+        /* Practical & CTAs */
+        .practical {
+            padding: 80px var(--gutter) 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .ledger {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--lantern);
+            max-width: 720px;
+            width: 100%;
+            margin-bottom: 120px;
+        }
+        .ledger h4 {
+            font-family: var(--font-primary);
+            font-size: 24px;
+            font-weight: 500;
+            font-style: italic;
+            color: var(--bone);
+            text-transform: none;
+            letter-spacing: normal;
+            margin-bottom: 24px;
+        }
+        .ledger p { margin-bottom: 12px; }
+        
+        .cta-wrapper {
+            width: 100%; max-width: 720px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .reserve-btn {
+            width: 100%; height: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bone);
+            color: var(--sumi);
+            font-family: var(--font-primary);
+            font-size: 32px;
+            font-weight: 500;
+            font-style: italic;
+            text-decoration: none;
+            border-radius: 0;
+            box-shadow: 0 0 0 1px var(--persimmon);
+            transition: background 320ms, color 320ms;
+            animation: breatheRing 2.2s ease-in-out infinite;
+            margin-bottom: 48px;
+        }
+        .reserve-btn:hover {
+            background-color: var(--persimmon);
+            color: var(--bone);
+            animation: none;
+            box-shadow: 0 0 0 1px var(--persimmon);
+        }
+        @keyframes breatheRing {
+            0% { box-shadow: 0 0 0 1px var(--persimmon); }
+            50% { box-shadow: 0 0 0 3px var(--persimmon); }
+            100% { box-shadow: 0 0 0 1px var(--persimmon); }
+        }
+        
+        .secondary-links {
+            display: flex;
+            gap: 40px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+        }
+        .secondary-links a {
+            color: var(--lantern);
+            text-decoration: none;
+            transition: color 320ms;
+        }
+        .secondary-links a:hover { color: var(--bone); }
+
+        /* Footer */
+        .footer {
+            padding: 64px var(--gutter);
+            border-top: 1px solid rgba(140,122,94,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--lantern);
+        }
+        .footer-mark {
+            width: 64px; height: 64px;
+            mix-blend-mode: lighten;
+        }
+
+        /* Large Ambient Kanji */
+        .kanji-bg {
+            font-family: var(--font-accent);
+            position: absolute;
+            font-size: 30vw;
+            color: var(--bone);
+            opacity: 0.03;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 900px) {
+            .hero { flex-direction: column; height: auto; }
+            .hero-left { width: 100%; height: 60vh; }
+            .hero-right { width: 100%; padding: 64px var(--gutter); }
+            .wordmark { font-size: clamp(64px, 15vw, 88px); }
+            
+            .chef { flex-direction: column; height: auto; padding: 64px var(--gutter); gap: 48px;}
+            .chef-left { width: 100%; height: 60vh; }
+            .chef-right { width: 100%; }
+            
+            .rituals { flex-direction: column; height: auto; }
+            .ritual-omakase, .ritual-izakaya { width: 100%; padding: 80px var(--gutter); }
+            .vert-type { writing-mode: horizontal-tb; font-size: 48px; }
+            .omakase-hairline { right: auto; left: 50%; top: auto; bottom: 32px; width: 120px; height: 1px; transform: translateX(-50%); }
+            
+            .menu-item { flex-direction: column; gap: 24px; }
+            .menu-content { flex-direction: column; align-items: flex-start; gap: 24px; }
+            .menu-img { width: 100%; height: auto; aspect-ratio: 1; }
+            
+            .ledger { grid-template-columns: 1fr; gap: 48px; }
+            .secondary-links { flex-wrap: wrap; justify-content: center; gap: 24px; }
+            
+            .footer { flex-direction: column; gap: 32px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grain-overlay"></div>
+
+    <header class="top-bar">
+        <div class="top-bar-hairline"></div>
+        <div>Kappo Tsan · 寿</div>
+        <div class="seat-counter">
+            <div class="seat-dot"></div>
+            <span>8 Seats Tonight</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-left">
+                <div class="hero-video-wrapper">
+                    <video src="https://changzack.github.io/prototypes/_assets/kappotsan-v1/concept-2/kappo-hero-video.mp4" autoplay muted loop playsinline preload="auto" class="hero-video"></video>
+                </div>
+            </div>
+            <div class="hero-right">
+                <h1 class="wordmark">
+                    <span class="word-split">KAPPO</span>&nbsp;<span class="word-split">TSAN</span>
+                </h1>
+                <p class="hero-subtitle">Counter seats. Eight at a time. The chef <span class="accent-word">chooses.</span></p>
+                <img src="https://changzack.github.io/prototypes/_assets/kappotsan-v1/concept-2/selection-2026-mark.jpg" alt="Restaurant Selection 2026" class="mark-2026 rotate-idle" width="400" height="400">
+            </div>
+        </section>
+
+        <!-- Pinned Chef Section -->
+        <section class="chef ink-section">
+            <div class="kanji-bg" style="top: -10%; left: -5%;">板場</div>
+            <div class="chef-left">
+                <img src="https://changzack.github.io/prototypes/_assets/kappotsan-v1/concept-2/chef-hands-portrait.jpg" alt="Chef hands working" class="chef-img" width="1440" height="1800">
+            </div>
+            <div class="chef-right">
+                <p>Every service begins with a dialogue between knife, cedar, and sea.</p>
+                <p>Under the guidance of <span class="chef-name">Chef David Tsan</span>, we remove the noise of the traditional dining room to focus entirely on the space between the chef's hands and your plate.</p>
+                <p>Warm lantern light. Smoked soy. The quiet rhythm of the counter.</p>
+            </div>
+        </section>
+
+        <!-- Rituals -->
+        <section class="rituals ink-section">
+            <div class="ritual-omakase">
+                <h2 class="vert-type">Omakase</h2>
+                <div class="omakase-hairline"></div>
+            </div>
+            <div class="ritual-izakaya">
+                <div class="horiz-ticker">
+                    <div class="horiz-ticker-inner">IZAKAYA HOUR WED-THU 5PM-6PM &nbsp;•&nbsp; IZAKAYA HOUR WED-THU 5PM-6PM &nbsp;•&nbsp; IZAKAYA HOUR WED-THU 5PM-6PM &nbsp;•&nbsp; </div>
+                </div>
+                <div class="izakaya-hairline"></div>
+            </div>
+        </section>
+
+        <!-- Menu Glimpse -->
+        <section class="menu ink-section">
+            <div class="kanji-bg" style="right: -5%; top: 10%;">選</div>
+            
+            <div class="menu-item">
+                <div class="menu-numeral">
+                    <span class="char-num">0</span><span class="char-num">1</span>
+                    <div class="menu-hairline"></div>
+                </div>
+                <div class="menu-content">
+                    <img src="https://changzack.github.io/prototypes/_assets/kappotsan-v1/concept-2/menu-dish-otoro.jpg" alt="Otoro Nigiri" class="menu-img" width="900" height="900">
+                    <div class="menu-text">
+                        <h3 class="menu-title">Otoro Nigiri</h3>
+                        <p class="menu-desc">Smoked Soy · Fresh Wasabi</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-numeral">
+                    <span class="char-num">0</span><span class="char-num">2</span>
+                    <div class="menu-hairline"></div>
+                </div>
+                <div class="menu-content">
+                    <img src="" alt="" class="menu-img no-img">
+                    <div class="menu-text">
+                        <h3 class="menu-title">Uni Gunkan</h3>
+                        <p class="menu-desc">Hokkaido Sea Urchin · Crisp Nori</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-numeral">
+                    <span class="char-num">0</span><span class="char-num">3</span>
+                    <div class="menu-hairline"></div>
+                </div>
+                <div class="menu-content">
+                    <img src="" alt="" class="menu-img no-img">
+                    <div class="menu-text">
+                        <h3 class="menu-title">Hamachi Crudo</h3>
+                        <p class="menu-desc">Yellowtail · White Ponzu · Myoga</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-numeral">
+                    <span class="char-num">0</span><span class="char-num">4</span>
+                    <div class="menu-hairline"></div>
+                </div>
+                <div class="menu-content">
+                    <img src="" alt="" class="menu-img no-img">
+                    <div class="menu-text">
+                        <h3 class="menu-title">A5 Wagyu</h3>
+                        <p class="menu-desc">Miyazaki Beef · Shio Koji · Garlic Chip</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-numeral">
+                    <span class="char-num">0</span><span class="char-num">5</span>
+                    <div class="menu-hairline"></div>
+                </div>
+                <div class="menu-content">
+                    <img src="" alt="" class="menu-img no-img">
+                    <div class="menu-text">
+                        <h3 class="menu-title">Miso Black Cod</h3>
+                        <p class="menu-desc">Saikyo Miso · Hajikami Ginger</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Room Section -->
+        <section class="room ink-section">
+            <div class="room-wrapper">
+                <img src="https://changzack.github.io/prototypes/_assets/kappotsan-v1/concept-2/room-interior.jpg" alt="Interior Omaksase Counter" class="room-img" width="1920" height="1080">
+            </div>
+            <div class="room-caption">Eight seats. Warm cedar.</div>
+        </section>
+
+        <!-- Practical & CTA -->
+        <section class="practical ink-section">
+            <div class="ledger">
+                <div>
+                    <h4>Kappo Tsan</h4>
+                    <p>123 Orlando Ave, Suite A</p>
+                    <p>Orlando, FL 32803</p>
+                    <p style="margin-top: 16px;">info@kappotsan.com</p>
+                    <p>407.555.0199</p>
+                </div>
+                <div>
+                    <h4>Hours</h4>
+                    <p>Omakase Tue-Sat 6pm & 8:30pm</p>
+                    <p>Izakaya Hour Wed-Thu 5pm-6pm</p>
+                </div>
+            </div>
+            
+            <div class="cta-wrapper">
+                <a href="https://www.opentable.com/r/kappo-tsan-orlando?ref=1068" class="reserve-btn" target="_blank" rel="noopener">Reserve a Seat</a>
+                
+                <div class="secondary-links">
+                    <a href="#">View Menu</a>
+                    <a href="#">Delivery</a>
+                    <a href="#">E-Gift Cards</a>
+                    <a href="#">Contact</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div>© 2026 Kappo Tsan Orlando</div>
+        <img src="https://changzack.github.io/prototypes/_assets/kappotsan-v1/concept-2/selection-2026-mark.jpg" alt="Restaurant Selection 2026" class="footer-mark rotate-idle" width="400" height="400">
+        <div>@kappotsan_orlando</div>
+    </footer>
+
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Utility: Split text into chars for animation
+            document.querySelectorAll('.word-split').forEach(el => {
+                let text = el.innerText;
+                el.innerHTML = '';
+                text.split('').forEach(char => {
+                    let span = document.createElement('span');
+                    span.className = 'char';
+                    span.innerText = char;
+                    el.appendChild(span);
+                });
+            });
+
+            // Phase 0 & 1 & 2: Load Sequence
+            const tlLoad = gsap.timeline();
+            
+            // Top hairline draws L->R
+            tlLoad.to('.top-bar-hairline', {
+                scaleX: 1, duration: 0.6, ease: "power3.inOut"
+            }, 0);
+            
+            // Top bar fades in
+            tlLoad.to('.top-bar', {
+                opacity: 1, duration: 0.2
+            }, 0.6);
+            
+            // Wordmark assembly
+            tlLoad.to('.wordmark .char', {
+                y: 0, opacity: 1, filter: "blur(0px)",
+                stagger: 0.11, duration: 0.18, ease: "power2.out"
+            }, 0.8);
+
+            // Seat counter and pulse
+            tlLoad.to('.seat-counter', {
+                opacity: 1, duration: 0.4
+            }, 2.8);
+            
+            tlLoad.to('.seat-dot', {
+                scale: 1.4, duration: 0.7, yoyo: true, repeat: -1, ease: "sine.inOut"
+            }, 3.2);
+
+            // Phase 3: Scroll-pinned chef reveal
+            // Scrub Image
+            gsap.to('.chef-img', {
+                scale: 1.0,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: '.chef',
+                    pin: window.innerWidth > 900, // Only pin on desktop
+                    scrub: 1,
+                    start: "top top",
+                    end: "+=100%"
+                }
+            });
+            // Reveal text paragraphs
+            gsap.to('.chef-right p', {
+                clipPath: 'inset(0 0 0 0)',
+                stagger: 0.3, duration: 0.9, ease: "power3.out",
+                scrollTrigger: {
+                    trigger: '.chef',
+                    start: "top 40%"
+                }
+            });
+
+            // Phase 4: Ink-bleed transitions for sections
+            document.querySelectorAll('.ink-section').forEach(sec => {
+                let proxy = { size: 0 };
+                gsap.to(proxy, {
+                    size: 140,
+                    duration: 1.1, ease: "power2.inOut",
+                    scrollTrigger: { trigger: sec, start: "top 85%" },
+                    onUpdate: () => {
+                        let mask = `radial-gradient(circle at 18% 50%, black ${proxy.size}%, transparent calc(${proxy.size}% + 5%))`;
+                        sec.style.webkitMaskImage = mask;
+                        sec.style.maskImage = mask;
+                    }
+                });
+            });
+
+            // Phase 5: Menu numerals and hairlines
+            document.querySelectorAll('.menu-item').forEach((item) => {
+                let chars = item.querySelectorAll('.char-num');
+                let line = item.querySelector('.menu-hairline');
+                
+                let tl = gsap.timeline({
+                    scrollTrigger: { trigger: item, start: "top 85%" }
+                });
+                
+                tl.to(chars, {
+                    y: 0, opacity: 1, stagger: 0.06, duration: 0.6, ease: "power2.out"
+                })
+                .to(line, {
+                    scaleX: 1, duration: 0.6, ease: "power2.out"
+                }, "-=0.48");
+            });
+        });
+    </script>
+</body>
+</html>
