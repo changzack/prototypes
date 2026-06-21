@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>5 FOR 5 — Daily Sneaker Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Archivo:wght@700;900&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root{
+    --black:#0A0B0D;
+    --bone:#F2EDE4;
+    --volt:#DFFF00;
+    --grey:#6E7178;
+    --hair:rgba(242,237,228,0.18);
+    --hair-strong:rgba(242,237,228,0.34);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--black);color:var(--bone);font-family:'Space Grotesk',sans-serif;overflow-x:hidden}
+  body{perspective:1600px;perspective-origin:50% 30%;min-height:100vh;font-feature-settings:"ss01","ss02"}
+
+  /* ===== Grain overlay ===== */
+  .grain{position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.08;mix-blend-mode:overlay}
+  .grain svg{width:100%;height:100%}
+
+  /* Court grain image overlay (extra texture) */
+  .court-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.18;mix-blend-mode:overlay;
+    background:url('https://changzack.github.io/prototypes/_assets/5for5-v1/concept-0/court-grain.jpg') center/cover no-repeat;}
+
+  /* ===== Top ticker ===== */
+  .ticker{position:relative;z-index:5;border-bottom:1px solid var(--hair);
+    overflow:hidden;height:38px;display:flex;align-items:center;
+    transform-style:preserve-3d;transform:translateZ(-200px);
+    mix-blend-mode:difference;color:var(--bone);}
+  .ticker-track{display:flex;gap:48px;white-space:nowrap;font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    animation:marquee 60s linear infinite;will-change:transform}
+  .ticker-track span{display:inline-flex;align-items:center;gap:14px}
+  .ticker-track .dot{width:6px;height:6px;background:var(--volt);border-radius:50%;display:inline-block}
+  @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  /* ===== NAV ===== */
+  nav.top{position:relative;z-index:6;display:flex;justify-content:space-between;align-items:center;
+    padding:18px 32px;border-bottom:1px solid var(--hair);font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase}
+  nav.top .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+  nav.top .brand b{font-family:'Archivo',sans-serif;font-weight:900;font-size:14px;letter-spacing:.06em}
+  nav.top ul{display:flex;gap:28px;list-style:none}
+  nav.top ul a{color:var(--bone);text-decoration:none;opacity:.7}
+  nav.top ul a:hover{opacity:1;color:var(--volt)}
+  nav.top .day{color:var(--volt)}
+
+  /* ===== HERO ===== */
+  .hero{position:relative;min-height:100vh;padding:48px 32px 64px;
+    transform-style:preserve-3d;display:grid;
+    grid-template-columns:40% 35% 25%;gap:0;align-items:start;z-index:2}
+  .hero .col{position:relative;transform-style:preserve-3d}
+  .hero .left{padding-right:28px;border-right:1px solid var(--hair)}
+  .hero .center{padding:0 28px;border-right:1px solid var(--hair);min-height:560px;display:flex;align-items:center;justify-content:center;position:relative}
+  .hero .right{padding-left:28px}
+
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--grey);margin-bottom:24px;display:flex;align-items:center;gap:12px}
+  .eyebrow::before{content:"";display:inline-block;width:28px;height:1px;background:var(--bone);opacity:.6}
+
+  .titanic{font-family:'Big Shoulders Display',sans-serif;font-weight:900;
+    font-size:clamp(120px,18vw,260px);line-height:.82;letter-spacing:-.02em;
+    color:var(--bone);text-transform:uppercase}
+  .titanic .for{font-weight:800;color:var(--grey);font-size:.55em;letter-spacing:.04em;display:block;margin-left:.18em}
+  .titanic .dot{color:var(--volt)}
+
+  /* The giant chrome 5 floating in center */
+  .giant5-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    transform-style:preserve-3d;pointer-events:none;z-index:3}
+  .giant5{font-family:'Big Shoulders Display',sans-serif;font-weight:900;
+    font-size:clamp(180px,28vw,420px);line-height:.85;letter-spacing:-.04em;
+    background:linear-gradient(135deg,#F2EDE4 0%,#6E7178 35%,#F2EDE4 55%,#6E7178 78%,#F2EDE4 100%);
+    background-size:220% 220%;
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+    transform:translateZ(120px);opacity:.92;
+    animation:chrome 6s ease-in-out infinite;
+    filter:drop-shadow(0 30px 60px rgba(0,0,0,.6));}
+  @keyframes chrome{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+  .hero-sneaker{position:relative;width:100%;max-width:520px;z-index:2;
+    transform:translateZ(0);
+    filter:drop-shadow(0 30px 40px rgba(0,0,0,0.7));}
+  .hero-sneaker img{width:100%;height:auto;display:block}
+
+  .stamp{position:absolute;top:8px;right:18px;width:120px;height:120px;
+    opacity:.7;transform:rotate(-6deg) translateZ(60px);z-index:4;
+    mix-blend-mode:screen;filter:contrast(1.4) brightness(1.1)}
+  .stamp img{width:100%;height:100%;object-fit:contain}
+
+  .tagline{font-family:'Archivo',sans-serif;font-weight:900;font-size:14px;
+    letter-spacing:.12em;text-transform:uppercase;margin-top:32px;line-height:1.45;max-width:380px}
+  .tagline span{color:var(--volt)}
+
+  .lede{font-family:'Space Grotesk',sans-serif;font-weight:400;font-size:15px;line-height:1.55;
+    color:var(--bone);opacity:.78;margin-top:20px;max-width:360px}
+
+  /* Stat rail */
+  .rail{display:flex;flex-direction:column;gap:0}
+  .rail-row{padding:18px 0;border-bottom:1px solid var(--hair)}
+  .rail-row:first-child{padding-top:0}
+  .rail-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--grey);margin-bottom:6px}
+  .rail-num{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:64px;
+    line-height:.9;letter-spacing:-.02em;color:var(--bone);display:flex;align-items:baseline;gap:6px}
+  .rail-num.volt{color:var(--volt)}
+  .rail-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--grey);margin-top:6px;letter-spacing:.08em}
+  .rail-num .slash{color:var(--grey);font-size:.55em;font-weight:800}
+
+  /* Odometer */
+  .odo{display:inline-flex;font-family:'Big Shoulders Display',sans-serif;font-weight:900}
+  .odo .digit{display:inline-block;height:1em;overflow:hidden;line-height:1;position:relative;width:.58em;text-align:center}
+  .odo .digit .strip{display:block;transition:transform 1.2s cubic-bezier(.16,1,.3,1)}
+  .odo .digit .strip span{display:block;height:1em;line-height:1}
+
+  /* Day badge */
+  .daybadge{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--grey);margin-bottom:18px}
+  .daybadge b{color:var(--bone);font-weight:700}
+
+  /* CTA */
+  .cta-block{margin-top:32px;display:flex;flex-direction:column;gap:14px}
+  .cta-primary{background:var(--volt);color:var(--black);border:none;cursor:pointer;
+    font-family:'Archivo',sans-serif;font-weight:900;font-size:18px;letter-spacing:.08em;
+    text-transform:uppercase;padding:22px 28px;text-align:left;display:flex;
+    justify-content:space-between;align-items:center;border-radius:0;
+    transition:transform .2s ease;width:100%}
+  .cta-primary:hover{transform:scale(1.02)}
+  .cta-primary .arrow{font-size:24px}
+
+  .email-form{display:flex;align-items:center;border-bottom:1px solid var(--hair);
+    transition:border-color .2s ease;padding:14px 0}
+  .email-form:focus-within{border-bottom-color:var(--volt);border-bottom-width:2px}
+  .email-form input{background:transparent;border:none;outline:none;color:var(--bone);
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;flex:1;
+    padding:4px 0}
+  .email-form input::placeholder{color:var(--grey)}
+  .email-form button{background:transparent;border:none;color:var(--bone);cursor:pointer;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;padding:4px 0}
+  .email-form button:hover{color:var(--volt)}
+  .email-helper{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--grey);
+    letter-spacing:.14em;text-transform:uppercase;margin-top:8px}
+
+  /* ===== SECTION wrapper ===== */
+  section.s{position:relative;padding:96px 32px;border-top:1px solid var(--hair);
+    transform-style:preserve-3d;z-index:2}
+  .section-head{display:flex;justify-content:space-between;align-items:end;
+    margin-bottom:48px;gap:32px;padding-bottom:24px;border-bottom:1px solid var(--hair)}
+  .section-num{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.28em;
+    color:var(--grey);text-transform:uppercase}
+  .section-title{font-family:'Archivo',sans-serif;font-weight:900;
+    font-size:clamp(40px,6vw,84px);line-height:.92;letter-spacing:-.02em;text-transform:uppercase;flex:1}
+  .section-meta{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;
+    color:var(--grey);text-transform:uppercase;text-align:right;min-width:140px}
+
+  /* ===== HOW IT WORKS ===== */
+  .rules{display:grid;grid-template-columns:repeat(5,1fr);gap:0}
+  .rule{padding:32px 28px;border-right:1px solid var(--hair);transform-style:preserve-3d;
+    position:relative;min-height:280px;display:flex;flex-direction:column;justify-content:space-between}
+  .rule:last-child{border-right:none}
+  .rule .num{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:96px;
+    line-height:.85;color:var(--bone);letter-spacing:-.03em}
+  .rule .num span{color:var(--volt)}
+  .rule .body{font-family:'Space Grotesk',sans-serif;font-size:15px;line-height:1.45;color:var(--bone);opacity:.86}
+  .rule .body b{font-family:'Archivo',sans-serif;font-weight:900;display:block;
+    text-transform:uppercase;letter-spacing:.04em;font-size:13px;margin-bottom:8px;color:var(--bone);opacity:1}
+  .rule .barcode{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;
+    color:var(--grey);text-transform:uppercase;margin-top:18px}
+
+  /* ===== SAMPLE QUESTION (poster panel) ===== */
+  .sample-wrap{display:grid;grid-template-columns:1fr 720px 1fr;gap:32px;align-items:center}
+  .sample-side{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;
+    color:var(--grey);text-transform:uppercase;line-height:1.8}
+  .sample-side.right{text-align:right}
+  .sample-side b{color:var(--volt);display:block;margin-bottom:6px;font-weight:700}
+
+  .qcard{position:relative;background:var(--black);padding:48px;
+    border:1px solid var(--hair-strong);transform:rotate(-3deg) translateZ(80px);
+    transform-style:preserve-3d;box-shadow:0 24px 60px -12px rgba(223,255,0,0.18),
+      0 2px 0 var(--black) inset;
+    transition:transform .15s ease-out;will-change:transform;border-radius:0}
+  .qcard::before{content:"";position:absolute;right:-1px;bottom:-1px;width:64px;height:64px;
+    border-right:4px solid var(--volt);border-bottom:4px solid var(--volt);pointer-events:none}
+  .qcard::after{content:"";position:absolute;left:-1px;top:-1px;width:24px;height:24px;
+    border-left:1px solid var(--volt);border-top:1px solid var(--volt);pointer-events:none}
+
+  .qhead{display:flex;justify-content:space-between;align-items:start;margin-bottom:24px;
+    padding-bottom:18px;border-bottom:1px solid var(--hair)}
+  .qhead .qmeta{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--grey)}
+  .qhead .qmeta b{color:var(--volt);display:block;margin-bottom:4px;font-weight:700}
+  .qhead .qscore{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;
+    color:var(--grey);text-transform:uppercase;text-align:right}
+  .qhead .qscore b{color:var(--bone);display:block;font-family:'Big Shoulders Display',sans-serif;
+    font-weight:900;font-size:28px;letter-spacing:0;margin-bottom:2px}
+
+  .qbody{display:grid;grid-template-columns:180px 1fr;gap:32px;align-items:start}
+  .qbody .qimg{width:180px;height:180px;background:#000;display:flex;align-items:center;justify-content:center;border:1px solid var(--hair);overflow:hidden}
+  .qbody .qimg img{width:100%;height:100%;object-fit:cover;mix-blend-mode:screen;filter:contrast(1.1)}
+  .qprompt{font-family:'Archivo',sans-serif;font-weight:900;font-size:32px;line-height:1.05;
+    letter-spacing:-.01em;color:var(--bone);margin-bottom:24px}
+  .qprompt em{font-style:normal;color:var(--volt)}
+  .qsub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--grey);
+    letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--hair);
+    border-left:1px solid var(--hair)}
+  .choice{padding:18px 20px;border-right:1px solid var(--hair);border-bottom:1px solid var(--hair);
+    cursor:pointer;font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--bone);display:flex;
+    justify-content:space-between;align-items:center;transition:background .2s ease,color .2s ease;
+    background:transparent;border-top:none;border-left:none;position:relative;overflow:hidden}
+  .choice .letter{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--grey);
+    letter-spacing:.18em;margin-right:14px}
+  .choice .verdict{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--grey);
+    letter-spacing:.18em;opacity:0;transition:opacity .2s ease}
+  .choice:hover:not(.locked){background:rgba(242,237,228,0.04)}
+  .choice .fill{position:absolute;inset:0;background:var(--volt);
+    clip-path:inset(0 100% 0 0);transition:clip-path .32s cubic-bezier(.65,0,.35,1);z-index:0}
+  .choice .label{position:relative;z-index:1;display:flex;align-items:center}
+  .choice .verdict{position:relative;z-index:1}
+  .choice.correct{color:var(--black)}
+  .choice.correct .fill{clip-path:inset(0 0 0 0)}
+  .choice.correct .letter{color:var(--black)}
+  .choice.correct .verdict{color:var(--black);opacity:1}
+  .choice.wrong{color:var(--grey)}
+  .choice.wrong .letter{color:var(--grey)}
+  .choice.wrong .verdict{opacity:1}
+
+  .qfoot{margin-top:18px;display:flex;justify-content:space-between;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--grey);text-transform:uppercase}
+  .qfoot .reset{background:transparent;border:1px solid var(--hair);color:var(--bone);
+    padding:8px 14px;cursor:pointer;font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:inherit}
+  .qfoot .reset:hover{border-color:var(--volt);color:var(--volt)}
+
+  /* ===== CATEGORIES ===== */
+  .cats{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:1px solid var(--hair)}
+  .cat{padding:32px 24px;border-right:1px solid var(--hair);border-bottom:1px solid var(--hair);
+    min-height:260px;display:flex;flex-direction:column;justify-content:space-between;
+    transition:background .25s ease;cursor:default}
+  .cat:last-child{border-right:none}
+  .cat:hover{background:rgba(242,237,228,0.03)}
+  .cat:hover .icon{filter:brightness(0) saturate(100%) invert(99%) sepia(50%) saturate(2476%) hue-rotate(15deg) brightness(110%) contrast(102%)}
+  .cat .top{display:flex;justify-content:space-between;align-items:start}
+  .cat .num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--grey);letter-spacing:.22em}
+  .cat .icon{width:56px;height:56px;background:url('https://changzack.github.io/prototypes/_assets/5for5-v1/concept-0/category-icons.jpg') no-repeat;
+    background-size:500% 100%;transition:filter .3s ease;
+    mix-blend-mode:screen;filter:contrast(1.6) brightness(1.2)}
+  .cat[data-i="0"] .icon{background-position:0% 50%}
+  .cat[data-i="1"] .icon{background-position:25% 50%}
+  .cat[data-i="2"] .icon{background-position:50% 50%}
+  .cat[data-i="3"] .icon{background-position:75% 50%}
+  .cat[data-i="4"] .icon{background-position:100% 50%}
+  .cat h3{font-family:'Archivo',sans-serif;font-weight:900;font-size:22px;text-transform:uppercase;
+    letter-spacing:.02em;color:var(--bone);line-height:1;margin-bottom:10px}
+  .cat p{font-family:'Space Grotesk',sans-serif;font-size:13px;line-height:1.5;color:var(--bone);opacity:.72}
+  .cat .ex{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--grey);
+    letter-spacing:.14em;text-transform:uppercase;margin-top:14px}
+  .cat .ex b{color:var(--bone);font-weight:700}
+
+  /* ===== STREAK / PROOF ===== */
+  .proof{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:start}
+  .streak-card{padding:36px;border:1px solid var(--hair);transform-style:preserve-3d}
+  .streak-card .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--grey);
+    letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px}
+  .streak-card .big{font-family:'Big Shoulders Display',sans-serif;font-weight:900;
+    font-size:clamp(96px,12vw,160px);line-height:.85;letter-spacing:-.04em;color:var(--volt);display:flex;align-items:baseline;gap:14px}
+  .streak-card .big .unit{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--grey);letter-spacing:.18em;text-transform:uppercase}
+  .streak-card .big .flame{font-size:.5em;line-height:1}
+
+  .calendar{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;margin-top:32px}
+  .calendar .cell{aspect-ratio:1;background:rgba(242,237,228,0.04);display:flex;align-items:center;justify-content:center;font-size:14px;font-family:'JetBrains Mono',monospace;color:var(--grey)}
+  .calendar .cell.hit{background:rgba(223,255,0,0.05);color:var(--bone)}
+  .calendar .cell.flame{background:var(--volt);color:var(--black);font-weight:700}
+
+  .proof-side{display:flex;flex-direction:column;gap:24px}
+  .proof-row{padding:20px 0;border-bottom:1px solid var(--hair);display:flex;justify-content:space-between;align-items:end;gap:24px}
+  .proof-row .pl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--grey);letter-spacing:.2em;text-transform:uppercase;max-width:60%}
+  .proof-row .pv{font-family:'Big Shoulders Display',sans-serif;font-weight:900;font-size:48px;line-height:.85;color:var(--bone)}
+  .proof-row .pv.volt{color:var(--volt)}
+
+  .yesterday{position:relative;padding:28px;border:1px solid var(--hair);margin-top:8px;display:flex;gap:20px;align-items:center}
+  .yesterday img{width:140px;height:90px;object-fit:cover;mix-blend-mode:screen;filter:contrast(1.3);border:1px solid var(--hair)}
+  .yesterday .yt{flex:1}
+  .yesterday .yt .l{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--grey);letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px}
+  .yesterday .yt b{font-family:'Archivo',sans-serif;font-weight:900;font-size:18px;text-transform:uppercase;color:var(--bone);display:block;line-height:1.1}
+  .yesterday .yt span{font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--bone);opacity:.7;display:block;margin-top:6px}
+
+  /* ===== SHARE GRID ===== */
+  .share-section{background:var(--black);position:relative}
+  .share-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+  .share-card{padding:40px;border:1px solid var(--hair);font-family:'JetBrains Mono',monospace}
+  .share-card .head{font-size:11px;color:var(--grey);letter-spacing:.22em;text-transform:uppercase;margin-bottom:20px;display:flex;justify-content:space-between}
+  .share-card .head b{color:var(--bone)}
+  .share-grid-emoji{font-size:38px;letter-spacing:.08em;line-height:1.1;margin:20px 0}
+  .share-card .hash{font-size:13px;color:var(--volt);letter-spacing:.14em;text-transform:uppercase;margin-top:12px}
+  .share-meta{font-family:'Space Grotesk',sans-serif;font-size:16px;line-height:1.5;color:var(--bone);opacity:.82}
+  .share-meta h4{font-family:'Archivo',sans-serif;font-weight:900;font-size:32px;line-height:1;text-transform:uppercase;margin-bottom:16px;color:var(--bone);opacity:1}
+
+  /* ===== Final CTA ===== */
+  .final{padding:96px 32px;border-top:1px solid var(--hair);position:relative;z-index:2}
+  .final-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .final-headline{font-family:'Big Shoulders Display',sans-serif;font-weight:900;
+    font-size:clamp(80px,12vw,180px);line-height:.82;letter-spacing:-.03em;text-transform:uppercase}
+  .final-headline .v{color:var(--volt)}
+  .final-side{display:flex;flex-direction:column;gap:18px}
+  .final-side .blurb{font-family:'Space Grotesk',sans-serif;font-size:17px;line-height:1.5;opacity:.84;max-width:420px}
+  .final-side .big-cta{background:var(--volt);color:var(--black);padding:28px 36px;font-family:'Archivo',sans-serif;font-weight:900;
+    font-size:22px;letter-spacing:.06em;text-transform:uppercase;border:none;cursor:pointer;text-align:left;
+    display:flex;justify-content:space-between;align-items:center;border-radius:0;transition:transform .2s ease}
+  .final-side .big-cta:hover{transform:scale(1.02)}
+
+  /* ===== Footer ===== */
+  footer{padding:32px;border-top:1px solid var(--hair);display:flex;justify-content:space-between;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);gap:24px;flex-wrap:wrap}
+  footer .fbrand{display:flex;align-items:center;gap:14px}
+  footer .fbrand img{width:48px;height:48px;object-fit:contain;mix-blend-mode:screen;filter:contrast(1.4) brightness(1.1);transform:rotate(3deg)}
+  footer .fbrand b{font-family:'Archivo',sans-serif;font-weight:900;font-size:13px;letter-spacing:.06em;color:var(--bone)}
+  footer .ftag{flex:1;text-align:center;color:var(--bone);opacity:.7}
+  footer .fsoc a{color:var(--bone);text-decoration:none;margin-left:18px;opacity:.7;transition:.2s}
+  footer .fsoc a:hover{color:var(--volt);opacity:1}
+
+  /* Hairline draw-in animation */
+  .hairline-draw{position:relative}
+  .hairline-draw::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:var(--bone);opacity:.18;
+    clip-path:inset(0 100% 0 0);animation:drawline 700ms cubic-bezier(.65,0,.35,1) forwards}
+  @keyframes drawline{to{clip-path:inset(0 0 0 0)}}
+
+  /* Press-stamp on giant5 */
+  .giant5.stamp-in{animation:stampin .82s cubic-bezier(.16,1,.3,1) both, chrome 6s ease-in-out infinite 1s}
+  @keyframes stampin{
+    0%{transform:translateZ(-400px) scale(1.4);opacity:0}
+    100%{transform:translateZ(120px) scale(1);opacity:.92}
+  }
+
+  .hero-sneaker.fade-in{animation:heroup .7s cubic-bezier(.16,1,.3,1) .6s both}
+  @keyframes heroup{
+    0%{transform:translateY(40px) translateZ(0);opacity:0}
+    100%{transform:translateY(0) translateZ(0);opacity:1}
+  }
+
+  .cta-primary.pulse-once{animation:pulse1 .8s cubic-bezier(.16,1,.3,1) 1.3s 1}
+  @keyframes pulse1{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+
+  /* ===== Responsive ===== */
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr;padding:24px 20px}
+    .hero .left,.hero .center,.hero .right{border:none;padding:0;border-bottom:1px solid var(--hair);padding-bottom:28px;margin-bottom:28px}
+    .hero .center{min-height:auto;padding:32px 0}
+    .giant5{font-size:clamp(140px,40vw,260px);transform:translateZ(0);position:relative}
+    .giant5-wrap{position:relative;inset:auto;margin-bottom:-40px}
+    .titanic{font-size:clamp(80px,22vw,140px)}
+    .rules{grid-template-columns:1fr;gap:0}
+    .rule{border-right:none;border-bottom:1px solid var(--hair);min-height:auto;padding:24px 8px}
+    .rule:last-child{border-bottom:none}
+    .sample-wrap{grid-template-columns:1fr;gap:24px}
+    .sample-side{display:none}
+    .qcard{transform:rotate(0) translateZ(0);padding:24px}
+    .qbody{grid-template-columns:1fr;gap:20px}
+    .qbody .qimg{width:100%;height:200px}
+    .choices{grid-template-columns:1fr}
+    .cats{grid-template-columns:1fr}
+    .cat{border-right:none;border-bottom:1px solid var(--hair)}
+    .proof{grid-template-columns:1fr;gap:32px}
+    .calendar{grid-template-columns:repeat(10,1fr)}
+    .share-wrap{grid-template-columns:1fr;gap:32px}
+    .final-grid{grid-template-columns:1fr;gap:32px}
+    .section-head{flex-direction:column;align-items:flex-start;gap:14px}
+    .section-meta{text-align:left}
+    body{perspective:none}
+  }
+  @media (max-width:420px){
+    nav.top ul{display:none}
+    .stamp{width:84px;height:84px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Grain overlay -->
+<div class="grain" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <filter id="grainf"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#grainf)"/>
+  </svg>
+</div>
+<div class="court-bg" aria-hidden="true"></div>
+
+<!-- Top ticker -->
+<div class="ticker" id="ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<!-- Nav -->
+<nav class="top">
+  <div class="brand">
+    <span>◆</span>
+    <b>5 FOR 5</b>
+    <span style="opacity:.5">/ DAILY SNEAKER QUIZ</span>
+  </div>
+  <ul>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#cats">Categories</a></li>
+    <li><a href="#streak">Streaks</a></li>
+    <li><a href="#play">Play</a></li>
+  </ul>
+  <div class="day">DAY <span>042</span> · LIVE</div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="play">
+  <div class="col left">
+    <div class="eyebrow">ISSUE 042 · DROP 06:00 EST</div>
+    <h1 class="titanic">FIVE<span class="for">FOR</span>FIVE<span class="dot">.</span></h1>
+    <p class="tagline"><span>Five questions.</span> One shot. <span>Don't fumble.</span></p>
+    <p class="lede">A daily five-question knowledge drop for people who actually know their sneakers. New 5 every morning. Streaks die at midnight. No second tries.</p>
+
+    <div class="cta-block">
+      <button class="cta-primary pulse-once" id="playBtn">
+        <span>Play today's 5</span>
+        <span class="arrow">→</span>
+      </button>
+      <form class="email-form" id="emailForm">
+        <input type="email" id="emailInput" placeholder="Drop your email — we'll ping you when tomorrow's 5 is live" required>
+        <button type="submit">Notify →</button>
+      </form>
+      <div class="email-helper">Tomorrow's 5 drops 06:00 EST · No spam, just sneakers</div>
+    </div>
+  </div>
+
+  <div class="col center">
+    <div class="giant5-wrap">
+      <div class="giant5 stamp-in">5</div>
+    </div>
+    <div class="hero-sneaker fade-in">
+      <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-0/hero-sneaker.jpg"
+        alt="Air Jordan 1 Banned hero" width="1080" height="1080"
+        onerror="this.style.background='radial-gradient(circle at 30% 30%,#1a1a1a,#0A0B0D)';this.alt='[ hero sneaker ]'">
+    </div>
+  </div>
+
+  <div class="col right">
+    <div class="daybadge">DAY <b>042</b> · WED 19 JUN</div>
+    <div class="stamp">
+      <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-0/scorecard-stamp.jpg" alt="5 FOR 5 stamp">
+    </div>
+
+    <div class="rail">
+      <div class="rail-row">
+        <div class="rail-label">▌ Players today</div>
+        <div class="rail-num volt"><span class="odo" data-target="12431">00000</span></div>
+        <div class="rail-sub">▲ +18.4% vs yesterday</div>
+      </div>
+      <div class="rail-row">
+        <div class="rail-label">▌ Today's average</div>
+        <div class="rail-num"><span class="odo" data-target="32">00</span><span class="slash">/ 50</span></div>
+        <div class="rail-sub">3.2 of 5 · tougher than usual</div>
+      </div>
+      <div class="rail-row">
+        <div class="rail-label">▌ Yesterday's hardest</div>
+        <div class="rail-num"><span class="odo" data-target="18">00</span><span style="font-size:.5em;color:var(--grey)">%</span></div>
+        <div class="rail-sub">Only 18% got it right</div>
+      </div>
+      <div class="rail-row">
+        <div class="rail-label">▌ Longest active streak</div>
+        <div class="rail-num volt"><span class="odo" data-target="287">000</span><span style="font-size:.4em;color:var(--grey);margin-left:6px">DAYS</span></div>
+        <div class="rail-sub">@sole_archivist · still alive 🔥</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- HOW IT WORKS -->
+<section class="s" id="how">
+  <div class="section-head">
+    <div>
+      <div class="section-num">SECTION 01 / RULES</div>
+      <h2 class="section-title">How it works.</h2>
+    </div>
+    <div class="section-meta">Five rules.<br>No exceptions.<br>Read once.</div>
+  </div>
+  <div class="rules">
+    <div class="rule plane">
+      <div>
+        <div class="num">01<span>.</span></div>
+        <div class="body" style="margin-top:18px">
+          <b>Five questions</b>
+          Every morning at 06:00 EST. One drop. Same five for everyone, everywhere.
+        </div>
+      </div>
+      <div class="barcode">|||| ||| | ||||  R/01</div>
+    </div>
+    <div class="rule plane">
+      <div>
+        <div class="num">02<span>.</span></div>
+        <div class="body" style="margin-top:18px">
+          <b>One shot</b>
+          You get one guess per question. No retries. No edits. No takebacks.
+        </div>
+      </div>
+      <div class="barcode">|| |||| ||  ||| R/02</div>
+    </div>
+    <div class="rule plane">
+      <div>
+        <div class="num">03<span>.</span></div>
+        <div class="body" style="margin-top:18px">
+          <b>Reset at midnight</b>
+          The board wipes at 00:00 local. Tomorrow's 5 won't wait for you.
+        </div>
+      </div>
+      <div class="barcode">||| |||| ||| || R/03</div>
+    </div>
+    <div class="rule plane">
+      <div>
+        <div class="num">04<span>.</span></div>
+        <div class="body" style="margin-top:18px">
+          <b>Streaks live or die</b>
+          Miss a day, streak resets to zero. There is no grace period. Show up.
+        </div>
+      </div>
+      <div class="barcode">|||| || ||  |||| R/04</div>
+    </div>
+    <div class="rule plane">
+      <div>
+        <div class="num">05<span>.</span></div>
+        <div class="body" style="margin-top:18px">
+          <b>Share the grid</b>
+          Drop your 👟⬛ row. Talk shit. Make your group chat earn it.
+        </div>
+      </div>
+      <div class="barcode">|| ||| |||| ||  R/05</div>
+    </div>
+  </div>
+</section>
+
+<!-- SAMPLE QUESTION -->
+<section class="s" id="sample">
+  <div class="section-head">
+    <div>
+      <div class="section-num">SECTION 02 / TRY ONE</div>
+      <h2 class="section-title">Sample question.</h2>
+    </div>
+    <div class="section-meta">No score on file.<br>Click an answer<br>to see the reveal.</div>
+  </div>
+
+  <div class="sample-wrap">
+    <div class="sample-side">
+      <b>Category</b>COLORWAY<br><br>
+      <b>Difficulty</b>3 / 5<br><br>
+      <b>Time on Q</b>00:14
+    </div>
+
+    <div class="qcard" id="qcard">
+      <div class="qhead">
+        <div class="qmeta"><b>QUESTION 03 / 05</b>CATEGORY · COLORWAY · 1985</div>
+        <div class="qscore"><b id="qscoreVal">02 / 05</b>RUNNING SCORE</div>
+      </div>
+      <div class="qbody">
+        <div class="qimg">
+          <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-0/hero-sneaker.jpg" alt="Air Jordan 1 sample">
+        </div>
+        <div>
+          <div class="qsub">▌ Identify this Air Jordan 1 colorway</div>
+          <div class="qprompt">Name this <em>Air Jordan 1</em> colorway.</div>
+          <div class="choices" id="choices">
+            <div class="choice" data-correct="false">
+              <div class="fill"></div>
+              <span class="label"><span class="letter">A</span>Bred</span>
+              <span class="verdict">— close.</span>
+            </div>
+            <div class="choice" data-correct="false">
+              <div class="fill"></div>
+              <span class="label"><span class="letter">B</span>Chicago</span>
+              <span class="verdict">— miss.</span>
+            </div>
+            <div class="choice" data-correct="true">
+              <div class="fill"></div>
+              <span class="label"><span class="letter">C</span>Banned</span>
+              <span class="verdict">— correct.</span>
+            </div>
+            <div class="choice" data-correct="false">
+              <div class="fill"></div>
+              <span class="label"><span class="letter">D</span>Black Toe</span>
+              <span class="verdict">— miss.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="qfoot">
+        <div id="qstatus">▌ Awaiting answer</div>
+        <button class="reset" id="resetQ">↻ Reset</button>
+      </div>
+    </div>
+
+    <div class="sample-side right">
+      <b>Correct rate</b>62% TODAY<br><br>
+      <b>Avg time</b>11.4s<br><br>
+      <b>Hint</b>NBA fined<br>MJ $5K / GAME
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="s" id="cats">
+  <div class="section-head">
+    <div>
+      <div class="section-num">SECTION 03 / CATEGORIES</div>
+      <h2 class="section-title">The five categories.</h2>
+    </div>
+    <div class="section-meta">One per question.<br>Rotated daily.<br>Hover to preview.</div>
+  </div>
+  <div class="cats">
+    <div class="cat" data-i="0">
+      <div class="top">
+        <span class="num">01</span>
+        <div class="icon"></div>
+      </div>
+      <div>
+        <h3>Colorway</h3>
+        <p>Name the model and the makeup. Bred, Chicago, Banned, UNC — know the difference or fall off.</p>
+      </div>
+      <div class="ex">e.g. <b>AJ1 'Bred Toe' / 2018</b></div>
+    </div>
+    <div class="cat" data-i="1">
+      <div class="top">
+        <span class="num">02</span>
+        <div class="icon"></div>
+      </div>
+      <div>
+        <h3>Year</h3>
+        <p>When did this drop? Original release, retro re-issue, sample, friends-and-family. The dates matter.</p>
+      </div>
+      <div class="ex">e.g. <b>Dunk Low 'Pigeon' / 2005</b></div>
+    </div>
+    <div class="cat" data-i="2">
+      <div class="top">
+        <span class="num">03</span>
+        <div class="icon"></div>
+      </div>
+      <div>
+        <h3>Collab</h3>
+        <p>Who made this with who? Fragment, Off-White, Travis, sacai, A Ma Maniére. Know the partner.</p>
+      </div>
+      <div class="ex">e.g. <b>Travis Scott × AJ1 Low</b></div>
+    </div>
+    <div class="cat" data-i="3">
+      <div class="top">
+        <span class="num">04</span>
+        <div class="icon"></div>
+      </div>
+      <div>
+        <h3>Sole Tech</h3>
+        <p>Zoom Air, React, Boost, ZoomX, Lunarlon, encapsulated heel unit. Cushion is character.</p>
+      </div>
+      <div class="ex">e.g. <b>Tuned Air / TN '98</b></div>
+    </div>
+    <div class="cat" data-i="4">
+      <div class="top">
+        <span class="num">05</span>
+        <div class="icon"></div>
+      </div>
+      <div>
+        <h3>Mystery Silhouette</h3>
+        <p>Silhouette only. No colorway, no logo, no help. If you don't know the lasted shape, sit down.</p>
+      </div>
+      <div class="ex">e.g. <b>? ? ? · backlit only</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- STREAK / PROOF -->
+<section class="s" id="streak">
+  <div class="section-head">
+    <div>
+      <div class="section-num">SECTION 04 / STREAKS</div>
+      <h2 class="section-title">Show up. Don't break.</h2>
+    </div>
+    <div class="section-meta">Live tally.<br>Updated 06:00 EST.<br>Bragging optional.</div>
+  </div>
+
+  <div class="proof">
+    <div class="streak-card plane">
+      <div class="lbl">▌ LONGEST ACTIVE STREAK</div>
+      <div class="big">
+        <span class="odo" data-target="287">000</span>
+        <span class="unit">DAYS</span>
+        <span class="flame">🔥</span>
+      </div>
+      <div class="rail-sub" style="margin-top:14px">@sole_archivist · still standing · 5/5 yesterday</div>
+
+      <div class="calendar" id="calendar"></div>
+      <div class="rail-sub" style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--grey);text-transform:uppercase">Last 28 days · 👟 = hit · ⬛ = miss · volt = perfect 5</div>
+    </div>
+
+    <div class="proof-side">
+      <div class="proof-row">
+        <div class="pl">Players who pulled a perfect 5/5 today</div>
+        <div class="pv volt">412</div>
+      </div>
+      <div class="proof-row">
+        <div class="pl">Players still on a 30+ day streak</div>
+        <div class="pv">1,820</div>
+      </div>
+      <div class="proof-row">
+        <div class="pl">Streaks that died at midnight last night</div>
+        <div class="pv">204</div>
+      </div>
+
+      <div class="yesterday">
+        <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-0/hero-sneaker.jpg" alt="Yesterday's hardest sneaker">
+        <div class="yt">
+          <div class="l">▌ Yesterday's hardest</div>
+          <b>Only 18% got it.</b>
+          <span>'85 sample of the AJ1 in a colorway that never officially released. Most people guessed Bred.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHARE GRID -->
+<section class="s share-section">
+  <div class="section-head">
+    <div>
+      <div class="section-num">SECTION 05 / SHARE</div>
+      <h2 class="section-title">Drop your row.</h2>
+    </div>
+    <div class="section-meta">👟 = hit.<br>⬛ = miss.<br>Group chat earns it.</div>
+  </div>
+
+  <div class="share-wrap">
+    <div class="share-card">
+      <div class="head"><b>5 FOR 5 · DAY 042</b><span>4 / 5</span></div>
+      <div class="share-grid-emoji">👟👟⬛👟👟</div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;line-height:1.6;color:var(--bone);opacity:.8">
+        Got smoked by the '85 Banned sample. Otherwise clean.<br>
+        Streak: 42 days, alive.
+      </div>
+      <div class="hash">#5for5 — Day 42</div>
+    </div>
+
+    <div class="share-meta">
+      <h4>One row. No screenshots needed.</h4>
+      <p>Hit "share" after your 5 and the whole grid copies as plain text — no app, no asset, no permission. Drop it in your group chat. Your followers will know exactly which one you missed without you spoiling it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final" id="cta">
+  <div class="final-grid">
+    <div class="final-headline">PLAY<br>TODAY'S<br><span class="v">5.</span></div>
+    <div class="final-side">
+      <div class="blurb">Five questions. Two minutes. One shot. Drops every morning at 06:00 EST. The board wipes at midnight. Don't fumble.</div>
+      <button class="big-cta" onclick="document.getElementById('emailInput').focus()">
+        <span>Play today's 5</span><span>→</span>
+      </button>
+      <form class="email-form" onsubmit="event.preventDefault();this.querySelector('button').innerText='✓ ON THE LIST';">
+        <input type="email" placeholder="drop your email" required>
+        <button type="submit">Notify →</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fbrand">
+    <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-0/scorecard-stamp.jpg" alt="5 FOR 5 stamp">
+    <b>5 FOR 5</b>
+    <span>© 2026 · Five Daily LLC</span>
+  </div>
+  <div class="ftag">Five questions. One shot. Don't fumble.</div>
+  <div class="fsoc">
+    <a href="#">@5for5daily / IG</a>
+    <a href="#">@5for5 / X</a>
+    <a href="#">tiktok</a>
+  </div>
+</footer>
+
+<script>
+  // ===== Ticker content =====
+  (function(){
+    const items = [
+      '◆ 12,431 PLAYERS TODAY',
+      '◆ AVG 3.2 / 5',
+      '◆ YESTERDAY\'S HARDEST: ONLY 18% GOT IT',
+      '◆ DAY 042 LIVE NOW',
+      '◆ LONGEST ACTIVE STREAK: 287 DAYS',
+      '◆ NEXT DROP 06:00 EST',
+      '◆ PERFECT 5/5 TODAY: 412 PLAYERS',
+      '◆ STREAKS DIED LAST NIGHT: 204',
+    ];
+    const html = items.map(t=>`<span><span class="dot"></span>${t}</span>`).join('');
+    document.getElementById('tickerTrack').innerHTML = html + html;
+  })();
+
+  // ===== Odometer =====
+  function buildOdo(el){
+    const target = parseInt(el.dataset.target,10);
+    const placeholder = el.textContent.trim();
+    const digits = String(target).padStart(placeholder.length,'0').split('');
+    el.innerHTML = '';
+    digits.forEach(d=>{
+      const wrap = document.createElement('span');
+      wrap.className = 'digit';
+      const strip = document.createElement('span');
+      strip.className = 'strip';
+      for(let i=0;i<=9;i++){
+        const s = document.createElement('span');
+        s.textContent = i;
+        strip.appendChild(s);
+      }
+      wrap.appendChild(strip);
+      el.appendChild(wrap);
+      el._strips = el._strips || [];
+      el._strips.push({strip,target:parseInt(d,10)});
+    });
+  }
+  function runOdo(el){
+    if(!el._strips) return;
+    el._strips.forEach(({strip,target},i)=>{
+      setTimeout(()=>{
+        strip.style.transform = `translateY(-${target}em)`;
+      }, 200 + i*80);
+    });
+  }
+  document.querySelectorAll('.odo').forEach(buildOdo);
+  setTimeout(()=>{ document.querySelectorAll('.odo').forEach(runOdo); }, 800);
+
+  // ===== Sample question =====
+  const choices = document.querySelectorAll('#choices .choice');
+  const qstatus = document.getElementById('qstatus');
+  const qscoreVal = document.getElementById('qscoreVal');
+  let answered = false;
+  let score = 2;
+
+  function setScore(n){
+    score = n;
+    qscoreVal.textContent = String(n).padStart(2,'0') + ' / 05';
+  }
+
+  choices.forEach(c=>{
+    c.addEventListener('click', ()=>{
+      if(answered) return;
+      answered = true;
+      const isRight = c.dataset.correct === 'true';
+      choices.forEach(o=>{
+        o.classList.add('locked');
+        if(o.dataset.correct === 'true'){
+          o.classList.add('correct');
+        } else {
+          o.classList.add('wrong');
+        }
+      });
+      if(isRight){
+        qstatus.innerHTML = '<span style="color:var(--volt)">✓ CORRECT · 1985 NBA-BANNED COLORWAY</span>';
+        setScore(score+1);
+      } else {
+        qstatus.innerHTML = '<span style="color:var(--grey)">✗ WRONG · CORRECT WAS "BANNED"</span>';
+      }
+    });
+  });
+
+  document.getElementById('resetQ').addEventListener('click', ()=>{
+    answered = false;
+    setScore(2);
+    choices.forEach(o=>{
+      o.classList.remove('locked','correct','wrong');
+    });
+    qstatus.innerHTML = '▌ Awaiting answer';
+  });
+
+  // Cursor tilt on qcard
+  const qcard = document.getElementById('qcard');
+  let tiltX = 0, tiltY = 0, tX = -3, tY = 0;
+  document.addEventListener('mousemove', e=>{
+    const r = qcard.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width/2)) / r.width;
+    const dy = (e.clientY - (r.top + r.height/2)) / r.height;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist < 1.2){
+      tX = Math.max(-6, Math.min(6, -dy * 8 - 3));
+      tY = Math.max(-6, Math.min(6, dx * 8));
+    } else {
+      tX = -3; tY = 0;
+    }
+  });
+  function tiltLoop(){
+    tiltX += (tX - tiltX) * 0.08;
+    tiltY += (tY - tiltY) * 0.08;
+    qcard.style.transform = `rotate(-3deg) translateZ(80px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+    requestAnimationFrame(tiltLoop);
+  }
+  if(window.innerWidth > 900) tiltLoop();
+
+  // Email form
+  document.getElementById('emailForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const btn = this.querySelector('button');
+    btn.textContent = '✓ ON THE LIST';
+    btn.style.color = 'var(--volt)';
+  });
+
+  document.getElementById('playBtn').addEventListener('click', ()=>{
+    document.getElementById('sample').scrollIntoView({behavior:'smooth'});
+  });
+
+  // ===== Calendar =====
+  (function(){
+    const cal = document.getElementById('calendar');
+    // 28 cells. Mostly hits, a few misses, last few are flames (perfect)
+    const pattern = [
+      1,1,1,0,1,1,1,
+      1,1,1,1,0,1,1,
+      1,2,1,1,1,1,1,
+      1,1,1,2,2,2,2
+    ];
+    pattern.forEach((p,i)=>{
+      const d = document.createElement('div');
+      d.className = 'cell' + (p===1?' hit':p===2?' flame':'');
+      d.textContent = p===0 ? '⬛' : p===2 ? '👟' : '👟';
+      cal.appendChild(d);
+    });
+  })();
+
+  // ===== GSAP ScrollTrigger parallax =====
+  if(window.gsap && window.ScrollTrigger){
+    gsap.registerPlugin(ScrollTrigger);
+
+    if(window.innerWidth > 900){
+      // Parallax on rule slabs
+      gsap.utils.toArray('.rule').forEach((el, i)=>{
+        gsap.fromTo(el, {z: -120, rotateY: -12, opacity: .4},
+          {z: 0, rotateY: 0, opacity: 1,
+            scrollTrigger:{trigger:el, start:'top 90%', end:'top 40%', scrub:.6}});
+      });
+      // Streak card parallax
+      gsap.fromTo('.streak-card', {z:-100}, {z:30,
+        scrollTrigger:{trigger:'.streak-card', start:'top bottom', end:'bottom top', scrub:.6}});
+      // Q card parallax
+      gsap.fromTo('#qcard', {z:40}, {z:120,
+        scrollTrigger:{trigger:'#qcard', start:'top bottom', end:'bottom top', scrub:.6}});
+    }
+
+    // Section reveals
+    gsap.utils.toArray('section.s, .final').forEach(s=>{
+      gsap.fromTo(s, {opacity:.4, y:30}, {opacity:1, y:0, duration:.8, ease:'power3.out',
+        scrollTrigger:{trigger:s, start:'top 85%'}});
+    });
+  }
+
+  // Run odometer for streak '287' on view
+  if(window.gsap && window.ScrollTrigger){
+    ScrollTrigger.create({
+      trigger:'.streak-card', start:'top 80%',
+      onEnter: ()=>{
+        document.querySelectorAll('.streak-card .odo').forEach(runOdo);
+      }
+    });
+  }
+</script>
+</body>
+</html>

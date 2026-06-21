@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5 FOR 5 | Game Clock</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        :root {
+            /* Palette */
+            --obsidian: #0A0A0B;
+            --graphite: #131316;
+            --bone: #F2F0E8;
+            --volt: #D7FF1C;
+            --flare: #FF3B1F;
+            
+            /* Structural */
+            --hairline: 1px solid rgba(242,240,232,0.12);
+            --vel: 0; /* Updated via JS */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            cursor: none; /* Custom cursor */
+        }
+
+        body {
+            background-color: var(--obsidian);
+            color: var(--bone);
+            font-family: 'Bricolage Grotesque', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        /* Typography Classes */
+        .font-display {
+            font-family: 'Anton', sans-serif;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        .kinetic-type {
+            /* Velocity-driven variable font */
+            font-variation-settings: 'wght' calc(400 + var(--vel) * 400), 'wdth' calc(85 + var(--vel) * 15);
+            transition: font-variation-settings 0.1s ease-out;
+        }
+
+        .bloom-volt {
+            text-shadow: 0 0 24px rgba(215,255,28,0.35), 0 0 60px rgba(215,255,28,0.15);
+        }
+
+        .bloom-flare {
+            text-shadow: 0 0 24px rgba(255,59,31,0.35), 0 0 60px rgba(255,59,31,0.15);
+        }
+
+        /* Structure */
+        .hairline-b { border-bottom: var(--hairline); }
+        .hairline-t { border-top: var(--hairline); }
+        .hairline-r { border-right: var(--hairline); }
+        .hairline-l { border-left: var(--hairline); }
+        .hairline-all { border: var(--hairline); }
+
+        /* Textures & Layers */
+        .layer-grain {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            pointer-events: none;
+            opacity: 0.04;
+            mix-blend-mode: overlay;
+        }
+
+        .layer-asphalt {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            background-image: url('https://changzack.github.io/prototypes/_assets/5for5-v1/concept-2/asphalt-grain.jpg');
+            background-size: cover;
+            mix-blend-mode: overlay;
+            opacity: 0.18;
+        }
+
+        .hero-court-bg {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background-image: url('https://changzack.github.io/prototypes/_assets/5for5-v1/concept-2/court-overhead.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax */
+            opacity: 0.35;
+            filter: contrast(1.15) brightness(0.7);
+        }
+
+        /* Custom Cursor */
+        .cursor-dot {
+            position: fixed;
+            top: 0; left: 0;
+            width: 12px; height: 12px;
+            background: var(--bone);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+        .cursor-active {
+            width: 48px; height: 48px;
+            background: var(--volt);
+            mix-blend-mode: normal;
+            opacity: 0.8;
+        }
+
+        /* Animations */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .animate-blink { animation: blink 1s step-end infinite; }
+
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .marquee-track {
+            display: flex;
+            width: 200%;
+            animation: marquee 15s linear infinite;
+        }
+        .marquee-track:hover { animation-play-state: paused; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .shake-active { animation: shake 0.2s ease-in-out; }
+
+        /* Emoji Confetti */
+        .confetti-shoe {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+        }
+
+        /* Utility */
+        .text-volt { color: var(--volt); }
+        .text-flare { color: var(--flare); }
+        .bg-volt { background-color: var(--volt); color: var(--obsidian); }
+        .bg-graphite { background-color: var(--graphite); }
+        
+        /* Interactive Elements */
+        .btn-play {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 56px;
+            background: var(--volt);
+            color: var(--obsidian);
+            border-radius: 4px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            text-decoration: none;
+            transition: transform 0.1s ease;
+            white-space: nowrap;
+        }
+        .btn-play:hover { transform: scale(1.02); }
+        .btn-play:active { transform: scale(0.98); }
+
+        .answer-row {
+            padding: 16px 24px;
+            border-bottom: var(--hairline);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .answer-row:last-child { border-bottom: none; }
+        .answer-row:hover { background: rgba(242,240,232,0.05); }
+        
+        .answer-row.correct { background: var(--volt); color: var(--obsidian); font-weight: 800; border-color: var(--volt); }
+        .answer-row.wrong { color: var(--flare); border-left: 4px solid var(--flare); background: rgba(255,59,31,0.05); }
+
+        .accordion-item { cursor: none; }
+        .accordion-content {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s ease;
+        }
+        .accordion-item.active .accordion-content { grid-template-rows: 1fr; }
+        .accordion-inner { overflow: hidden; }
+
+        /* Hide cursor on touch */
+        @media (max-width: 900px) {
+            * { cursor: auto; }
+            .cursor-dot { display: none; }
+            .hero-text { font-size: 28vw !important; }
+            .shot-clock-num { font-size: 48px !important; }
+            .sample-grid { grid-template-columns: 1fr !important; }
+            .rules-grid { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Layers -->
+    <div class="layer-asphalt"></div>
+    
+    <!-- SVG Grain Filter -->
+    <svg style="display:none;">
+        <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+            <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.4 0" />
+        </filter>
+    </svg>
+    <div class="layer-grain" style="filter: url(#noise);"></div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursor"></div>
+
+    <!-- Ticker Top Bar -->
+    <div class="hairline-b flex font-mono text-[11px] py-3 px-6 justify-between items-center bg-obsidian/90 backdrop-blur sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-volt animate-blink bloom-volt"></span> LIVE</span>
+            <span class="opacity-60">12,431 PLAYING NOW</span>
+        </div>
+        <div class="flex items-center gap-6 opacity-80 hidden md:flex">
+            <span>AVG: 3.2</span>
+            <span>HARDEST: 18%</span>
+            <span>TOP STREAK: 287</span>
+        </div>
+        <div class="text-volt bloom-volt tracking-widest" id="countdown-timer">00:14:32 LEFT</div>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="relative min-h-[85vh] flex flex-col justify-end pb-12 pt-24 hairline-b">
+        <div class="hero-court-bg"></div>
+        
+        <!-- Stamp Top Right -->
+        <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-2/five-stamp.jpg" 
+             alt="5 Stamp" 
+             class="absolute top-8 right-8 w-24 h-24 object-contain opacity-90 mix-blend-screen hidden md:block">
+
+        <div class="px-6 md:px-12 w-full flex flex-col md:flex-row justify-between items-end z-10">
+            <!-- Left Typography -->
+            <div class="flex flex-col font-display text-[22vw] leading-[0.82] tracking-[-0.04em] hero-text">
+                <div class="hero-word opacity-0 translate-y-8" style="transform-origin: left bottom;">FIVE</div>
+                <div class="hero-word opacity-0 translate-y-8" style="transform-origin: left bottom;">FOR</div>
+                <div class="hero-word opacity-0 translate-y-8" style="transform-origin: left bottom;">FIVE</div>
+                
+                <div class="mt-12 text-base md:text-lg font-mono tracking-normal leading-normal opacity-0 hero-cta-wrapper">
+                    <a href="#play" class="btn-play bloom-volt hover-target">↘ PLAY TODAY'S 5</a>
+                </div>
+            </div>
+
+            <!-- Right Telemetry -->
+            <div class="font-mono text-sm leading-[1.6] opacity-70 hidden md:block text-right mb-8">
+                <div>[RECORDED DATA]</div>
+                <div>DAY 042</div>
+                <div>AVG SCORE: 3.2 / 5</div>
+                <div>HARDEST: COLOURWAY (18%)</div>
+                <div class="mt-4 text-volt">STATUS: ACTIVE</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Shot Clock Strip -->
+    <div class="w-full h-[120px] md:h-[160px] flex justify-center items-center hairline-b overflow-hidden relative bg-obsidian">
+        <div class="font-display text-[64px] md:text-[88px] flex relative w-[300px] justify-center text-bone opacity-40">
+            <span class="absolute tracking-widest shot-num" data-val="5">5</span>
+            <span class="absolute tracking-widest shot-num" data-val="4" style="opacity:0; transform:translateY(40px)">4</span>
+            <span class="absolute tracking-widest shot-num" data-val="3" style="opacity:0; transform:translateY(40px)">3</span>
+            <span class="absolute tracking-widest shot-num" data-val="2" style="opacity:0; transform:translateY(40px)">2</span>
+            <span class="absolute tracking-widest shot-num" data-val="1" style="opacity:0; transform:translateY(40px)">1</span>
+        </div>
+    </div>
+
+    <!-- How It Works (Rules) -->
+    <section class="hairline-b bg-obsidian">
+        <div class="grid grid-cols-2 md:grid-cols-5 rules-grid">
+            <div class="p-6 md:p-8 hairline-r hairline-b md:hairline-b-0">
+                <div class="font-mono text-[11px] opacity-50 mb-6">01</div>
+                <h3 class="text-xl md:text-2xl font-bold kinetic-type mb-2">FIVE QUESTIONS</h3>
+                <p class="text-sm opacity-60">One grid. Five disciplines. Knowledge is tested daily.</p>
+            </div>
+            <div class="p-6 md:p-8 hairline-r hairline-b md:hairline-b-0">
+                <div class="font-mono text-[11px] opacity-50 mb-6">02</div>
+                <h3 class="text-xl md:text-2xl font-bold kinetic-type mb-2">ONCE A DAY</h3>
+                <p class="text-sm opacity-60">Miss it and it's gone. The clock resets at midnight.</p>
+            </div>
+            <div class="p-6 md:p-8 hairline-r hairline-b md:hairline-b-0">
+                <div class="font-mono text-[11px] opacity-50 mb-6">03</div>
+                <h3 class="text-xl md:text-2xl font-bold kinetic-type mb-2">ONE SHOT</h3>
+                <p class="text-sm opacity-60">No undos. Don't fumble. Lock your answer.</p>
+            </div>
+            <div class="p-6 md:p-8 hairline-r hairline-b md:hairline-b-0">
+                <div class="font-mono text-[11px] opacity-50 mb-6">04</div>
+                <h3 class="text-xl md:text-2xl font-bold kinetic-type mb-2">BUILD STREAKS</h3>
+                <p class="text-sm opacity-60">Perfect 5/5 scores light up the board.</p>
+            </div>
+            <div class="p-6 md:p-8 hairline-b md:hairline-b-0 bg-graphite flex flex-col justify-between">
+                <div class="font-mono text-[11px] text-volt mb-6">05</div>
+                <div>
+                    <h3 class="text-xl md:text-2xl font-bold text-volt mb-2">PROVE IT</h3>
+                    <p class="text-sm opacity-80">Share your grid. Secure the bragging rights.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sample Question Panel -->
+    <section class="p-6 md:p-12 hairline-b bg-obsidian" id="play">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-8 flex justify-between items-end">
+                <h2 class="text-4xl md:text-6xl font-bold kinetic-type uppercase">Try One Now.</h2>
+                <span class="font-mono text-[11px] opacity-50 hidden md:block">SAMPLE QUESTION / WARMUP</span>
+            </div>
+
+            <!-- The Question UI -->
+            <div class="grid grid-cols-2 md:grid-cols-2 sample-grid hairline-all bg-graphite relative overflow-hidden" id="quiz-container">
+                
+                <!-- Left: Asset Image -->
+                <div class="hairline-r relative aspect-square md:aspect-auto flex flex-col">
+                    <div class="p-4 hairline-b font-mono text-[11px] flex justify-between opacity-60">
+                        <span>CATEGORY: SILHOUETTE / COLLAB</span>
+                        <span>01/05</span>
+                    </div>
+                    <div class="flex-grow relative">
+                        <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-2/ticker-sneaker.jpg" 
+                             alt="Mystery Sneaker Silhouette" 
+                             class="absolute inset-0 w-full h-full object-cover opacity-90 mix-blend-screen px-8 pb-8 pt-4">
+                    </div>
+                </div>
+
+                <!-- Right: Answers -->
+                <div class="flex flex-col bg-obsidian" id="answers-container">
+                    <div class="p-6 md:p-8 hairline-b flex-grow flex flex-col justify-center">
+                        <p class="text-2xl md:text-3xl font-light mb-2">Identify this iconic Air Max 1 collaboration based on the silhouette profile.</p>
+                    </div>
+                    
+                    <div class="flex flex-col font-mono text-lg font-bold">
+                        <div class="answer-row hover-target" data-correct="false" data-letter="A">
+                            <span class="opacity-50 mr-4 w-6">A</span> <span class="label">ATMOS</span>
+                        </div>
+                        <div class="answer-row hover-target" data-correct="false" data-letter="B">
+                            <span class="opacity-50 mr-4 w-6">B</span> <span class="label">PARRA</span>
+                        </div>
+                        <div class="answer-row hover-target" data-correct="true" data-letter="C">
+                            <span class="opacity-50 mr-4 w-6">C</span> <span class="label">PATTA</span>
+                        </div>
+                        <div class="answer-row hover-target" data-correct="false" data-letter="D">
+                            <span class="opacity-50 mr-4 w-6">D</span> <span class="label">CONCEPTS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="quiz-feedback" class="mt-4 font-mono text-sm h-6 opacity-0 transition-opacity"></div>
+        </div>
+    </section>
+
+    <!-- Categories Accordion -->
+    <section class="hairline-b bg-obsidian">
+        <!-- COLORWAY -->
+        <div class="accordion-item hairline-b hover-target" onclick="this.classList.toggle('active')">
+            <div class="px-6 md:px-12 py-6 flex justify-between items-center">
+                <span class="font-mono text-sm opacity-50 w-8">01</span>
+                <h3 class="text-2xl md:text-4xl font-bold uppercase kinetic-type flex-grow">Colorway</h3>
+                <span class="font-mono text-xl">+</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner px-6 md:px-12 pb-8 flex gap-8 opacity-70">
+                    <div class="w-1/2">Identify the official colorway name from a zoomed-in swatch of materials.</div>
+                    <div class="w-1/2 font-mono text-sm">E.G. BRED / CHICAGO / SHATTERED BACKBOARD</div>
+                </div>
+            </div>
+        </div>
+        <!-- YEAR -->
+        <div class="accordion-item hairline-b hover-target" onclick="this.classList.toggle('active')">
+            <div class="px-6 md:px-12 py-6 flex justify-between items-center">
+                <span class="font-mono text-sm opacity-50 w-8">02</span>
+                <h3 class="text-2xl md:text-4xl font-bold uppercase kinetic-type flex-grow">Year</h3>
+                <span class="font-mono text-xl">+</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner px-6 md:px-12 pb-8 flex gap-8 opacity-70">
+                    <div class="w-1/2">Pinpoint the exact release year of a culturally significant drop.</div>
+                    <div class="w-1/2 font-mono text-sm">E.G. 1985 / 2017 / 2020</div>
+                </div>
+            </div>
+        </div>
+        <!-- COLLAB -->
+        <div class="accordion-item hairline-b hover-target" onclick="this.classList.toggle('active')">
+            <div class="px-6 md:px-12 py-6 flex justify-between items-center">
+                <span class="font-mono text-sm opacity-50 w-8">03</span>
+                <h3 class="text-2xl md:text-4xl font-bold uppercase kinetic-type flex-grow">Collab</h3>
+                <span class="font-mono text-xl">+</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner px-6 md:px-12 pb-8 flex gap-8 opacity-70">
+                    <div class="w-1/2">Identify the creative partner behind a specific design modification or detail.</div>
+                    <div class="w-1/2 font-mono text-sm">E.G. OFF-WHITE / TRAVIS SCOTT / UNION</div>
+                </div>
+            </div>
+        </div>
+        <!-- TECH -->
+        <div class="accordion-item hairline-b hover-target" onclick="this.classList.toggle('active')">
+            <div class="px-6 md:px-12 py-6 flex justify-between items-center">
+                <span class="font-mono text-sm opacity-50 w-8">04</span>
+                <h3 class="text-2xl md:text-4xl font-bold uppercase kinetic-type flex-grow">Tech</h3>
+                <span class="font-mono text-xl">+</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner px-6 md:px-12 pb-8 flex gap-8 opacity-70">
+                    <div class="w-1/2">Name the proprietary cushioning or material technology shown in a macro shot.</div>
+                    <div class="w-1/2 font-mono text-sm">E.G. BOOST / FLYKNIT / REACT</div>
+                </div>
+            </div>
+        </div>
+        <!-- SILHOUETTE -->
+        <div class="accordion-item hover-target active" onclick="this.classList.toggle('active')">
+            <div class="px-6 md:px-12 py-6 flex justify-between items-center">
+                <span class="font-mono text-sm opacity-50 w-8">05</span>
+                <h3 class="text-2xl md:text-4xl font-bold uppercase kinetic-type flex-grow">Mystery Silhouette</h3>
+                <span class="font-mono text-xl">-</span>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-inner px-6 md:px-12 pb-8 flex gap-8 items-center">
+                    <div class="w-2/3 opacity-70">Identify the base model from a pure, unbranded blackout profile.</div>
+                    <div class="w-1/3 flex justify-end">
+                        <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-2/ticker-sneaker.jpg" 
+                             class="w-24 h-24 mix-blend-screen opacity-80" alt="Silhouette Example">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Streak Calendar -->
+    <section class="py-16 px-6 md:px-12 hairline-b bg-obsidian flex flex-col md:flex-row gap-12">
+        <div class="md:w-1/3 flex flex-col justify-between">
+            <div>
+                <h2 class="text-4xl font-bold kinetic-type uppercase mb-2">The Habit Loop</h2>
+                <p class="opacity-60 text-sm max-w-xs">287 days of recorded play. Green marks a perfect 5/5 score. Consistency builds the board.</p>
+            </div>
+            <div class="mt-12 font-mono">
+                <div class="text-[11px] opacity-50 mb-1">LONGEST ACTIVE STREAK</div>
+                <div class="text-4xl text-volt bloom-volt">287 DAYS</div>
+            </div>
+        </div>
+        
+        <div class="md:w-2/3 flex justify-end">
+            <!-- Dynamically populated via JS -->
+            <div id="streak-grid" class="flex flex-wrap gap-1 w-full max-w-2xl justify-end" style="align-content: flex-start;"></div>
+        </div>
+    </section>
+
+    <!-- Marquee Share Grid -->
+    <section class="py-6 bg-volt overflow-hidden" style="mix-blend-mode: difference;">
+        <div class="marquee-track font-mono text-xl font-bold text-obsidian tracking-widest flex items-center">
+            <!-- Repeated content for infinite loop -->
+            <div class="flex shrink-0 px-8 gap-8 items-center">
+                <span>👟👟⬛👟👟 4/5 · @HYPEBEAST</span> <span>·</span>
+                <span>👟👟👟👟👟 5/5 · @SNEAKERNEWS</span> <span>·</span>
+                <span>⬛⬛👟👟👟 3/5 · @COMPLEX</span> <span>·</span>
+                <span>👟⬛👟⬛👟 3/5 · @MARCUSD</span> <span>·</span>
+                <span>👟👟👟👟👟 5/5 · @NICEKICKS</span> <span>·</span>
+            </div>
+            <div class="flex shrink-0 px-8 gap-8 items-center">
+                <span>👟👟⬛👟👟 4/5 · @HYPEBEAST</span> <span>·</span>
+                <span>👟👟👟👟👟 5/5 · @SNEAKERNEWS</span> <span>·</span>
+                <span>⬛⬛👟👟👟 3/5 · @COMPLEX</span> <span>·</span>
+                <span>👟⬛👟⬛👟 3/5 · @MARCUSD</span> <span>·</span>
+                <span>👟👟👟👟👟 5/5 · @NICEKICKS</span> <span>·</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-obsidian px-6 md:px-12 py-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-12 hairline-t">
+        <div class="max-w-md">
+            <h4 class="text-2xl font-bold uppercase mb-4">Never Miss A Drop.</h4>
+            <p class="opacity-60 text-sm mb-6">Enter your email to get a daily reminder when the clock resets. No spam, just the daily 5.</p>
+            <form class="flex hairline-all rounded overflow-hidden" onsubmit="event.preventDefault(); this.innerHTML='<div class=\'p-4 bg-volt text-obsidian font-mono font-bold w-full text-center\'>LOCKED IN.</div>'">
+                <input type="email" placeholder="EMAIL ADDRESS" required class="bg-transparent text-bone px-4 py-3 w-full font-mono text-sm outline-none">
+                <button type="submit" class="bg-bone text-obsidian px-6 font-mono font-bold hover:bg-volt transition-colors hover-target">→</button>
+            </form>
+        </div>
+
+        <div class="flex flex-col items-start md:items-end gap-6 text-right">
+            <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-2/five-stamp.jpg" alt="Logo" class="w-16 h-16 opacity-50 mix-blend-screen">
+            <div class="font-mono text-[11px] opacity-50 flex flex-col items-start md:items-end gap-2">
+                <span>© 2026 5FOR5 · DON'T FUMBLE.</span>
+                <a href="#" class="hover:text-volt transition-colors">@5FOR5_OFFICIAL</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            gsap.registerPlugin();
+
+            const isReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // --- 1. Boot Animation ---
+            if (!isReducedMotion) {
+                gsap.to('.hero-word', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.15,
+                    ease: "power3.out",
+                    fontVariationSettings: "'wght' 800, 'wdth' 100",
+                    onComplete: () => {
+                        gsap.to('.hero-cta-wrapper', {opacity: 1, duration: 0.4});
+                    }
+                });
+            } else {
+                gsap.set('.hero-word, .hero-cta-wrapper', {opacity: 1, y: 0});
+            }
+
+            // --- 2. Custom Cursor ---
+            const cursor = document.getElementById('cursor');
+            const hoverTargets = document.querySelectorAll('.hover-target, input, button, a');
+            
+            if (window.innerWidth > 900) {
+                document.addEventListener('mousemove', (e) => {
+                    cursor.style.left = e.clientX + 'px';
+                    cursor.style.top = e.clientY + 'px';
+                });
+
+                hoverTargets.forEach(target => {
+                    target.addEventListener('mouseenter', () => cursor.classList.add('cursor-active'));
+                    target.addEventListener('mouseleave', () => cursor.classList.remove('cursor-active'));
+                });
+            }
+
+            // --- 3. Scroll Velocity Kinetic Type ---
+            let lastScrollY = window.scrollY;
+            let velocity = 0;
+            
+            function updateKineticType() {
+                if (!isReducedMotion) {
+                    const currentScrollY = window.scrollY;
+                    const delta = Math.abs(currentScrollY - lastScrollY);
+                    
+                    // Smooth velocity calculation (clamped 0-1)
+                    let targetVelocity = Math.min(delta / 50, 1);
+                    velocity += (targetVelocity - velocity) * 0.1; // Lerp
+                    
+                    document.documentElement.style.setProperty('--vel', velocity.toFixed(3));
+                    lastScrollY = currentScrollY;
+                }
+                requestAnimationFrame(updateKineticType);
+            }
+            requestAnimationFrame(updateKineticType);
+
+            // --- 4. Shot Clock Loop ---
+            if (!isReducedMotion) {
+                const shotNums = document.querySelectorAll('.shot-num');
+                let currentIndex = 0;
+
+                function tickClock() {
+                    const currentEl = shotNums[currentIndex];
+                    currentIndex = (currentIndex + 1) % shotNums.length;
+                    const nextEl = shotNums[currentIndex];
+
+                    // Animate out current
+                    gsap.to(currentEl, {
+                        opacity: 0,
+                        scale: 0.9,
+                        y: -20,
+                        duration: 0.4,
+                        ease: "power2.in"
+                    });
+
+                    // Prepare next
+                    gsap.set(nextEl, { y: 40, scale: 1 });
+                    
+                    // Animate in next
+                    gsap.to(nextEl, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.4,
+                        ease: "back.out(1.5)",
+                        onComplete: () => {
+                            // Flash effect if it's '1'
+                            if (nextEl.dataset.val === "1") {
+                                nextEl.classList.add('text-volt', 'bloom-volt');
+                                setTimeout(() => nextEl.classList.remove('text-volt', 'bloom-volt'), 150);
+                            }
+                        }
+                    });
+                }
+                setInterval(tickClock, 1200);
+            } else {
+                gsap.set('.shot-num[data-val="5"]', {opacity: 1});
+            }
+
+            // --- 5. Sample Question Logic ---
+            const answerRows = document.querySelectorAll('.answer-row');
+            const quizContainer = document.getElementById('quiz-container');
+            const feedback = document.getElementById('quiz-feedback');
+            let answered = false;
+
+            function createConfetti(x, y) {
+                for(let i=0; i<5; i++) {
+                    const shoe = document.createElement('div');
+                    shoe.className = 'confetti-shoe';
+                    shoe.innerText = '👟';
+                    shoe.style.left = x + 'px';
+                    shoe.style.top = y + 'px';
+                    document.body.appendChild(shoe);
+
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = 50 + Math.random() * 100;
+                    
+                    gsap.to(shoe, {
+                        x: Math.cos(angle) * velocity,
+                        y: Math.sin(angle) * velocity - 100, // pull up slightly
+                        rotation: Math.random() * 360,
+                        opacity: 1,
+                        duration: 0.6,
+                        ease: "power2.out",
+                        onComplete: () => {
+                            gsap.to(shoe, {opacity: 0, y: "+=50", duration: 0.4, onComplete: () => shoe.remove()});
+                        }
+                    });
+                }
+            }
+
+            answerRows.forEach(row => {
+                row.addEventListener('click', (e) => {
+                    if (answered) return;
+                    answered = true;
+                    
+                    const isCorrect = row.dataset.correct === "true";
+                    
+                    answerRows.forEach(r => r.style.pointerEvents = 'none'); // disable others
+
+                    if (isCorrect) {
+                        row.classList.add('correct');
+                        feedback.innerHTML = '<span class="text-volt bloom-volt">CORRECT.</span> +1 STREAK ADDED.';
+                        feedback.style.opacity = 1;
+                        
+                        // Confetti
+                        const rect = row.getBoundingClientRect();
+                        createConfetti(rect.left + rect.width/2, rect.top + rect.height/2);
+                        
+                        // Flash container border
+                        gsap.to(quizContainer, {borderColor: '#D7FF1C', duration: 0.2, yoyo: true, repeat: 1});
+                    } else {
+                        row.classList.add('wrong');
+                        row.classList.add('shake-active');
+                        setTimeout(() => row.classList.remove('shake-active'), 200);
+                        
+                        feedback.innerHTML = '<span class="text-flare bloom-flare">INCORRECT.</span> STREAK RESET.';
+                        feedback.style.opacity = 1;
+
+                        // Reveal correct answer softly
+                        document.querySelector('.answer-row[data-correct="true"]').style.opacity = '0.5';
+                    }
+                });
+            });
+
+            // --- 6. Streak Calendar Generation & Reveal ---
+            const streakGrid = document.getElementById('streak-grid');
+            const totalCells = 287; // Brief requirement
+            
+            // Create cells
+            for (let i = 0; i < totalCells; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'w-[6px] h-[10px] md:w-[8px] md:h-[12px] opacity-0';
+                
+                // Randomize visually interesting streak pattern (mostly played, some perfect)
+                const isPlayed = Math.random() > 0.15; // 85% play rate
+                if (isPlayed) {
+                    const isPerfect = Math.random() > 0.6; // some perfect scores
+                    cell.style.backgroundColor = isPerfect ? 'var(--volt)' : 'var(--bone)';
+                    if(isPerfect) cell.style.opacity = '0.6'; // dim volt until active
+                } else {
+                    cell.style.backgroundColor = 'rgba(242,240,232,0.1)'; // empty slot
+                }
+                
+                streakGrid.appendChild(cell);
+            }
+
+            // Intersection Observer for cascade reveal
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !isReducedMotion) {
+                        const cells = entry.target.children;
+                        gsap.to(cells, {
+                            opacity: (i, el) => el.style.backgroundColor.includes('var(--volt)') ? 0.8 : 1, // keep volt slightly dimmed to fit bg
+                            duration: 0.1,
+                            stagger: 0.004,
+                            ease: "none",
+                            onComplete: () => observer.disconnect() // run once
+                        });
+                    } else if (entry.isIntersecting && isReducedMotion) {
+                        gsap.set(entry.target.children, {opacity: 1});
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.3 });
+            
+            observer.observe(streakGrid);
+
+        });
+    </script>
+</body>
+</html>

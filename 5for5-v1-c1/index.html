@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5 FOR 5 — The Boxscore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    @property --p {
+      syntax: '<percentage>';
+      inherits: false;
+      initial-value: 0%;
+    }
+
+    :root{
+      --ink:#0A0B0D;
+      --panel:#15171A;
+      --bone:#EFE9DD;
+      --acid:#C8FF2E;
+      --muted:#5A5A5A;
+      --line:rgba(90,90,90,0.4);
+      --ease:cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *{ box-sizing:border-box; }
+    html{ background:#0A0B0D; color:#EFE9DD; scroll-behavior:smooth; }
+    body{
+      margin:0;
+      min-height:100vh;
+      background:#0A0B0D;
+      color:#EFE9DD;
+      font-family:'Space Grotesk', sans-serif;
+      overflow-x:hidden;
+    }
+
+    body::selection{ background:#C8FF2E; color:#0A0B0D; }
+
+    .mono, .num, time, input{
+      font-family:'JetBrains Mono', monospace;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .grain{
+      position:fixed;
+      inset:0;
+      z-index:60;
+      pointer-events:none;
+      opacity:0.08;
+      mix-blend-mode:overlay;
+      background-image:url('https://changzack.github.io/prototypes/_assets/5for5-v1/concept-1/paper-grain-texture.jpg');
+      background-size:cover;
+      background-position:center;
+    }
+
+    .cursor{
+      position:fixed;
+      width:18px;
+      height:18px;
+      border:1px solid #EFE9DD;
+      border-radius:50%;
+      pointer-events:none;
+      z-index:80;
+      mix-blend-mode:difference;
+      transform:translate(-50%,-50%);
+      transition:width 120ms var(--ease), height 120ms var(--ease), opacity 120ms var(--ease);
+    }
+    .cursor.hot{ width:42px; height:42px; border-color:#C8FF2E; }
+
+    .ticker{
+      position:sticky;
+      top:0;
+      z-index:50;
+      height:36px;
+      overflow:hidden;
+      background:#15171A;
+      border-bottom:1px solid rgba(90,90,90,0.4);
+      transform:translateY(-100%);
+      animation:tickerDrop 280ms var(--ease) forwards;
+    }
+    .ticker::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:0.04;
+      background:repeating-linear-gradient(
+        to bottom,
+        rgba(200,255,46,0.95) 0,
+        rgba(200,255,46,0.95) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+    @keyframes tickerDrop{ to{ transform:translateY(0); } }
+
+    .ticker-track{
+      display:flex;
+      width:max-content;
+      height:36px;
+      align-items:center;
+      animation:marquee 40s linear infinite;
+    }
+    .ticker:hover .ticker-track{ animation-play-state:paused; }
+
+    @keyframes marquee{
+      from{ transform:translateX(0); }
+      to{ transform:translateX(-50%); }
+    }
+
+    .ticker-set{
+      display:flex;
+      gap:18px;
+      padding:0 18px;
+      white-space:nowrap;
+      color:#EFE9DD;
+      font:400 11px/36px 'JetBrains Mono', monospace;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+    .up{ color:#C8FF2E; }
+
+    .frame{
+      position:relative;
+      display:grid;
+      grid-template-columns:160px minmax(0, 880px) 220px;
+      max-width:1260px;
+      margin:0 auto;
+      border-left:1px solid rgba(90,90,90,0.4);
+      border-right:1px solid rgba(90,90,90,0.4);
+      min-height:calc(100vh - 36px);
+    }
+
+    .left-rail{
+      position:sticky;
+      top:36px;
+      align-self:start;
+      height:calc(100vh - 36px);
+      background:#0A0B0D;
+      border-right:1px solid rgba(90,90,90,0.4);
+      padding:22px 12px 18px;
+      overflow:hidden;
+    }
+
+    .main{
+      position:relative;
+      max-width:880px;
+      min-width:0;
+      background:#0A0B0D;
+    }
+
+    .grid-lines{
+      position:absolute;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+    }
+    .grid-lines span{ border-left:1px solid rgba(90,90,90,0.16); }
+    .grid-lines span:last-child{ border-right:1px solid rgba(90,90,90,0.16); }
+
+    .right-rail{
+      position:sticky;
+      top:36px;
+      align-self:start;
+      height:calc(100vh - 36px);
+      background:#15171A;
+      border-left:1px solid rgba(90,90,90,0.4);
+      padding:18px 14px;
+      overflow:hidden;
+    }
+
+    .mark{
+      position:relative;
+      width:160px;
+      margin-left:-12px;
+      text-align:left;
+      color:#EFE9DD;
+      letter-spacing:-0.08em;
+      line-height:0.72;
+      user-select:none;
+    }
+    .mark-part{ opacity:0; }
+    .mark-number{
+      display:block;
+      font-family:'Space Grotesk', sans-serif;
+      font-size:280px;
+      font-weight:700;
+      transform:translateX(-20px);
+    }
+    .mark-for{
+      display:block;
+      font-family:'Space Grotesk', sans-serif;
+      font-size:24px;
+      font-weight:500;
+      letter-spacing:0.2em;
+      padding-left:17px;
+      line-height:1;
+      margin:-9px 0 -15px;
+    }
+    .caret{
+      display:inline-block;
+      width:8px;
+      height:24px;
+      margin-left:6px;
+      background:#C8FF2E;
+      animation:blink 700ms steps(1) infinite;
+      vertical-align:-3px;
+    }
+    @keyframes blink{ 50%{ opacity:0; } }
+
+    .rail-meta{
+      position:absolute;
+      left:12px;
+      right:12px;
+      bottom:154px;
+      border-top:1px solid rgba(90,90,90,0.4);
+      padding-top:14px;
+      color:#EFE9DD;
+      font:400 11px/1.75 'JetBrains Mono', monospace;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .stamp-rail{
+      position:absolute;
+      left:20px;
+      bottom:18px;
+      width:120px;
+      height:120px;
+      transform:rotate(-4deg);
+      opacity:0.9;
+      mix-blend-mode:screen;
+      object-fit:contain;
+    }
+
+    .row{
+      position:relative;
+      z-index:1;
+      padding:26px 24px 34px;
+      border-top:1px solid rgba(90,90,90,0.4);
+    }
+    .row:first-of-type{ border-top:0; }
+
+    .hairline{
+      position:absolute;
+      top:-1px;
+      left:0;
+      width:100%;
+      height:1px;
+      pointer-events:none;
+    }
+    .hairline::before{
+      content:"";
+      display:block;
+      height:1px;
+      background:rgba(90,90,90,0.4);
+      clip-path:inset(0 100% 0 0);
+      animation:drawLine 400ms var(--ease) forwards;
+      animation-delay:calc(80ms + (var(--i) * 40ms));
+    }
+    @keyframes drawLine{
+      from{ clip-path:inset(0 100% 0 0); }
+      to{ clip-path:inset(0 0 0 0); }
+    }
+
+    .row-label{
+      display:block;
+      margin-bottom:22px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:10px;
+      font-weight:400;
+      line-height:1;
+      letter-spacing:0.15em;
+      text-transform:uppercase;
+      color:#5A5A5A;
+      opacity:0;
+      animation:labelIn 200ms ease-out forwards;
+      animation-delay:280ms;
+      font-variant-numeric:tabular-nums;
+    }
+    @keyframes labelIn{ to{ opacity:1; } }
+
+    .twelve-grid{
+      display:grid;
+      grid-template-columns:repeat(12, 1fr);
+      gap:0;
+    }
+
+    .hero-copy{ grid-column:1 / 9; }
+    .hero-side{ grid-column:9 / 13; border-left:1px solid rgba(90,90,90,0.4); padding-left:18px; }
+
+    h1{
+      margin:0 0 12px;
+      max-width:720px;
+      font-size:clamp(56px, 8vw, 112px);
+      line-height:0.86;
+      letter-spacing:-0.07em;
+      font-weight:700;
+    }
+    .dek{
+      max-width:600px;
+      margin:0 0 24px;
+      font-size:22px;
+      line-height:1.1;
+      letter-spacing:-0.03em;
+      color:#EFE9DD;
+    }
+    .rules{
+      display:grid;
+      grid-template-columns:repeat(5, 1fr);
+      border-top:1px solid rgba(90,90,90,0.4);
+      border-left:1px solid rgba(90,90,90,0.4);
+      margin:26px 0 0;
+    }
+    .rule{
+      min-height:76px;
+      padding:10px 8px;
+      border-right:1px solid rgba(90,90,90,0.4);
+      border-bottom:1px solid rgba(90,90,90,0.4);
+      font:400 10px/1.35 'JetBrains Mono', monospace;
+      letter-spacing:0.04em;
+      color:#EFE9DD;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+    .rule b{ color:#C8FF2E; font-weight:700; }
+
+    .cta{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:52px;
+      padding:0 22px;
+      border:1px solid #C8FF2E;
+      background:#C8FF2E;
+      color:#0A0B0D;
+      font:700 13px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.1em;
+      text-transform:uppercase;
+      text-decoration:none;
+      cursor:pointer;
+      transition:transform 90ms var(--ease), background 120ms var(--ease);
+      font-variant-numeric:tabular-nums;
+    }
+    .cta:active{ transform:translateY(2px); }
+    .cta.secondary{
+      background:#15171A;
+      color:#EFE9DD;
+      border-color:rgba(90,90,90,0.4);
+    }
+
+    .stat-stack{
+      display:grid;
+      gap:14px;
+      font:400 10px/1.25 'JetBrains Mono', monospace;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:#5A5A5A;
+      font-variant-numeric:tabular-nums;
+    }
+    .stat-stack strong{
+      display:block;
+      margin-top:4px;
+      color:#EFE9DD;
+      font-size:26px;
+      line-height:1;
+      letter-spacing:-0.05em;
+    }
+
+    .sample-grid{
+      display:grid;
+      grid-template-columns:minmax(0, 54%) minmax(280px, 46%);
+      gap:0;
+      border:1px solid rgba(90,90,90,0.4);
+      background:#15171A;
+    }
+    .shoe-frame{
+      position:relative;
+      min-height:390px;
+      overflow:hidden;
+      border-right:1px solid rgba(90,90,90,0.4);
+      background:#0A0B0D;
+      clip-path:inset(0 0 0 0);
+    }
+    .shoe-frame::before{
+      content:"SNEAKER_IMAGE / PIPELINE FEED";
+      position:absolute;
+      left:12px;
+      top:12px;
+      z-index:3;
+      font:400 10px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.12em;
+      color:#5A5A5A;
+      font-variant-numeric:tabular-nums;
+    }
+    .shoe-frame img{
+      width:100%;
+      height:100%;
+      min-height:390px;
+      object-fit:cover;
+      display:block;
+      transform:translateY(0);
+      animation:imageReveal 600ms var(--ease) 220ms both;
+    }
+    @keyframes imageReveal{
+      from{ clip-path:inset(0 0 100% 0); transform:translateY(14px); }
+      to{ clip-path:inset(0 0 0 0); transform:translateY(0); }
+    }
+
+    .question-panel{ padding:18px; }
+    .question-panel h2{
+      margin:0 0 6px;
+      font-size:32px;
+      line-height:1;
+      letter-spacing:-0.05em;
+      font-weight:700;
+    }
+    .question-panel p{
+      margin:0 0 22px;
+      color:#5A5A5A;
+      font:400 11px/1.45 'JetBrains Mono', monospace;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .choices{ display:grid; gap:14px; }
+    .choice{
+      appearance:none;
+      border:0;
+      width:100%;
+      padding:0;
+      background:transparent;
+      color:#5A5A5A;
+      text-align:left;
+      cursor:pointer;
+      font-family:'Space Grotesk', sans-serif;
+    }
+    .choice-top{
+      display:grid;
+      grid-template-columns:26px 1fr 54px;
+      align-items:end;
+      gap:8px;
+      margin-bottom:6px;
+      font-size:18px;
+      line-height:1;
+      font-weight:500;
+      letter-spacing:-0.03em;
+    }
+    .choice .pct{
+      text-align:right;
+      font-family:'JetBrains Mono', monospace;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0;
+      font-variant-numeric:tabular-nums;
+    }
+    .dist-svg{ display:block; width:100%; height:6px; overflow:visible; }
+    .dist-bg{ fill:rgba(90,90,90,0.25); }
+    .dist-fill{
+      width:0;
+      transition:width 600ms ease-out;
+      fill:#5A5A5A;
+    }
+    .choice.correct{ color:#C8FF2E; }
+    .choice.correct .dist-fill{ fill:#C8FF2E; }
+    .choice.wrong-flash{ animation:wrongFlash 200ms linear 1; }
+    @keyframes wrongFlash{
+      0%{ color:#C8FF2E; }
+      100%{ color:#5A5A5A; }
+    }
+    .caption{
+      margin-top:16px;
+      min-height:18px;
+      opacity:0;
+      color:#C8FF2E;
+      font:700 12px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.1em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+    .caption.show{ opacity:1; }
+
+    .categories{ display:grid; gap:12px; }
+    .category-row{
+      display:grid;
+      grid-template-columns:172px minmax(0, 1fr) 58px;
+      align-items:center;
+      gap:14px;
+      min-height:54px;
+      padding-bottom:12px;
+      border-bottom:1px solid rgba(90,90,90,0.4);
+      animation:categoryView both;
+      animation-timeline:view();
+      animation-range:entry 0% cover 40%;
+    }
+    @keyframes categoryView{
+      from{ opacity:0.7; transform:translateY(8px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+    .category-name{
+      font-size:18px;
+      line-height:1;
+      font-weight:500;
+      letter-spacing:-0.04em;
+    }
+    .category-name small{
+      display:block;
+      margin-top:7px;
+      color:#5A5A5A;
+      font:400 10px/1.25 'JetBrains Mono', monospace;
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+    .barfill{
+      height:6px;
+      --p:0%;
+      background:linear-gradient(90deg, #C8FF2E 0 var(--p), rgba(90,90,90,0.3) var(--p) 100%);
+      transition:--p 800ms var(--ease);
+    }
+    .category-row .pct{
+      text-align:right;
+      color:#EFE9DD;
+      font:700 12px/1 'JetBrains Mono', monospace;
+      font-variant-numeric:tabular-nums;
+    }
+    .silhouette-mini{
+      width:80px;
+      height:54px;
+      object-fit:cover;
+      opacity:0.85;
+      mix-blend-mode:screen;
+      border:1px solid rgba(90,90,90,0.4);
+      margin-top:8px;
+    }
+
+    .heatmap-wrap{
+      overflow-x:auto;
+      padding-bottom:4px;
+    }
+    .heatmap{
+      display:block;
+      width:726px;
+      height:96px;
+    }
+    .heatmap rect{
+      fill:rgba(90,90,90,0.28);
+      transition:fill 240ms var(--ease), opacity 240ms var(--ease);
+      animation:heatView both;
+      animation-timeline:view();
+      animation-range:entry 0% cover 35%;
+    }
+    @keyframes heatView{
+      from{ opacity:0.45; }
+      to{ opacity:1; }
+    }
+    .heat-legend{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-top:14px;
+      color:#5A5A5A;
+      font:400 10px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+    .legend-cell{ width:12px; height:12px; background:rgba(90,90,90,0.28); }
+    .legend-cell.l1{ background:rgba(200,255,46,0.22); }
+    .legend-cell.l2{ background:rgba(200,255,46,0.45); }
+    .legend-cell.l3{ background:rgba(200,255,46,0.72); }
+    .legend-cell.today{ background:#C8FF2E; }
+
+    .asphalt-band{
+      height:120px;
+      margin:0;
+      border-top:1px solid rgba(90,90,90,0.4);
+      border-bottom:1px solid rgba(90,90,90,0.4);
+      background-image:url('https://changzack.github.io/prototypes/_assets/5for5-v1/concept-1/asphalt-detail-texture.jpg');
+      background-size:cover;
+      background-position:center;
+      opacity:0.6;
+      mix-blend-mode:lighten;
+    }
+
+    .histogram{
+      display:grid;
+      grid-template-columns:1fr 220px;
+      gap:22px;
+      align-items:end;
+    }
+    .hist-svg{
+      width:100%;
+      height:260px;
+      border-left:1px solid rgba(90,90,90,0.4);
+      border-bottom:1px solid rgba(90,90,90,0.4);
+      overflow:visible;
+    }
+    .hist-labels{
+      display:grid;
+      gap:10px;
+      color:#5A5A5A;
+      font:400 10px/1.2 'JetBrains Mono', monospace;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .share-grid{
+      padding:14px;
+      border:1px solid rgba(90,90,90,0.4);
+      background:#15171A;
+      font:700 18px/1.45 'JetBrains Mono', monospace;
+      letter-spacing:0.18em;
+      font-variant-numeric:tabular-nums;
+    }
+    .share-grid small{
+      display:block;
+      margin-bottom:10px;
+      color:#5A5A5A;
+      font:400 10px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .drop-grid{
+      display:grid;
+      grid-template-columns:1fr 260px;
+      gap:24px;
+      align-items:end;
+    }
+    .email-form{
+      display:grid;
+      grid-template-columns:1fr auto;
+      border:1px solid rgba(90,90,90,0.4);
+      background:#15171A;
+      height:48px;
+    }
+    .email-form input{
+      min-width:0;
+      border:0;
+      outline:0;
+      padding:0 12px;
+      background:#15171A;
+      color:#EFE9DD;
+      font-size:11px;
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+    }
+    .email-form button{
+      border:0;
+      border-left:1px solid rgba(90,90,90,0.4);
+      background:#0A0B0D;
+      color:#C8FF2E;
+      padding:0 14px;
+      cursor:pointer;
+      font:700 11px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.1em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+    .form-note{
+      margin-top:10px;
+      min-height:14px;
+      color:#C8FF2E;
+      font:700 10px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.1em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .footer{
+      display:grid;
+      grid-template-columns:80px 1fr auto;
+      gap:18px;
+      align-items:center;
+      border-top:1px solid rgba(90,90,90,0.4);
+      padding:22px 24px;
+      color:#5A5A5A;
+      font:400 10px/1.5 'JetBrains Mono', monospace;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+    .footer img{
+      width:80px;
+      height:80px;
+      object-fit:contain;
+      opacity:0.5;
+      mix-blend-mode:screen;
+    }
+    .footer a{ color:#EFE9DD; text-decoration:none; }
+    .footer b{ color:#EFE9DD; font-weight:700; }
+
+    .leader-title{
+      margin:0 0 18px;
+      color:#5A5A5A;
+      font:400 10px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.15em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+    .leaderboard{
+      display:grid;
+      gap:0;
+      margin-bottom:20px;
+      border-top:1px solid rgba(90,90,90,0.4);
+    }
+    .leader{
+      display:grid;
+      grid-template-columns:28px 1fr 42px;
+      gap:8px;
+      padding:8px 0;
+      border-bottom:1px solid rgba(90,90,90,0.4);
+      font:400 11px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+      color:#EFE9DD;
+      font-variant-numeric:tabular-nums;
+    }
+    .leader span:first-child, .leader span:last-child{ color:#5A5A5A; }
+    .leader:first-child span:last-child{ color:#C8FF2E; }
+
+    .gauge-card{
+      border:1px solid rgba(90,90,90,0.4);
+      padding:14px;
+      background:#0A0B0D;
+    }
+    .gauge{
+      width:150px;
+      height:150px;
+      display:block;
+      margin:0 auto 10px;
+    }
+    .gauge circle{ fill:none; stroke-width:10; }
+    .gauge-bg{ stroke:rgba(90,90,90,0.3); }
+    .gauge-progress{
+      stroke:#C8FF2E;
+      stroke-linecap:square;
+      stroke-dasharray:201;
+      stroke-dashoffset:201;
+      animation:gaugeIn 1200ms var(--ease) 650ms forwards;
+    }
+    @keyframes gaugeIn{ to{ stroke-dashoffset:72; } }
+    .gauge-text{
+      text-align:center;
+      color:#EFE9DD;
+      font:700 28px/1 'JetBrains Mono', monospace;
+      font-variant-numeric:tabular-nums;
+    }
+    .gauge-text small{
+      display:block;
+      margin-top:7px;
+      color:#5A5A5A;
+      font:400 10px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .motion-controls{
+      position:fixed;
+      right:14px;
+      bottom:14px;
+      z-index:70;
+      display:flex;
+      gap:8px;
+    }
+    .motion-controls button{
+      height:32px;
+      border:1px solid rgba(90,90,90,0.4);
+      background:#15171A;
+      color:#EFE9DD;
+      padding:0 10px;
+      cursor:pointer;
+      font:700 10px/1 'JetBrains Mono', monospace;
+      letter-spacing:0.1em;
+      text-transform:uppercase;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .fallback{
+      background:#15171A;
+      border:1px solid rgba(90,90,90,0.4);
+      display:grid;
+      place-items:center;
+      color:#5A5A5A;
+      font:400 10px/1.3 'JetBrains Mono', monospace;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      text-align:center;
+      padding:12px;
+      font-variant-numeric:tabular-nums;
+    }
+
+    @media (max-width: 980px){
+      .frame{ grid-template-columns:130px minmax(0, 1fr); }
+      .right-rail{ display:none; }
+      .left-rail{ width:130px; }
+      .mark-number{ font-size:220px; }
+      .rules{ grid-template-columns:1fr; }
+      .rule{ min-height:auto; }
+    }
+
+    @media (max-width: 768px){
+      .cursor{ display:none; }
+      .frame{
+        display:block;
+        border-left:0;
+        border-right:0;
+      }
+      .left-rail{
+        position:relative;
+        top:auto;
+        height:auto;
+        width:100%;
+        padding:10px 14px;
+        border-right:0;
+        border-bottom:1px solid rgba(90,90,90,0.4);
+        display:grid;
+        grid-template-columns:1fr auto;
+        align-items:center;
+      }
+      .mark{
+        width:auto;
+        margin:0;
+        display:flex;
+        align-items:baseline;
+        gap:8px;
+        letter-spacing:-0.07em;
+      }
+      .mark-number{
+        display:inline;
+        font-size:72px;
+        line-height:0.82;
+        transform:none;
+      }
+      .mark-for{
+        display:inline;
+        font-size:16px;
+        margin:0;
+        padding:0;
+      }
+      .caret{ height:16px; }
+      .rail-meta{
+        position:relative;
+        left:auto;
+        right:auto;
+        bottom:auto;
+        border-top:0;
+        padding:0;
+        text-align:right;
+      }
+      .stamp-rail{ display:none; }
+      .hero-copy, .hero-side{ grid-column:1 / -1; }
+      .hero-side{ border-left:0; padding-left:0; margin-top:24px; }
+      .sample-grid{ grid-template-columns:1fr; }
+      .shoe-frame{ border-right:0; border-bottom:1px solid rgba(90,90,90,0.4); min-height:280px; }
+      .shoe-frame img{ min-height:280px; }
+      .category-row{ grid-template-columns:1fr; gap:8px; }
+      .histogram, .drop-grid{ grid-template-columns:1fr; }
+      .footer{ grid-template-columns:60px 1fr; }
+      .footer img{ width:60px; height:60px; }
+      .footer .social{ grid-column:2; }
+    }
+
+    @media (max-width: 375px){
+      .row{ padding:22px 14px 30px; }
+      h1{ font-size:58px; }
+      .dek{ font-size:18px; }
+      .choice-top{ grid-template-columns:22px 1fr 46px; font-size:16px; }
+      .email-form{ grid-template-columns:1fr; height:auto; }
+      .email-form input{ height:44px; }
+      .email-form button{ height:44px; border-left:0; border-top:1px solid rgba(90,90,90,0.4); }
+      .ticker-set{ font-size:10px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *, *::before, *::after{ animation-duration:1ms !important; transition-duration:1ms !important; scroll-behavior:auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor" aria-hidden="true"></div>
+
+  <header class="ticker" aria-label="Live 5 for 5 stats ticker">
+    <div class="ticker-track">
+      <div class="ticker-set">
+        <span>5FOR5</span><span>▸</span>
+        <span><time class="live-time">14:32:08 UTC</time></span><span>▸</span>
+        <span><span class="num player-count">00,000</span> PLAYING NOW</span><span>▸</span>
+        <span>AVG <span class="num avg-score">0.0</span>/5</span><span>▸</span>
+        <span>YESTERDAY'S HARDEST <span class="num">31%</span></span><span>▸</span>
+        <span>STREAK LEADER <span class="up">▲ 287D</span></span><span>▸</span>
+      </div>
+      <div class="ticker-set" aria-hidden="true">
+        <span>5FOR5</span><span>▸</span>
+        <span><time class="live-time">14:32:08 UTC</time></span><span>▸</span>
+        <span><span class="num player-count">00,000</span> PLAYING NOW</span><span>▸</span>
+        <span>AVG <span class="num avg-score">0.0</span>/5</span><span>▸</span>
+        <span>YESTERDAY'S HARDEST <span class="num">31%</span></span><span>▸</span>
+        <span>STREAK LEADER <span class="up">▲ 287D</span></span><span>▸</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="frame">
+    <aside class="left-rail" aria-label="5 for 5 scorecard rail">
+      <div class="mark" aria-label="5 FOR 5">
+        <span class="mark-number mark-part">5</span>
+        <span class="mark-for mark-part">FOR</span>
+        <span class="mark-number mark-part">5</span><span class="caret" aria-hidden="true"></span>
+      </div>
+      <div class="rail-meta mono">
+        <div>DAY <span class="num">042</span></div>
+        <div><time class="live-time">14:32:08 UTC</time></div>
+        <div>STREAK <span class="up">▲ <span class="num">287</span></span></div>
+      </div>
+      <img class="stamp-rail" src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-1/five-for-five-stamp.jpg" alt="5 FOR 5 daily sneaker quiz day 042 stamp" width="400" height="400" loading="eager" onerror="this.outerHTML='<div class=&quot;stamp-rail fallback&quot;>5 FOR 5<br>STAMP</div>'">
+    </aside>
+
+    <main class="main">
+      <div class="grid-lines" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <section class="row" id="row-01" style="--i:0">
+        <span class="hairline" aria-hidden="true"></span>
+        <span class="row-label mono">ROW 01 / THE GAME</span>
+        <div class="twelve-grid">
+          <div class="hero-copy">
+            <h1>FIVE QUESTIONS. ONE SHOT.</h1>
+            <p class="dek">A daily sneaker boxscore for people who know the difference between lore, leather, and loud guesses. Don’t fumble the easy pair.</p>
+            <button class="cta hot-target" id="playCta" type="button">PLAY TODAY'S 5 →</button>
+            <div class="rules" aria-label="Rules">
+              <div class="rule"><b>01</b><br>Five sneaker calls drop daily at midnight.</div>
+              <div class="rule"><b>02</b><br>No account. No warmup. First answer counts.</div>
+              <div class="rule"><b>03</b><br>Score posts as a share grid, Wordle-style.</div>
+              <div class="rule"><b>04</b><br>Categories rotate: colorway, year, collab, silhouette, lore.</div>
+              <div class="rule"><b>05</b><br>Miss one? Hold that L until tomorrow.</div>
+            </div>
+          </div>
+          <aside class="hero-side">
+            <div class="stat-stack">
+              <div>PLAYERS TODAY<strong class="num player-count">00,000</strong></div>
+              <div>AVG SCORE<strong><span class="num avg-score">0.0</span>/5</strong></div>
+              <div>HARD QUESTION<strong class="num">31%</strong></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="row" id="row-02" style="--i:1">
+        <span class="hairline" aria-hidden="true"></span>
+        <span class="row-label mono">ROW 02 / SAMPLE — TRY IT</span>
+        <div class="sample-grid">
+          <div class="shoe-frame">
+            <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-1/mystery-silhouette.jpg" alt="Mystery sneaker silhouette for sample question" width="900" height="600" loading="eager" onerror="this.outerHTML='<div class=&quot;fallback&quot; style=&quot;height:390px&quot;>MYSTERY SNEAKER IMAGE</div>'">
+          </div>
+          <div class="question-panel">
+            <h2>Name this colorway.</h2>
+            <p class="mono">Category: colorway lore / archive clue: banned from the league, never from the block.</p>
+            <div class="choices" id="choices">
+              <button class="choice hot-target" data-choice="A" data-pct="9" type="button">
+                <span class="choice-top"><span>A</span><span>Chicago</span><span class="pct num">00%</span></span>
+                <svg class="dist-svg" viewBox="0 0 100 6" preserveAspectRatio="none"><rect class="dist-bg" x="0" y="0" width="100" height="6"></rect><rect class="dist-fill" x="0" y="0" width="0" height="6"></rect></svg>
+              </button>
+              <button class="choice hot-target" data-choice="B" data-pct="31" type="button">
+                <span class="choice-top"><span>B</span><span>Shadow</span><span class="pct num">00%</span></span>
+                <svg class="dist-svg" viewBox="0 0 100 6" preserveAspectRatio="none"><rect class="dist-bg" x="0" y="0" width="100" height="6"></rect><rect class="dist-fill" x="0" y="0" width="0" height="6"></rect></svg>
+              </button>
+              <button class="choice hot-target" data-choice="C" data-pct="47" type="button">
+                <span class="choice-top"><span>C</span><span>AJ1 “Banned”</span><span class="pct num">00%</span></span>
+                <svg class="dist-svg" viewBox="0 0 100 6" preserveAspectRatio="none"><rect class="dist-bg" x="0" y="0" width="100" height="6"></rect><rect class="dist-fill" x="0" y="0" width="0" height="6"></rect></svg>
+              </button>
+              <button class="choice hot-target" data-choice="D" data-pct="13" type="button">
+                <span class="choice-top"><span>D</span><span>Royal</span><span class="pct num">00%</span></span>
+                <svg class="dist-svg" viewBox="0 0 100 6" preserveAspectRatio="none"><rect class="dist-bg" x="0" y="0" width="100" height="6"></rect><rect class="dist-fill" x="0" y="0" width="0" height="6"></rect></svg>
+              </button>
+            </div>
+            <div class="caption mono" id="answerCaption">✓ 47% GOT THIS</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="row" id="row-03" style="--i:2">
+        <span class="hairline" aria-hidden="true"></span>
+        <span class="row-label mono">ROW 03 / THE 5 CATEGORIES</span>
+        <div class="categories">
+          <div class="category-row">
+            <div class="category-name">Colorway Lore<small>Example: AJ1 “Banned” history</small></div>
+            <div class="barfill" data-p="84%"></div><div class="pct num">84%</div>
+          </div>
+          <div class="category-row">
+            <div class="category-name">Release Year<small>Example: 1996 patent leather debut</small></div>
+            <div class="barfill" data-p="62%"></div><div class="pct num">62%</div>
+          </div>
+          <div class="category-row">
+            <div class="category-name">Collab Call<small>Example: designer, boutique, artist</small></div>
+            <div class="barfill" data-p="71%"></div><div class="pct num">71%</div>
+          </div>
+          <div class="category-row">
+            <div class="category-name">Mystery Silhouette<small>Example: ID the outsole profile</small><br><img class="silhouette-mini" src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-1/mystery-silhouette.jpg" alt="Mini mystery sneaker silhouette" width="900" height="600" loading="eager"></div>
+            <div class="barfill" data-p="49%"></div><div class="pct num">49%</div>
+          </div>
+          <div class="category-row">
+            <div class="category-name">Court Myth<small>Example: fined, banned, PE, sample</small></div>
+            <div class="barfill" data-p="57%"></div><div class="pct num">57%</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="row" id="row-04" style="--i:3">
+        <span class="hairline" aria-hidden="true"></span>
+        <span class="row-label mono">ROW 04 / STREAK CALENDAR</span>
+        <div class="heatmap-wrap">
+          <svg class="heatmap" id="heatmap" viewBox="0 0 726 96" role="img" aria-label="52 by 7 day streak heatmap"></svg>
+        </div>
+        <div class="heat-legend mono">
+          <span>MISS</span><span class="legend-cell"></span><span class="legend-cell l1"></span><span class="legend-cell l2"></span><span class="legend-cell l3"></span><span class="legend-cell today"></span><span>TODAY / 5 FOR 5</span>
+        </div>
+      </section>
+
+      <div class="asphalt-band" aria-hidden="true"></div>
+
+      <section class="row" id="row-05" style="--i:4">
+        <span class="hairline" aria-hidden="true"></span>
+        <span class="row-label mono">ROW 05 / DISTRIBUTION OF SCORES</span>
+        <div class="histogram">
+          <svg class="hist-svg" viewBox="0 0 560 260" role="img" aria-label="Score distribution histogram from 0 of 5 through 5 of 5">
+            <g fill="rgba(90,90,90,0.22)">
+              <rect x="0" y="52" width="560" height="1"></rect>
+              <rect x="0" y="104" width="560" height="1"></rect>
+              <rect x="0" y="156" width="560" height="1"></rect>
+              <rect x="0" y="208" width="560" height="1"></rect>
+            </g>
+            <g font-family="'JetBrains Mono', monospace" font-size="10" fill="#5A5A5A">
+              <text x="24" y="254">0/5</text><text x="112" y="254">1/5</text><text x="200" y="254">2/5</text><text x="288" y="254">3/5</text><text x="376" y="254">4/5</text><text x="464" y="254">5/5</text>
+            </g>
+            <g>
+              <rect x="28" y="226" width="42" height="34" fill="#5A5A5A"></rect>
+              <rect x="116" y="206" width="42" height="54" fill="#5A5A5A"></rect>
+              <rect x="204" y="164" width="42" height="96" fill="#5A5A5A"></rect>
+              <rect x="292" y="84" width="42" height="176" fill="#5A5A5A"></rect>
+              <rect x="380" y="112" width="42" height="148" fill="#5A5A5A"></rect>
+              <rect x="468" y="146" width="42" height="114" fill="#C8FF2E"></rect>
+            </g>
+          </svg>
+          <div>
+            <div class="hist-labels">
+              <div>Today's mean: <span class="num">3.2/5</span></div>
+              <div>Most common: <span class="num">3/5</span></div>
+              <div>Perfect cards: <span class="num">1,124</span></div>
+              <div>Hardest prompt: <span class="num">31%</span> correct</div>
+            </div>
+            <div class="share-grid" style="margin-top:18px">
+              <small>Share grid / DAY 042 / #5FOR5</small>
+              👟 👟 👟 👟 ⬛
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="row" id="row-06" style="--i:5">
+        <span class="hairline" aria-hidden="true"></span>
+        <span class="row-label mono">ROW 06 / EMAIL DROP + FOOTER</span>
+        <div class="drop-grid">
+          <div>
+            <h2 style="margin:0 0 10px;font-size:44px;line-height:.95;letter-spacing:-.06em;">Tomorrow’s pair will not wait for you.</h2>
+            <p class="dek" style="font-size:18px;margin-bottom:0;color:#5A5A5A;">Drop the email if you want the midnight link. Keep the receipts if you go five clean.</p>
+          </div>
+          <form class="email-form" id="emailForm">
+            <input aria-label="Email address" type="email" placeholder="DROP YOUR EMAIL" required>
+            <button class="hot-target" type="submit">LOCK</button>
+          </form>
+        </div>
+        <div class="form-note mono" id="formNote"></div>
+      </section>
+
+      <footer class="footer">
+        <img src="https://changzack.github.io/prototypes/_assets/5for5-v1/concept-1/five-for-five-stamp.jpg" alt="5 FOR 5 footer stamp" width="400" height="400" loading="eager" onerror="this.outerHTML='<div class=&quot;fallback&quot;>STAMP</div>'">
+        <div><b>5 FOR 5</b><br>Five sneaker questions daily. One boxscore. No mercy for fake lore.<br>© <span class="num">2026</span> 5FOR5 SCORECARD OFFICE</div>
+        <div class="social"><a class="hot-target" href="#row-01" aria-label="Social handle">@5FOR5DAILY</a></div>
+      </footer>
+    </main>
+
+    <aside class="right-rail" aria-label="Leaderboard and average gauge">
+      <h3 class="leader-title mono">TOP 10 / TODAY</h3>
+      <div class="leaderboard">
+        <div class="leader"><span>01</span><b>SOLEAUDIT</b><span>5/5</span></div>
+        <div class="leader"><span>02</span><b>BOXTAG</b><span>5/5</span></div>
+        <div class="leader"><span>03</span><b>OGMESH</b><span>4/5</span></div>
+        <div class="leader"><span>04</span><b>VAMP1985</b><span>4/5</span></div>
+        <div class="leader"><span>05</span><b>LACECHECK</b><span>4/5</span></div>
+        <div class="leader"><span>06</span><b>SAMPLEBIN</b><span>3/5</span></div>
+        <div class="leader"><span>07</span><b>PAIRWATCH</b><span>3/5</span></div>
+        <div class="leader"><span>08</span><b>TOEBOX</b><span>3/5</span></div>
+        <div class="leader"><span>09</span><b>HEELTAB</b><span>2/5</span></div>
+        <div class="leader"><span>10</span><b>RETROLOG</b><span>2/5</span></div>
+      </div>
+
+      <div class="gauge-card">
+        <svg class="gauge" viewBox="0 0 80 80" role="img" aria-label="Radial gauge today's average score">
+          <circle class="gauge-bg" cx="40" cy="40" r="32"></circle>
+          <circle class="gauge-progress" cx="40" cy="40" r="32" transform="rotate(-90 40 40)" stroke-dasharray="201" stroke-dashoffset="201"></circle>
+        </svg>
+        <div class="gauge-text"><span class="num avg-score">0.0</span>/5<small>Today's average</small></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="motion-controls" aria-label="Animation controls">
+    <button id="replay" type="button">PLAY</button>
+    <button id="static" type="button">RESET</button>
+  </div>
+
+  <script>
+    const categories = [
+      {name:"Colorway Lore", description:"AJ1 “Banned” history, nickname origins, infamous fines.", example:"Which colorway turned a league warning into mythology?", difficulty:84},
+      {name:"Release Year", description:"Era calls from OG runs through retro chaos.", example:"Name the debut year from a patent leather clue.", difficulty:62},
+      {name:"Collab Call", description:"Designer, boutique, artist, athlete, friends-and-family.", example:"Who touched the pair before resale touched your rent?", difficulty:71},
+      {name:"Mystery Silhouette", description:"Outsole, collar, mudguard, or pure shape ID.", example:"Read the shadow before it reads you.", difficulty:49},
+      {name:"Court Myth", description:"Fines, PEs, samples, league lore, tunnel fits.", example:"Separate the real story from forum smoke.", difficulty:57}
+    ];
+
+    const sample_question = {
+      category:"Colorway Lore",
+      sneaker_image:"https://changzack.github.io/prototypes/_assets/5for5-v1/concept-1/mystery-silhouette.jpg",
+      question_text:"Name this colorway.",
+      four_choices:["Chicago","Shadow","AJ1 “Banned”","Royal"],
+      correct_answer:"AJ1 “Banned”"
+    };
+
+    const stats_ticker = {
+      players_today:12431,
+      average_score:3.2,
+      yesterdays_hardest_percentage:31,
+      longest_active_streak:287
+    };
+
+    const rules = [
+      {rule_text:"Five sneaker calls drop daily at midnight."},
+      {rule_text:"No account. No warmup. First answer counts."},
+      {rule_text:"Score posts as a share grid, Wordle-style."},
+      {rule_text:"Categories rotate: colorway, year, collab, silhouette, lore."},
+      {rule_text:"Miss one? Hold that L until tomorrow."}
+    ];
+
+    const share_grid_example = {
+      score:"4/5",
+      emoji_row:"👟 👟 👟 👟 ⬛",
+      hashtag:"#5FOR5",
+      day_number:42
+    };
+
+    const $ = (s, root=document) => root.querySelector(s);
+    const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+    const ease = t => 1 - Math.pow(1 - t, 4);
+
+    function format(n){ return Math.round(n).toLocaleString("en-US").padStart(6,"0"); }
+
+    function tween({from=0, to=1, duration=1000, update, done}){
+      const start = performance.now();
+      function frame(now){
+        const t = Math.min(1, (now - start) / duration);
+        const v = from + (to - from) * ease(t);
+        update(v);
+        if(t < 1) requestAnimationFrame(frame); else if(done) done();
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function updateClock(){
+      const d = new Date();
+      const txt = d.toISOString().slice(11,19) + " UTC";
+      $$(".live-time").forEach(el => el.textContent = txt);
+    }
+
+    function buildHeatmap(){
+      const svg = $("#heatmap");
+      svg.innerHTML = "";
+      const vals = [];
+      for(let c=0;c<52;c++){
+        for(let r=0;r<7;r++){
+          const wave = Math.sin(c * 0.42 + r * 0.9) + Math.cos(c * 0.17);
+          let score = Math.max(0, Math.min(5, Math.round(2.4 + wave + ((c+r)%9===0 ? 1.4 : 0))));
+          if(c===51 && r===6) score = 5;
+          vals.push({c,r,score});
+        }
+      }
+      vals.forEach(({c,r,score})=>{
+        const rect = document.createElementNS("http://www.w3.org/2000/svg","rect");
+        rect.setAttribute("x", c * 14);
+        rect.setAttribute("y", r * 14);
+        rect.setAttribute("width", 12);
+        rect.setAttribute("height", 12);
+        rect.setAttribute("rx", 0);
+        rect.dataset.score = score;
+        rect.dataset.delay = c * 12 + r * 12;
+        svg.appendChild(rect);
+      });
+    }
+
+    function revealHeatmap(){
+      $$("#heatmap rect").forEach(rect=>{
+        const score = Number(rect.dataset.score);
+        const delay = Number(rect.dataset.delay);
+        rect.style.fill = "rgba(90,90,90,0.28)";
+        setTimeout(()=>{
+          if(rect === $$("#heatmap rect").at(-1)){
+            rect.style.fill = "#C8FF2E";
+          } else if(score === 0) {
+            rect.style.fill = "rgba(90,90,90,0.28)";
+          } else {
+            const alpha = [0, .18, .28, .45, .62, .78][score];
+            rect.style.fill = `rgba(200,255,46,${alpha})`;
+          }
+        }, 800 + delay);
+      });
+    }
+
+    function fillCategoryBars(){
+      $$(".barfill").forEach((bar, i)=>{
+        bar.style.setProperty("--p","0%");
+        setTimeout(()=>bar.style.setProperty("--p", bar.dataset.p), 600 + i * 100);
+      });
+    }
+
+    function animateCounters(){
+      tween({
+        from:0,
+        to:stats_ticker.players_today,
+        duration:1200,
+        update:v => $$(".player-count").forEach(el => el.textContent = format(v))
+      });
+      tween({
+        from:0,
+        to:stats_ticker.average_score,
+        duration:1200,
+        update:v => $$(".avg-score").forEach(el => el.textContent = v.toFixed(1))
+      });
+    }
+
+    function typeMark(){
+      const parts = $$(".mark-part");
+      parts.forEach(p => p.style.opacity = 0);
+      parts.forEach((p, i)=>setTimeout(()=>{ p.style.opacity = 1; }, 400 + i * 80));
+      setTimeout(()=>$(".caret").style.opacity = 0, 920);
+    }
+
+    function resetSample(){
+      $$(".choice").forEach(choice=>{
+        choice.classList.remove("correct","wrong-flash");
+        choice.disabled = false;
+        $(".dist-fill", choice).style.width = "0";
+        $(".pct", choice).textContent = "00%";
+      });
+      $("#answerCaption").classList.remove("show");
+    }
+
+    function handleChoice(choice){
+      $$(".choice").forEach(btn => {
+        btn.disabled = true;
+        const pct = Number(btn.dataset.pct);
+        $(".dist-fill", btn).style.width = pct + "%";
+        tween({
+          from:0, to:pct, duration:600,
+          update:v => $(".pct", btn).textContent = String(Math.round(v)).padStart(2,"0") + "%"
+        });
+        if(btn.dataset.choice === "C") btn.classList.add("correct");
+      });
+      if(choice.dataset.choice !== "C"){
+        choice.classList.add("wrong-flash");
+        setTimeout(()=>choice.classList.remove("wrong-flash"), 220);
+      }
+      setTimeout(()=>$("#answerCaption").classList.add("show"), 620);
+    }
+
+    function replay(){
+      updateClock();
+      typeMark();
+      animateCounters();
+      fillCategoryBars();
+      revealHeatmap();
+      resetSample();
+      $$(".hairline::before");
+      document.body.classList.remove("replaying");
+      void document.body.offsetWidth;
+      document.body.classList.add("replaying");
+    }
+
+    function setStatic(){
+      $$(".mark-part").forEach(p=>p.style.opacity=1);
+      $(".caret").style.opacity=0;
+      $$(".player-count").forEach(el => el.textContent = format(stats_ticker.players_today));
+      $$(".avg-score").forEach(el => el.textContent = stats_ticker.average_score.toFixed(1));
+      $$(".barfill").forEach(bar => bar.style.setProperty("--p", bar.dataset.p));
+      $$("#heatmap rect").forEach(rect=>{
+        const score = Number(rect.dataset.score);
+        if(rect === $$("#heatmap rect").at(-1)) rect.style.fill = "#C8FF2E";
+        else rect.style.fill = score ? `rgba(200,255,46,${[0,.18,.28,.45,.62,.78][score]})` : "rgba(90,90,90,0.28)";
+      });
+    }
+
+    function initCursor(){
+      const cursor = $(".cursor");
+      if(!cursor || window.matchMedia("(max-width: 900px)").matches) return;
+      let x = innerWidth/2, y = innerHeight/2, tx = x, ty = y;
+      window.addEventListener("mousemove", e => { tx = e.clientX; ty = e.clientY; }, {passive:true});
+      function loop(){
+        x += (tx - x) * 0.22;
+        y += (ty - y) * 0.22;
+        cursor.style.left = x + "px";
+        cursor.style.top = y + "px";
+        requestAnimationFrame(loop);
+      }
+      loop();
+      $$(".hot-target, button, a, input").forEach(el=>{
+        el.addEventListener("mouseenter",()=>cursor.classList.add("hot"));
+        el.addEventListener("mouseleave",()=>cursor.classList.remove("hot"));
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", ()=>{
+      buildHeatmap();
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      setTimeout(replay, 30);
+      setInterval(()=>{
+        const jitter = stats_ticker.players_today + (Math.random() > .5 ? 1 : -1);
+        $$(".player-count").forEach(el => el.textContent = format(jitter));
+      }, 2000);
+
+      $$(".choice").forEach(btn => btn.addEventListener("click", ()=>handleChoice(btn)));
+
+      $("#playCta").addEventListener("click", ()=>{
+        $("#playCta").textContent = "TODAY'S FIVE LOADED →";
+        setTimeout(()=>$("#row-02").scrollIntoView({behavior:"smooth", block:"start"}), 120);
+      });
+
+      $("#emailForm").addEventListener("submit", e=>{
+        e.preventDefault();
+        $("#formNote").textContent = "LOCKED. MIDNIGHT LINK HITS YOUR INBOX.";
+        e.currentTarget.reset();
+      });
+
+      $("#replay").addEventListener("click", replay);
+      $("#static").addEventListener("click", setStatic);
+
+      initCursor();
+
+      window.addEventListener("scroll", ()=>{
+        const img = $(".shoe-frame img");
+        if(!img) return;
+        const y = Math.max(-20, Math.min(0, -window.scrollY * 0.018));
+        img.style.transform = `translateY(${y}px)`;
+      }, {passive:true});
+    });
+  </script>
+</body>
+</html>
