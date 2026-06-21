@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zack Chang — Career as Dataset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Newsreader:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bone: #F2EDE3;
+      --ink: #0A0A0A;
+      --signal: #D62828;
+      --grid: #8A857C;
+      --ease-enter: cubic-bezier(0.2, 0.8, 0.2, 1);
+      --ease-chart: cubic-bezier(0.65, 0, 0.35, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      border-radius: 0;
+    }
+
+    html {
+      background-color: #F2EDE3;
+      color: #0A0A0A;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Newsreader', serif;
+      font-weight: 400;
+      background-color: #F2EDE3;
+      background-image: url('https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-1/bone-paper-texture.jpg');
+      background-size: cover;
+      background-position: center top;
+      background-attachment: fixed;
+      color: #0A0A0A;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-color: #F2EDE3;
+      mix-blend-mode: multiply;
+      opacity: 0.22;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: 'JetBrains Mono', monospace;
+      color: #0A0A0A;
+      background: #F2EDE3;
+      border: 1px solid #0A0A0A;
+      cursor: pointer;
+    }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      opacity: 0.06;
+    }
+
+    .grain svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .page {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 1320px;
+      margin-left: 0;
+      margin-right: auto;
+      padding: 0 48px 72px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 24px;
+    }
+
+    .meta {
+      min-height: 104px;
+      align-items: start;
+      border-top: 1px solid #0A0A0A;
+      border-bottom: 1px solid #0A0A0A;
+      padding-top: 18px;
+      margin-top: 24px;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: metaIn 400ms var(--ease-enter) forwards;
+    }
+
+    .meta-line {
+      grid-column: 1 / 10;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.65;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .stamp-wrap {
+      grid-column: 11 / 13;
+      justify-self: end;
+      width: 80px;
+      height: 80px;
+      opacity: 0;
+      animation: metaIn 400ms var(--ease-enter) 200ms forwards;
+    }
+
+    .stamp {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+      opacity: 0.85;
+      display: block;
+    }
+
+    .stamp-fallback {
+      display: none;
+      width: 80px;
+      height: 80px;
+      border: 1px solid #0A0A0A;
+      padding: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      line-height: 1.4;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background-color: #F2EDE3;
+    }
+
+    .hero {
+      padding: 46px 0 58px;
+      border-bottom: 1px solid #0A0A0A;
+    }
+
+    .name-block {
+      grid-column: 1 / 9;
+    }
+
+    .name {
+      margin: 0;
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-variation-settings: 'opsz' 144, 'SOFT' 100;
+      font-size: clamp(96px, 14vw, 196px);
+      line-height: 0.88;
+      letter-spacing: -0.03em;
+      color: #0A0A0A;
+    }
+
+    .name-line {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .char {
+      display: inline-block;
+      transform: translateY(24px);
+      animation: letterLand 360ms var(--ease-enter) forwards;
+      will-change: transform;
+    }
+
+    .space {
+      display: inline-block;
+      width: 0.18em;
+    }
+
+    .char:nth-child(1) { animation-delay: 400ms; }
+    .char:nth-child(2) { animation-delay: 440ms; }
+    .char:nth-child(3) { animation-delay: 480ms; }
+    .char:nth-child(4) { animation-delay: 520ms; }
+    .line-two .char:nth-child(1) { animation-delay: 600ms; }
+    .line-two .char:nth-child(2) { animation-delay: 640ms; }
+    .line-two .char:nth-child(3) { animation-delay: 680ms; }
+    .line-two .char:nth-child(4) { animation-delay: 720ms; }
+    .line-two .char:nth-child(5) { animation-delay: 760ms; }
+
+    .spark {
+      width: 60px;
+      height: 24px;
+      display: inline-block;
+      vertical-align: baseline;
+      margin-left: 10px;
+      transform: translateY(-0.08em);
+    }
+
+    .spark path {
+      stroke: #D62828;
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: sparkDraw 600ms ease-out 1000ms forwards;
+    }
+
+    .role-line {
+      grid-column: 1 / 8;
+      margin-top: 28px;
+      font-family: 'Newsreader', serif;
+      font-size: 18px;
+      line-height: 1.35;
+      font-style: italic;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: bodyIn 360ms var(--ease-enter) 1600ms forwards;
+    }
+
+    .status {
+      grid-column: 10 / 13;
+      align-self: end;
+      border-top: 1px solid #0A0A0A;
+      padding-top: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.7;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: bodyIn 360ms var(--ease-enter) 1600ms forwards;
+    }
+
+    .live-dot {
+      color: #D62828;
+      display: inline-block;
+      animation: pulse 1.6s ease-in-out 1800ms infinite;
+    }
+
+    section {
+      border-top: 1px solid #0A0A0A;
+      padding: 34px 0 52px;
+    }
+
+    .section-kicker {
+      grid-column: 1 / 4;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section-title {
+      grid-column: 4 / 13;
+      margin: 0 0 22px;
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-variation-settings: 'opsz' 144, 'SOFT' 100;
+      font-size: clamp(38px, 5.2vw, 56px);
+      line-height: 0.96;
+      letter-spacing: -0.025em;
+    }
+
+    .figure-label {
+      grid-column: 1 / 13;
+      margin: 22px 0 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .chart-wrap {
+      grid-column: 1 / 13;
+      position: relative;
+      height: 520px;
+      border-top: 1px solid #0A0A0A;
+      border-bottom: 1px solid #0A0A0A;
+      background-color: #F2EDE3;
+    }
+
+    .gmv-chart {
+      width: 100%;
+      height: 520px;
+      display: block;
+    }
+
+    .axis,
+    .tick-label,
+    .year-label,
+    .gridline {
+      opacity: 0;
+      transition: opacity 200ms var(--ease-enter);
+    }
+
+    .gridline {
+      stroke: #8A857C;
+      stroke-opacity: 0.4;
+      stroke-width: 0.5;
+    }
+
+    .axis {
+      stroke: #0A0A0A;
+      stroke-width: 1;
+      fill: none;
+    }
+
+    .tick-label,
+    .year-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      fill: #0A0A0A;
+    }
+
+    .gmv-area {
+      fill: #D62828;
+      fill-opacity: 0.12;
+      opacity: 0;
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path 1400ms var(--ease-chart) 200ms, opacity 200ms var(--ease-enter) 200ms;
+    }
+
+    .gmv-line {
+      stroke: #D62828;
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 1400ms var(--ease-chart) 200ms;
+    }
+
+    .end-dot {
+      fill: #D62828;
+      transform-box: fill-box;
+      transform-origin: center;
+      transform: scale(0);
+    }
+
+    .annotation,
+    .annotation-arrow {
+      opacity: 0;
+    }
+
+    .annotation {
+      font-family: 'Newsreader', serif;
+      font-size: 16px;
+      font-style: italic;
+      fill: #0A0A0A;
+      transition: opacity 500ms var(--ease-enter) 1900ms;
+    }
+
+    .annotation strong {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .annotation-arrow {
+      stroke: #0A0A0A;
+      stroke-width: 1;
+      fill: none;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: opacity 100ms var(--ease-enter) 1900ms, stroke-dashoffset 500ms var(--ease-enter) 1900ms;
+    }
+
+    .in-view .axis,
+    .in-view .tick-label,
+    .in-view .year-label,
+    .in-view .gridline {
+      opacity: 1;
+    }
+
+    .in-view .gmv-area {
+      opacity: 1;
+      clip-path: inset(0 0 0 0);
+    }
+
+    .in-view .gmv-line {
+      stroke-dashoffset: 0;
+    }
+
+    .in-view .end-dot {
+      animation: dotPop 300ms var(--ease-enter) 1600ms forwards;
+    }
+
+    .in-view .annotation {
+      opacity: 1;
+    }
+
+    .in-view .annotation-arrow {
+      opacity: 1;
+      stroke-dashoffset: 0;
+    }
+
+    .editorial-copy {
+      grid-column: 1 / 8;
+      margin-top: 28px;
+      font-size: 18px;
+      line-height: 1.48;
+    }
+
+    .editorial-copy p {
+      margin: 0 0 16px;
+    }
+
+    .metric-rail {
+      grid-column: 9 / 13;
+      margin-top: 28px;
+      border-top: 1px solid #0A0A0A;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      border-bottom: 1px solid #0A0A0A;
+      padding: 12px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .metric-row b {
+      color: #D62828;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .bleed-divider {
+      width: 100vw;
+      height: 60px;
+      margin-left: -48px;
+      background-image: url('https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-1/ink-bleed-divider.jpg');
+      background-size: cover;
+      background-position: center;
+      mix-blend-mode: multiply;
+      opacity: 0.7;
+    }
+
+    .gantt-wrap {
+      grid-column: 1 / 13;
+      margin-top: 24px;
+      height: 380px;
+      border-top: 1px solid #0A0A0A;
+      border-bottom: 1px solid #0A0A0A;
+      overflow: hidden;
+      background-color: #F2EDE3;
+    }
+
+    .gantt-svg {
+      width: 100%;
+      height: 380px;
+      display: block;
+    }
+
+    .gantt-axis {
+      stroke: #0A0A0A;
+      stroke-width: 1;
+    }
+
+    .gantt-tick {
+      stroke: #8A857C;
+      stroke-opacity: 0.4;
+      stroke-width: 0.5;
+    }
+
+    .gantt-label,
+    .bar-label {
+      font-family: 'JetBrains Mono', monospace;
+      fill: #0A0A0A;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .gantt-bar {
+      fill: #0A0A0A;
+      transform-box: fill-box;
+      transform-origin: left center;
+      transform: scaleX(0);
+    }
+
+    .current-gantt-bar {
+      fill: #D62828;
+    }
+
+    .in-view .gantt-bar:nth-of-type(1) { animation: barDraw 500ms var(--ease-enter) 0ms forwards; }
+    .in-view .gantt-bar:nth-of-type(2) { animation: barDraw 500ms var(--ease-enter) 80ms forwards; }
+    .in-view .gantt-bar:nth-of-type(3) { animation: barDraw 500ms var(--ease-enter) 160ms forwards; }
+    .in-view .gantt-bar:nth-of-type(4) { animation: barDraw 500ms var(--ease-enter) 240ms forwards; }
+    .in-view .gantt-bar:nth-of-type(5) { animation: barDraw 500ms var(--ease-enter) 320ms forwards; }
+
+    .gantt-dot {
+      fill: #D62828;
+      opacity: 0;
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    .in-view .gantt-dot {
+      opacity: 1;
+      transition: opacity 200ms var(--ease-enter) 880ms;
+    }
+
+    .role-details {
+      grid-column: 1 / 13;
+      margin-top: 28px;
+    }
+
+    .role-row {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 24px;
+      padding: 18px 0 20px;
+      border-top: 1px solid #0A0A0A;
+      cursor: pointer;
+    }
+
+    .role-row:last-child {
+      border-bottom: 1px solid #0A0A0A;
+    }
+
+    .role-meta {
+      grid-column: 1 / 4;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .role-outcome {
+      grid-column: 4 / 9;
+      font-family: 'Newsreader', serif;
+      font-size: clamp(24px, 3vw, 36px);
+      line-height: 1.02;
+      font-weight: 500;
+    }
+
+    .role-outcome .number {
+      font-family: 'JetBrains Mono', monospace;
+      color: #D62828;
+      font-size: 0.82em;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+    }
+
+    .role-bullets {
+      grid-column: 9 / 13;
+      font-family: 'Newsreader', serif;
+      font-size: 15px;
+      line-height: 1.38;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: max-height 300ms var(--ease-enter), opacity 220ms var(--ease-enter), transform 220ms var(--ease-enter);
+    }
+
+    .role-row.active .role-bullets,
+    .role-row:focus-within .role-bullets {
+      max-height: 160px;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .role-bullets p {
+      margin: 0 0 8px;
+    }
+
+    .toolkit-grid {
+      grid-column: 1 / 9;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .hex {
+      position: relative;
+      aspect-ratio: 1 / 0.86;
+      clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+      background-color: rgba(214, 40, 40, var(--intensity));
+      border: 1px solid #0A0A0A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 11px;
+      line-height: 1.25;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 400ms var(--ease-enter), transform 400ms var(--ease-enter);
+    }
+
+    .in-view .hex:nth-child(1) { transition-delay: 0ms; }
+    .in-view .hex:nth-child(2) { transition-delay: 60ms; }
+    .in-view .hex:nth-child(3) { transition-delay: 120ms; }
+    .in-view .hex:nth-child(4) { transition-delay: 180ms; }
+    .in-view .hex:nth-child(5) { transition-delay: 240ms; }
+    .in-view .hex:nth-child(6) { transition-delay: 300ms; }
+    .in-view .hex:nth-child(7) { transition-delay: 360ms; }
+    .in-view .hex:nth-child(8) { transition-delay: 420ms; }
+    .in-view .hex:nth-child(9) { transition-delay: 480ms; }
+    .in-view .hex:nth-child(10) { transition-delay: 540ms; }
+
+    .in-view .hex {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .legend {
+      grid-column: 10 / 13;
+      margin-top: 28px;
+      border-top: 1px solid #0A0A0A;
+      padding-top: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.65;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .legend-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0;
+    }
+
+    .legend-mark {
+      width: 42px;
+      height: 12px;
+      background-color: rgba(214, 40, 40, var(--legend));
+      border: 1px solid #0A0A0A;
+    }
+
+    .writing-list {
+      grid-column: 1 / 13;
+      margin-top: 26px;
+      border-top: 1px solid #0A0A0A;
+    }
+
+    .writing-row {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: 24px;
+      padding: 18px 0;
+      border-bottom: 1px solid #0A0A0A;
+    }
+
+    .writing-meta {
+      grid-column: 1 / 4;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .writing-title {
+      grid-column: 4 / 11;
+      font-family: 'Newsreader', serif;
+      font-size: clamp(24px, 3vw, 38px);
+      line-height: 1.05;
+      font-weight: 500;
+    }
+
+    .writing-link {
+      grid-column: 11 / 13;
+      align-self: end;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-align: right;
+    }
+
+    .contact {
+      padding-bottom: 42px;
+    }
+
+    .email-label {
+      grid-column: 1 / 5;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .email-link {
+      grid-column: 1 / 13;
+      margin-top: 22px;
+      font-family: 'Fraunces', serif;
+      font-weight: 900;
+      font-variation-settings: 'opsz' 144, 'SOFT' 100;
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: 0.95;
+      letter-spacing: -0.035em;
+      color: #D62828;
+      display: inline-block;
+      width: fit-content;
+      transform-origin: left center;
+      transition: transform 120ms var(--ease-enter);
+    }
+
+    .email-link:hover {
+      transform: translateX(8px);
+    }
+
+    .socials {
+      grid-column: 1 / 13;
+      margin-top: 28px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    footer {
+      border-top: 1px solid #0A0A0A;
+      padding-top: 18px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .sequence-controls {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 5;
+      display: flex;
+      gap: 6px;
+      opacity: 0.82;
+    }
+
+    .sequence-controls button {
+      padding: 8px 10px;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    @keyframes metaIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes bodyIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes letterLand {
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes sparkDraw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 1 }
+      50% { opacity: 0.3 }
+    }
+
+    @keyframes dotPop {
+      0% { transform: scale(0); }
+      66% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes barDraw {
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    body.replay .meta,
+    body.replay .stamp-wrap,
+    body.replay .role-line,
+    body.replay .status {
+      animation-name: metaIn;
+    }
+
+    body.replay .char {
+      transform: translateY(24px);
+      animation-name: letterLand;
+    }
+
+    body.replay .spark path {
+      stroke-dashoffset: 1;
+      animation-name: sparkDraw;
+    }
+
+    @media (max-width: 768px) {
+      .page {
+        padding: 0 24px 56px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        column-gap: 0;
+      }
+
+      .meta {
+        min-height: 112px;
+      }
+
+      .meta-line,
+      .stamp-wrap,
+      .name-block,
+      .role-line,
+      .status,
+      .section-kicker,
+      .section-title,
+      .figure-label,
+      .chart-wrap,
+      .editorial-copy,
+      .metric-rail,
+      .gantt-wrap,
+      .role-details,
+      .toolkit-grid,
+      .legend,
+      .writing-list,
+      .email-label,
+      .email-link,
+      .socials {
+        grid-column: 1;
+      }
+
+      .stamp-wrap {
+        justify-self: start;
+        margin-top: 12px;
+      }
+
+      .hero {
+        padding-top: 34px;
+      }
+
+      .name {
+        font-size: clamp(96px, 18vw, 196px);
+      }
+
+      .spark {
+        width: 54px;
+        height: 22px;
+        margin-left: 6px;
+      }
+
+      .status {
+        margin-top: 30px;
+      }
+
+      .section-title {
+        margin-top: 14px;
+      }
+
+      .chart-wrap,
+      .gmv-chart {
+        height: 320px;
+      }
+
+      .gmv-chart {
+        viewBox: 0 0 1000 520;
+      }
+
+      .bleed-divider {
+        margin-left: -24px;
+      }
+
+      .gantt-wrap {
+        height: 460px;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      .gantt-svg {
+        width: 760px;
+        transform: rotate(90deg) translateY(-760px);
+        transform-origin: left top;
+      }
+
+      .role-row,
+      .writing-row {
+        grid-template-columns: 1fr;
+        row-gap: 12px;
+      }
+
+      .role-meta,
+      .role-outcome,
+      .role-bullets,
+      .writing-meta,
+      .writing-title,
+      .writing-link {
+        grid-column: 1;
+      }
+
+      .role-bullets {
+        max-height: 180px;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toolkit-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .writing-link {
+        text-align: left;
+      }
+
+      .sequence-controls {
+        right: 10px;
+        bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <filter id="paperNoise">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"></feTurbulence>
+      </filter>
+      <rect width="100%" height="100%" filter="url(#paperNoise)"></rect>
+    </svg>
+  </div>
+
+  <div class="sequence-controls" aria-label="Animation controls">
+    <button type="button" id="playSequence">Play</button>
+    <button type="button" id="resetSequence">Reset</button>
+  </div>
+
+  <main class="page">
+    <header class="meta grid">
+      <div class="meta-line">
+        ZACK CHANG / PORTFOLIO / ISSUE 01 / 2026-03-15 / REMOTE<br>
+        DATA ESSAY / PRODUCT LEADERSHIP / CREATIVE TECHNOLOGY
+      </div>
+      <div class="stamp-wrap">
+        <img class="stamp" src="https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-1/editorial-issue-stamp.jpg" alt="ISSUE 01 / ZC / 2026 editorial publication stamp" width="400" height="400" loading="eager" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+        <div class="stamp-fallback">ISSUE 01<br>ZC<br>2026</div>
+      </div>
+    </header>
+
+    <section class="hero grid" aria-label="Hero">
+      <div class="name-block">
+        <h1 class="name" aria-label="ZACK CHANG">
+          <span class="name-line"><span class="char">Z</span><span class="char">A</span><span class="char">C</span><span class="char">K</span></span>
+          <span class="name-line line-two"><span class="char">C</span><span class="char">H</span><span class="char">A</span><span class="char">N</span><span class="char">G</span><svg class="spark" viewBox="0 0 60 24" role="img" aria-label="career trajectory sparkline"><path pathLength="1" d="M2 20 L14 18 L26 14 L40 9 L58 3"></path></svg></span>
+        </h1>
+      </div>
+      <div class="role-line">
+        Product leader. Builds with AI. Head of Product &amp; Creative Technologist at Complex.
+      </div>
+      <aside class="status">
+        STATUS<br>
+        <span class="live-dot">●</span> LIVE<br>
+        2026–NOW<br>
+        AT COMPLEX
+      </aside>
+    </section>
+
+    <section class="current-role grid" data-reveal id="current">
+      <div class="section-kicker">§ 01 / CURRENT</div>
+      <h2 class="section-title">Complex Shop GMV plotted as an operating system.</h2>
+
+      <div class="figure-label">FIG. 01 — COMPLEX SHOP GMV, FY24 → FY25</div>
+      <div class="chart-wrap">
+        <svg class="gmv-chart" viewBox="0 0 1000 520" preserveAspectRatio="none" role="img" aria-label="GMV area chart from $3.7M to $30M with +711% YoY annotation">
+          <path class="gridline" d="M90 70 H930"></path>
+          <path class="gridline" d="M90 190 H930"></path>
+          <path class="gridline" d="M90 310 H930"></path>
+          <path class="gridline" d="M90 430 H930"></path>
+          <path class="axis" d="M90 60 V430 H930"></path>
+
+          <text class="tick-label" x="24" y="76">$30M</text>
+          <text class="tick-label" x="20" y="436">$3.7M</text>
+          <text class="tick-label" x="126" y="462">Q1</text>
+          <text class="tick-label" x="250" y="462">Q2</text>
+          <text class="tick-label" x="374" y="462">Q3</text>
+          <text class="tick-label" x="498" y="462">Q4</text>
+          <text class="tick-label" x="622" y="462">Q1</text>
+          <text class="tick-label" x="746" y="462">Q2</text>
+          <text class="tick-label" x="870" y="462">Q3</text>
+          <text class="year-label" x="192" y="492">────FY24────</text>
+          <text class="year-label" x="628" y="492">────FY25────</text>
+
+          <path class="gmv-area" d="M110 430 C220 430 310 430 414 430 C500 428 556 390 604 338 C648 286 690 232 738 178 C790 120 838 82 910 70 L910 430 L110 430 Z"></path>
+          <path class="gmv-line" pathLength="1" d="M110 430 C220 430 310 430 414 430 C500 428 556 390 604 338 C648 286 690 232 738 178 C790 120 838 82 910 70"></path>
+          <circle class="end-dot" cx="910" cy="70" r="6"></circle>
+          <path class="annotation-arrow" pathLength="1" d="M708 116 L850 76"></path>
+          <text class="annotation" x="560" y="120">+711% YoY</text>
+          <text class="annotation" x="560" y="144">from $3.7M → $30M GMV</text>
+        </svg>
+      </div>
+
+      <div class="editorial-copy">
+        <p>Current work at Complex turns commerce into a compounding loop: marketplace supply, editorial demand, and AI-assisted operating cadence moving in the same direction.</p>
+        <p>The measurable story is not a deck stat. It is a curve: <strong>$3.7M → $30M GMV</strong>, a <strong>15% engagement lift</strong>, and a system built to keep learning from every drop.</p>
+      </div>
+
+      <aside class="metric-rail">
+        <div class="metric-row"><span>GMV RUN</span><b>$3.7M→$30M</b></div>
+        <div class="metric-row"><span>YOY CHANGE</span><b>+711%</b></div>
+        <div class="metric-row"><span>ENGAGEMENT LIFT</span><b>15%</b></div>
+        <div class="metric-row"><span>CURRENT MARKER</span><b>● LIVE</b></div>
+      </aside>
+    </section>
+
+    <div class="bleed-divider" role="img" aria-label="Ink bleed divider"></div>
+
+    <section class="career grid" data-reveal id="career">
+      <div class="section-kicker">§ 02 / CAREER</div>
+      <h2 class="section-title">The spine of the page is a Gantt, not a résumé.</h2>
+
+      <div class="gantt-wrap">
+        <svg class="gantt-svg" viewBox="0 0 1000 380" preserveAspectRatio="none" role="img" aria-label="Career Gantt chart from 2015 to 2026">
+          <path class="gantt-axis" d="M90 68 H930"></path>
+          <path class="gantt-tick" d="M90 48 V330"></path>
+          <path class="gantt-tick" d="M243 48 V330"></path>
+          <path class="gantt-tick" d="M396 48 V330"></path>
+          <path class="gantt-tick" d="M549 48 V330"></path>
+          <path class="gantt-tick" d="M702 48 V330"></path>
+          <path class="gantt-tick" d="M930 48 V330"></path>
+          <text class="gantt-label" x="82" y="38">2015</text>
+          <text class="gantt-label" x="235" y="38">2017</text>
+          <text class="gantt-label" x="388" y="38">2019</text>
+          <text class="gantt-label" x="541" y="38">2021</text>
+          <text class="gantt-label" x="694" y="38">2023</text>
+          <text class="gantt-label" x="908" y="38">2026</text>
+
+          <rect class="gantt-bar" x="90" y="104" width="210" height="28"></rect>
+          <rect class="gantt-bar" x="288" y="148" width="198" height="28"></rect>
+          <rect class="gantt-bar" x="476" y="192" width="226" height="28"></rect>
+          <rect class="gantt-bar" x="694" y="236" width="144" height="28"></rect>
+          <rect class="gantt-bar current-gantt-bar" x="824" y="280" width="106" height="28"></rect>
+          <circle class="gantt-dot" cx="938" cy="294" r="6"></circle>
+
+          <text class="bar-label" x="314" y="124">LEVI'S</text>
+          <text class="bar-label" x="500" y="168">AMAZON</text>
+          <text class="bar-label" x="720" y="212">NTWRK</text>
+          <text class="bar-label" x="850" y="256">COMPLEX (DIR)</text>
+          <text class="bar-label" x="836" y="324">COMPLEX (HEAD)</text>
+        </svg>
+      </div>
+
+      <div class="role-details" aria-label="Selected work">
+        <article class="role-row active" tabindex="0">
+          <div class="role-meta">COMPLEX<br>HEAD OF PRODUCT<br>2024–NOW</div>
+          <div class="role-outcome">Scaled commerce from <span class="number">$3.7M→$30M GMV</span> while lifting engagement <span class="number">15%</span>.</div>
+          <div class="role-bullets">
+            <p>Built the operating cadence for Complex Shop across editorial, product, and marketplace supply.</p>
+            <p>Turned performance data into weekly shipping decisions, not quarterly narration.</p>
+          </div>
+        </article>
+
+        <article class="role-row" tabindex="0">
+          <div class="role-meta">COMPLEX<br>DIRECTOR, PRODUCT<br>2023–2024</div>
+          <div class="role-outcome">Launched a shopping product reaching <span class="number">55k MAU</span> and top-50 US Shopping rank.</div>
+          <div class="role-bullets">
+            <p>Moved Complex commerce from editorial adjacency into a measurable product surface.</p>
+            <p>Created the early growth loop that became the current marketplace curve.</p>
+          </div>
+        </article>
+
+        <article class="role-row" tabindex="0">
+          <div class="role-meta">NTWRK<br>PRODUCT LEAD<br>2020–2023</div>
+          <div class="role-outcome">Grew live commerce supply to <span class="number">2,000+ sellers</span> and <span class="number">30k MAU</span>.</div>
+          <div class="role-bullets">
+            <p>Shipped seller tools, drop mechanics, and marketplace instrumentation for culture-led commerce.</p>
+            <p>Translated hype behavior into product systems operators could repeat.</p>
+          </div>
+        </article>
+
+        <article class="role-row" tabindex="0">
+          <div class="role-meta">AMAZON<br>PRODUCT / MARKETPLACE<br>2017–2020</div>
+          <div class="role-outcome">Built at marketplace scale for <span class="number">100K+ merchants</span>.</div>
+          <div class="role-bullets">
+            <p>Worked inside high-volume seller systems where small UX decisions compound into operational leverage.</p>
+            <p>Learned the grammar of merchant trust, catalog quality, and platform feedback loops.</p>
+          </div>
+        </article>
+
+        <article class="role-row" tabindex="0">
+          <div class="role-meta">LEVI'S<br>DIGITAL PRODUCT<br>2015–2017</div>
+          <div class="role-outcome">Helped move retail craft into digital systems before commerce became culture infrastructure.</div>
+          <div class="role-bullets">
+            <p>Connected brand, merchandising, and digital experience across a global retail context.</p>
+            <p>Built the early habit of treating product decisions as editorial decisions with numbers attached.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div class="bleed-divider" role="img" aria-label="Ink bleed divider"></div>
+
+    <section class="toolkit grid" data-reveal id="toolkit">
+      <div class="section-kicker">§ 04 / TOOLKIT</div>
+      <h2 class="section-title">AI tools encoded by daily-use intensity.</h2>
+
+      <div class="toolkit-grid" aria-label="AI toolkit heatmap">
+        <div class="hex" style="--intensity: 0.82;">ChatGPT</div>
+        <div class="hex" style="--intensity: 0.78;">Claude</div>
+        <div class="hex" style="--intensity: 0.62;">Gemini</div>
+        <div class="hex" style="--intensity: 0.86;">Cursor</div>
+        <div class="hex" style="--intensity: 0.58;">Perplexity</div>
+        <div class="hex" style="--intensity: 0.42;">Midjourney</div>
+        <div class="hex" style="--intensity: 0.36;">Runway</div>
+        <div class="hex" style="--intensity: 0.66;">Figma AI</div>
+        <div class="hex" style="--intensity: 0.48;">Notion AI</div>
+        <div class="hex" style="--intensity: 0.52;">Replit</div>
+      </div>
+
+      <aside class="legend">
+        LEGEND / RED OPACITY = FREQUENCY OF USE
+        <div class="legend-line"><span class="legend-mark" style="--legend: 0.36;"></span> WEEKLY</div>
+        <div class="legend-line"><span class="legend-mark" style="--legend: 0.62;"></span> OFTEN</div>
+        <div class="legend-line"><span class="legend-mark" style="--legend: 0.86;"></span> DAILY</div>
+      </aside>
+    </section>
+
+    <section class="writing grid" id="writing">
+      <div class="section-kicker">§ 05 / WRITING</div>
+      <h2 class="section-title">Notes from the operating edge.</h2>
+
+      <div class="writing-list">
+        <article class="writing-row">
+          <div class="writing-meta">DRAFT 001<br>PRODUCT / AI</div>
+          <a class="writing-title" href="#writing">The Product Manager as Creative Technologist</a>
+          <a class="writing-link" href="#writing">Placeholder →</a>
+        </article>
+        <article class="writing-row">
+          <div class="writing-meta">DRAFT 002<br>COMMERCE</div>
+          <a class="writing-title" href="#writing">Why Culture-Led Marketplaces Need Editorial Taste</a>
+          <a class="writing-link" href="#writing">Placeholder →</a>
+        </article>
+        <article class="writing-row">
+          <div class="writing-meta">DRAFT 003<br>OPERATIONS</div>
+          <a class="writing-title" href="#writing">Shipping Cadence Is a Data Visualization Problem</a>
+          <a class="writing-link" href="#writing">Placeholder →</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="contact grid" id="contact">
+      <div class="email-label">§ 06 / CONTACT<br>SINGLE PRIMARY ROUTE</div>
+      <a class="email-link" href="mailto:hi@zackchang.com">hi@zackchang.com →</a>
+      <nav class="socials" aria-label="Social links">
+        <a href="https://www.linkedin.com/in/zackchang" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+        <a href="https://github.com/zackchang" target="_blank" rel="noreferrer">GitHub ↗</a>
+      </nav>
+    </section>
+
+    <footer class="grid">
+      <div style="grid-column: 1 / 13;">
+        © 2026 ZACK CHANG / REMOTE / BUILT AS A DATA ESSAY / END OF ISSUE 01
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const revealSections = document.querySelectorAll('[data-reveal]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+        }
+      });
+    }, { threshold: 0.3 });
+
+    revealSections.forEach((section) => observer.observe(section));
+
+    document.querySelectorAll('.role-row').forEach((row) => {
+      row.addEventListener('click', () => {
+        document.querySelectorAll('.role-row').forEach((item) => item.classList.remove('active'));
+        row.classList.add('active');
+      });
+      row.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          document.querySelectorAll('.role-row').forEach((item) => item.classList.remove('active'));
+          row.classList.add('active');
+        }
+      });
+    });
+
+    const playButton = document.getElementById('playSequence');
+    const resetButton = document.getElementById('resetSequence');
+
+    playButton.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      revealSections.forEach((section) => section.classList.remove('in-view'));
+      document.body.classList.remove('replay');
+      void document.body.offsetWidth;
+      document.body.classList.add('replay');
+      setTimeout(() => {
+        revealSections.forEach((section) => {
+          const rect = section.getBoundingClientRect();
+          if (rect.top < window.innerHeight * 0.7) section.classList.add('in-view');
+        });
+      }, 200);
+    });
+
+    resetButton.addEventListener('click', () => {
+      revealSections.forEach((section) => section.classList.add('in-view'));
+      document.querySelectorAll('.role-row').forEach((item) => item.classList.remove('active'));
+      document.querySelector('.role-row').classList.add('active');
+    });
+  </script>
+</body>
+</html>

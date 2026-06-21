@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zack Chang — Masthead</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* VARIABLES & RESET */
+    :root {
+      --ink: #0B0B0C;
+      --bone: #EDE6D6;
+      --signal: #FF5B1F;
+      --ash: #7A7367;
+      --hairline: rgba(237, 230, 214, 0.22);
+      
+      --font-display: 'Fraunces', serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: #000;
+      color: var(--bone);
+      font-family: var(--font-display);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TEXTURE & SUBSTRATE */
+    .substrate {
+      position: fixed;
+      inset: 0;
+      background-color: #000;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      z-index: -3;
+      transition: background-color 0.2s ease-out;
+    }
+    .booted .substrate { background-color: var(--ink); }
+
+    .crt-noise-layer {
+      position: fixed;
+      inset: 0;
+      background-image: url('https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-2/crt-noise.jpg');
+      background-size: cover;
+      background-position: center;
+      mix-blend-mode: screen;
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .paper-grain-layer {
+      position: fixed;
+      inset: 0;
+      background-image: url('https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-2/paper-grain.jpg');
+      background-size: cover;
+      background-position: center;
+      mix-blend-mode: overlay;
+      opacity: 0;
+      transition: opacity 0.2s ease-out;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .booted .paper-grain-layer { opacity: 0.35; }
+
+    /* LAYOUT & STRUCTURE */
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 64px;
+      width: 100%;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      gap: 24px;
+    }
+    
+    hr.hairline {
+      border: none;
+      border-top: 1px solid var(--hairline);
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      margin-top: 64px;
+      margin-bottom: 64px;
+    }
+    @media (max-width: 767px) {
+      .container { padding: 0 20px; }
+      .grid { display: flex; flex-direction: column; gap: 32px; }
+      hr.hairline { margin-top: 48px; margin-bottom: 48px; }
+    }
+
+    /* TYPOGRAPHY COMPONENTS */
+    .kicker {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--ash);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .section-head {
+      font-family: var(--font-display);
+      font-size: 56px;
+      font-weight: 500;
+      font-variation-settings: 'opsz' 72, 'wght' 500;
+      line-height: 1.1;
+      margin-bottom: 32px;
+    }
+
+    .lead-body {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      font-variation-settings: 'opsz' 24, 'wght' 400;
+      line-height: 1.45;
+      max-width: 62ch;
+      color: var(--bone);
+    }
+    .lead-body p { margin-bottom: 1em; }
+    
+    /* ASSETS */
+    .masthead-mark {
+      width: 16px;
+      height: 16px;
+      opacity: 0.7;
+    }
+    .zc-stamp {
+      position: absolute;
+      top: 48px;
+      right: 64px;
+      width: 80px;
+      height: auto;
+      transform: rotate(-4deg);
+      opacity: 0.85;
+      mix-blend-mode: screen;
+      z-index: 10;
+    }
+    @media (max-width: 767px) {
+      .zc-stamp { top: 16px; right: 20px; width: 64px; }
+    }
+
+    /* HERO SECTION */
+    .hero-section {
+      position: relative;
+      padding-top: 64px;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .hero-name {
+      font-family: var(--font-display);
+      font-size: clamp(96px, 18vw, 280px);
+      line-height: 0.86;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      margin-top: 16px;
+      margin-bottom: 48px;
+    }
+    @media (max-width: 767px) {
+      .hero-name { white-space: normal; word-break: break-word; }
+    }
+    
+    .name-char {
+      display: inline-block;
+      --w: 300;
+      --o: 9;
+      --s: 100;
+      font-variation-settings: 'wght' var(--w), 'opsz' var(--o), 'SOFT' var(--s);
+      transition: font-variation-settings 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: font-variation-settings;
+    }
+    
+    .hero-role {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .hero-role-mono {
+      font-family: var(--font-mono);
+      font-size: 14px;
+    }
+    .cursor {
+      display: inline-block;
+      color: var(--signal);
+      text-shadow: 0 0 12px var(--signal);
+      animation: blink 1s steps(2, start) infinite;
+      opacity: 0;
+    }
+    .booted .cursor { opacity: 1; }
+    @keyframes blink { 0% { visibility: visible; } 50% { visibility: hidden; } 100% { visibility: visible; } }
+    
+    /* MARQUEES */
+    .marquee-container {
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+      overflow: hidden;
+      white-space: nowrap;
+      display: flex;
+    }
+    .marquee-track {
+      display: inline-flex;
+      font-family: var(--font-mono);
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ash);
+      align-items: center;
+      gap: 40px;
+      padding-right: 40px;
+    }
+    .ticker-track { animation: marquee 40s linear infinite; }
+    .toolkit-track { animation: marquee-reverse 60s linear infinite; color: var(--bone); font-size: 20px;}
+    .marquee-container:hover .marquee-track { animation-play-state: paused; }
+    
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    @keyframes marquee-reverse { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+
+    /* LAYOUT GRIDS */
+    .col-8-start { grid-column: 1 / 9; }
+    .col-6-end { grid-column: 11 / 17; display: flex; flex-direction: column; gap: 40px;}
+    
+    .stat-block { border-left: 1px solid var(--hairline); padding-left: 24px; }
+    .stat-val { font-family: var(--font-display); font-size: 48px; font-weight: 700; color: var(--bone); line-height: 1; margin-bottom: 8px;}
+    .stat-label { font-family: var(--font-mono); font-size: 13px; color: var(--ash); }
+
+    /* WORK ROWS */
+    .work-wrapper {
+      width: 100vw;
+      margin-left: calc(-50vw + 50%);
+    }
+    .work-item {
+      display: grid;
+      grid-template-columns: minmax(20px, 1fr) minmax(auto, 1440px) minmax(20px, 1fr);
+      padding: 0 64px;
+      position: relative;
+    }
+    @media (max-width: 767px) {
+      .work-item { padding: 0 20px; display: block;}
+    }
+    .work-inner {
+      grid-column: 2;
+      border-top: 1px solid var(--hairline);
+      padding: 40px 0;
+      transition: border-color 0.2s ease;
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      gap: 24px;
+    }
+    .work-item:hover .work-inner { border-top-color: var(--signal); }
+    
+    .work-meta { grid-column: 1 / 5; display: flex; flex-direction: column; gap: 8px; }
+    .work-meta-row { display: flex; align-items: baseline; gap: 12px; }
+    .work-arrow { color: var(--bone); transition: transform 0.2s ease; font-family: var(--font-mono); }
+    .work-item:hover .work-arrow { transform: translateX(6px); color: var(--signal); }
+    .work-id { font-family: var(--font-mono); font-size: 13px; color: var(--ash); }
+    
+    .work-company { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--bone); line-height: 1; }
+    .work-details { font-family: var(--font-mono); font-size: 13px; color: var(--ash); }
+    
+    .work-outcome { grid-column: 6 / 17; font-family: var(--font-display); font-size: 40px; font-weight: 600; line-height: 1.2; }
+    @media (max-width: 767px) {
+      .work-inner { display: flex; flex-direction: column; gap: 16px; padding: 32px 0;}
+      .work-outcome { font-size: 28px; }
+    }
+    .number-highlight { font-weight: 900; }
+    
+    /* GMV SPECIFIC */
+    .gmv-wrap { display: inline-flex; align-items: baseline; gap: 12px; }
+    .gmv-arrow { color: var(--bone); transition: color 0.2s ease; }
+    .gmv-active .gmv-arrow { color: var(--signal); }
+    .gmv-number { display: inline-block; min-width: 4ch; }
+
+    /* CLIP PATH REVEAL */
+    .reveal-clip {
+      clip-path: inset(0 100% 0 0);
+      will-change: clip-path;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal-clip.is-visible {
+        clip-path: inset(0 0 0 0);
+        transition: clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal-clip { clip-path: inset(0 0 0 0) !important; }
+      .name-char { transition: none !important; }
+      .ticker-track, .toolkit-track { animation: none !important; }
+      .cursor { animation: none !important; opacity: 1; }
+    }
+
+    /* WRITING */
+    .writing-list { display: flex; flex-direction: column; }
+    .writing-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      border-top: 1px solid var(--hairline);
+      text-decoration: none;
+      color: var(--bone);
+      transition: color 0.2s ease;
+    }
+    .writing-item:hover { color: var(--signal); }
+    .writing-item:hover .work-arrow { transform: translateX(6px); color: var(--signal); }
+    .writing-title { font-family: var(--font-display); font-size: 28px; font-weight: 500; display: flex; align-items: center; gap: 16px;}
+    .writing-year { font-family: var(--font-mono); font-size: 13px; color: var(--ash); }
+    @media (max-width: 767px) {
+      .writing-title { font-size: 20px; }
+      .writing-item { padding: 16px 0; }
+    }
+
+    /* CONTACT & FOOTER */
+    .contact-section { margin-bottom: 120px; }
+    .email-cta {
+      display: inline-block;
+      background: var(--signal);
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 28px;
+      text-decoration: none;
+      padding: 24px 40px;
+      transition: all 0.2s ease;
+      margin-bottom: 48px;
+    }
+    .email-cta:hover {
+      background: var(--bone);
+      color: var(--ink);
+    }
+    .email-arrow { margin-left: 16px; display: inline-block; transition: transform 0.2s; }
+    .email-cta:hover .email-arrow { transform: translateX(6px); }
+    
+    @media (max-width: 767px) {
+      .email-cta { font-size: 18px; padding: 20px 24px; width: 100%; text-align: center;}
+    }
+
+    .social-links {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      display: flex;
+      gap: 32px;
+    }
+    .social-links a {
+      color: var(--bone);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    .social-links a:hover { color: var(--signal); }
+
+    .site-footer {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ash);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding-bottom: 64px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    @media (max-width: 767px) {
+      .site-footer { flex-direction: column; gap: 16px; text-align: center; }
+    }
+    
+    .current-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--signal);
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- BACKGROUND LAYERS -->
+  <div class="substrate"></div>
+  <div class="crt-noise-layer"></div>
+  <div class="paper-grain-layer"></div>
+
+  <main class="container">
+    
+    <!-- § 00 / MASTHEAD -->
+    <section class="hero-section">
+      <img src="https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-2/zc-stamp.jpg" alt="ZC Archive Stamp" class="zc-stamp">
+      
+      <div class="kicker" id="kicker-typewriter" data-text="§ 00 / MASTHEAD">
+        <img src="https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-2/masthead-mark.jpg" alt="Colophon Mark" class="masthead-mark">
+        <span class="type-target"></span>
+        <span style="margin-left: auto;">ZC · 2026 · REMOTE</span>
+      </div>
+      
+      <h1 class="hero-name" id="hero-name-wrap">
+        <!-- JS injects ZACK CHANG spans here for animation -->
+      </h1>
+      
+      <div class="hero-role">
+        <span class="hero-role-mono" id="role-typewriter" data-text="> Currently Head of Product & Creative Technologist at Complex."></span>
+        <span class="cursor">█</span>
+      </div>
+    </section>
+
+    <hr class="hairline">
+
+    <!-- § 01 / TICKER -->
+    <section>
+      <div class="kicker">§ 01 / TICKER</div>
+      <div class="marquee-container">
+        <div class="marquee-track ticker-track">
+          <!-- Duplicated for seamless loop -->
+          <span>▸ COMPLEX SHOP · $3.7M → $30M GMV · 12mo</span>
+          <span>▸ NTWRK · 2,000+ SELLERS · 30K MAU</span>
+          <span>▸ AMAZON · 100K+ MERCHANTS</span>
+          <span>▸ LEVI'S · FIRST CONSUMER APP</span>
+          
+          <span>▸ COMPLEX SHOP · $3.7M → $30M GMV · 12mo</span>
+          <span>▸ NTWRK · 2,000+ SELLERS · 30K MAU</span>
+          <span>▸ AMAZON · 100K+ MERCHANTS</span>
+          <span>▸ LEVI'S · FIRST CONSUMER APP</span>
+        </div>
+      </div>
+    </section>
+
+    <hr class="hairline">
+
+    <!-- § 02 / NOW -->
+    <section>
+      <div class="kicker">§ 02 / NOW</div>
+      <div class="grid">
+        <div class="col-8-start lead-body">
+          <p>Building intelligence into editorial commerce at Complex. Leading the transition to agent-driven workflows that augment creative teams rather than replacing them.</p>
+          <p>My work bridges product strategy and creative technology — designing complex LLM pipelines (LangGraph, Braintrust) that output highly crafted, artifact-quality web experiences.</p>
+        </div>
+        <div class="col-6-end">
+          <div class="stat-block">
+            <div class="stat-val">+15%</div>
+            <div class="stat-label">ENGAGEMENT LIFT VIA INTERACTIVE EDITORIAL</div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-val">4</div>
+            <div class="stat-label">AGENT WORKFLOWS SHIPPED IN 2026</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="hairline">
+
+    <!-- § 03 / SELECTED WORK -->
+    <section>
+      <div class="kicker">§ 03 / SELECTED WORK</div>
+      
+      <div class="work-wrapper">
+        <!-- ROW 1 -->
+        <div class="work-item reveal-clip complex-row">
+          <div class="work-inner">
+            <div class="work-meta">
+              <div class="work-meta-row">
+                <span class="work-arrow">▸</span>
+                <span class="work-id">01</span>
+                <span class="work-company"><span class="current-dot"></span>COMPLEX</span>
+              </div>
+              <div class="work-details">2024–2026 · Director of Product</div>
+            </div>
+            <div class="work-outcome">
+              <div class="gmv-wrap" id="gmv-anim">
+                <span class="number-highlight gmv-number" id="gmv-start">$0.0M</span> 
+                <span class="gmv-arrow" id="gmv-arr">→</span> 
+                <span class="number-highlight gmv-number" id="gmv-end">$0.0M</span>
+              </div>
+              GMV in 12 months. Top-50 US Shopping. 55k MAU Complex App.
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 2 -->
+        <div class="work-item reveal-clip">
+          <div class="work-inner">
+            <div class="work-meta">
+              <div class="work-meta-row">
+                <span class="work-arrow">▸</span>
+                <span class="work-id">02</span>
+                <span class="work-company">NTWRK</span>
+              </div>
+              <div class="work-details">2021–2024 · Product Lead</div>
+            </div>
+            <div class="work-outcome">
+              <span class="number-highlight">2,000+</span> sellers · <span class="number-highlight">30k</span> MAU livestream marketplace
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 3 -->
+        <div class="work-item reveal-clip">
+          <div class="work-inner">
+            <div class="work-meta">
+              <div class="work-meta-row">
+                <span class="work-arrow">▸</span>
+                <span class="work-id">03</span>
+                <span class="work-company">AMAZON</span>
+              </div>
+              <div class="work-details">2020–2021 · Senior PM</div>
+            </div>
+            <div class="work-outcome">
+              <span class="number-highlight">100K+</span> merchants · Logistics Tracking API
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW 4 -->
+        <div class="work-item reveal-clip">
+          <div class="work-inner">
+            <div class="work-meta">
+              <div class="work-meta-row">
+                <span class="work-arrow">▸</span>
+                <span class="work-id">04</span>
+                <span class="work-company">LEVI'S</span>
+              </div>
+              <div class="work-details">2015–2019 · Senior PM</div>
+            </div>
+            <div class="work-outcome">
+              First consumer app · WSJ + Forbes featured
+            </div>
+          </div>
+        </div>
+        
+        <!-- ROW 5 -->
+        <div class="work-item reveal-clip" style="border-bottom: 1px solid var(--hairline);">
+          <div class="work-inner">
+            <div class="work-meta">
+              <div class="work-meta-row">
+                <span class="work-arrow">▸</span>
+                <span class="work-id">05</span>
+                <span class="work-company">EARLY</span>
+              </div>
+              <div class="work-details">2013–2015 · Product Manager</div>
+            </div>
+            <div class="work-outcome">
+              <span class="number-highlight">0 → 1</span> Foundational growth stage.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="hairline">
+
+    <!-- § 04 / TOOLKIT -->
+    <section>
+      <div class="kicker">§ 04 / TOOLKIT</div>
+      <div class="marquee-container">
+        <div class="marquee-track toolkit-track">
+          <span>CLAUDE CODE · CODEX · GHOSTTY · FLORA · PAPER · LANGGRAPH · BRAINTRUST · OBSIDIAN · HERMES · OPENCLAW</span>
+          <span>CLAUDE CODE · CODEX · GHOSTTY · FLORA · PAPER · LANGGRAPH · BRAINTRUST · OBSIDIAN · HERMES · OPENCLAW</span>
+        </div>
+      </div>
+    </section>
+
+    <hr class="hairline">
+
+    <!-- § 05 / WRITING -->
+    <section>
+      <div class="kicker">§ 05 / WRITING</div>
+      <div class="writing-list reveal-clip">
+        <a href="#" class="writing-item">
+          <span class="writing-title"><span class="work-arrow">▸</span> Notes on agent-driven editorial</span>
+          <span class="writing-year">2026</span>
+        </a>
+        <a href="#" class="writing-item">
+          <span class="writing-title"><span class="work-arrow">▸</span> Why the Creative Pipeline replaced standard UI</span>
+          <span class="writing-year">2026</span>
+        </a>
+        <a href="#" class="writing-item" style="border-bottom: 1px solid var(--hairline);">
+          <span class="writing-title"><span class="work-arrow">▸</span> Spec-driven development for PM teams</span>
+          <span class="writing-year">2026</span>
+        </a>
+      </div>
+    </section>
+
+    <hr class="hairline">
+
+    <!-- § 06 / CONTACT -->
+    <section class="contact-section">
+      <div class="kicker">§ 06 / CONTACT</div>
+      <a href="mailto:hi@zackchang.com" class="email-cta">
+        hi@zackchang.com <span class="email-arrow">▸</span>
+      </a>
+      <div class="social-links">
+        <a href="#">LinkedIn</a>
+        <span>·</span>
+        <a href="#">GitHub</a>
+      </div>
+    </section>
+
+    <hr class="hairline" style="margin-bottom: 32px;">
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <div>
+        <img src="https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-2/masthead-mark.jpg" alt="Colophon Mark" class="masthead-mark" style="margin-right: 12px; vertical-align: middle;">
+        © 2026 ZC · REMOTE
+      </div>
+      <div>BUILT BY HAND, ASSISTED BY MACHINES</div>
+    </footer>
+
+  </main>
+
+  <script>
+    // BOOT SEQUENCE & KINETIC TYPOGRAPHY
+    document.addEventListener("DOMContentLoaded", () => {
+      
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // 1. Setup Hero Name variable font DOM
+      const nameWrap = document.getElementById('hero-name-wrap');
+      const nameText = "ZACK CHANG";
+      let nameHTML = '';
+      for(let char of nameText) {
+        if(char === ' ') nameHTML += ' ';
+        else nameHTML += `<span class="name-char">${char}</span>`;
+      }
+      nameWrap.innerHTML = nameHTML;
+
+      if (prefersReducedMotion) {
+        document.body.classList.add('booted');
+        
+        // Snap name to final state
+        document.querySelectorAll('.name-char').forEach(span => {
+          span.style.setProperty('--w', '800');
+          span.style.setProperty('--o', '144');
+          span.style.setProperty('--s', '0');
+        });
+        
+        // Fill text targets immediately
+        const kicker = document.getElementById('kicker-typewriter');
+        kicker.querySelector('.type-target').textContent = kicker.getAttribute('data-text');
+        
+        const role = document.getElementById('role-typewriter');
+        role.textContent = role.getAttribute('data-text');
+        
+        // Snap GMV counter
+        document.getElementById('gmv-start').textContent = '$3.7M';
+        document.getElementById('gmv-end').textContent = '$30.0M';
+        document.getElementById('gmv-anim').classList.add('gmv-active');
+
+      } else {
+        
+        // Phase A: Boot
+        setTimeout(() => {
+          document.body.classList.add('booted');
+        }, 50); // Background fade
+
+        // Kicker Typewriter (200ms - 600ms)
+        setTimeout(() => {
+          typeWriterEffect('kicker-typewriter', 30, true);
+        }, 200);
+
+        // Name Tween (600ms - 1400ms)
+        setTimeout(() => {
+          document.querySelectorAll('.name-char').forEach(span => {
+            span.style.setProperty('--w', '800');
+            span.style.setProperty('--o', '144');
+            span.style.setProperty('--s', '0');
+          });
+        }, 600);
+
+        // Role Typewriter (1400ms - 1800ms)
+        setTimeout(() => {
+          typeWriterEffect('role-typewriter', 20, false);
+        }, 1400);
+
+        // Phase B: Idle Flicker (Every 12s)
+        setInterval(() => {
+          const chars = document.querySelectorAll('.name-char');
+          const randomChar = chars[Math.floor(Math.random() * chars.length)];
+          if(!randomChar) return;
+          
+          randomChar.style.transition = "font-variation-settings 0.3s ease-out";
+          randomChar.style.setProperty('--s', '100');
+          
+          setTimeout(() => {
+            randomChar.style.transition = "font-variation-settings 0.6s cubic-bezier(0.16, 1, 0.3, 1)";
+            randomChar.style.setProperty('--s', '0');
+          }, 300);
+          
+        }, 12000);
+      }
+
+      // HELPER: Typewriter
+      function typeWriterEffect(elementId, speed, targetInner) {
+        const el = document.getElementById(elementId);
+        const text = el.getAttribute('data-text');
+        const target = targetInner ? el.querySelector('.type-target') : el;
+        target.textContent = '';
+        let i = 0;
+        function type() {
+          if (i < text.length) {
+            target.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+          }
+        }
+        type();
+      }
+
+      // Phase C: Scroll-driven reveals via IntersectionObserver
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            
+            // GMV Counter Scrub trigger
+            if(entry.target.classList.contains('complex-row') && !prefersReducedMotion) {
+              if(!entry.target.dataset.gmvAnimated) {
+                entry.target.dataset.gmvAnimated = 'true';
+                runGMVScrub();
+              }
+            }
+          }
+        });
+      }, { rootMargin: '0px 0px -15% 0px' });
+
+      document.querySelectorAll('.reveal-clip').forEach(el => observer.observe(el));
+
+      // GMV RequestAnimationFrame Scrub
+      function runGMVScrub() {
+        const startEl = document.getElementById('gmv-start');
+        const endEl = document.getElementById('gmv-end');
+        const animWrap = document.getElementById('gmv-anim');
+        
+        let startTimestamp = null;
+        const dur1 = 600;  // 0 -> 3.7
+        const durArr = 200; // wait / color shift
+        const dur2 = 1200; // 0 -> 30.0
+
+        function easeOutExpo(x) {
+          return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+        }
+
+        function step(timestamp) {
+          if (!startTimestamp) startTimestamp = timestamp;
+          const progress = timestamp - startTimestamp;
+
+          // Part 1: 0 to 3.7
+          if (progress < dur1) {
+            let p = progress / dur1;
+            let val = (p * 3.7).toFixed(1);
+            startEl.textContent = `$${val}M`;
+            requestAnimationFrame(step);
+          } 
+          // Transition: Arrow color
+          else if (progress >= dur1 && progress < (dur1 + durArr)) {
+            startEl.textContent = `$3.7M`;
+            animWrap.classList.add('gmv-active');
+            requestAnimationFrame(step);
+          }
+          // Part 2: 0 to 30.0
+          else if (progress >= (dur1 + durArr) && progress < (dur1 + durArr + dur2)) {
+            let p2 = (progress - dur1 - durArr) / dur2;
+            let val2 = (easeOutExpo(p2) * 30.0).toFixed(1);
+            endEl.textContent = `$${val2}M`;
+            requestAnimationFrame(step);
+          } 
+          // Finish
+          else {
+            endEl.textContent = `$30.0M`;
+          }
+        }
+        requestAnimationFrame(step);
+      }
+    });
+  </script>
+</body>
+</html>

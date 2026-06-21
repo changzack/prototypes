@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zack Chang — Issue 01 / 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fraunces:ital,opsz,wght@1,144,600&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#07080A;
+    --ink:#0F1115;
+    --rule:#1B1F26;
+    --bone:#ECE6D8;
+    --metal:#6B7280;
+    --acid:#C6FF3D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--void);color:var(--bone);font-family:'Space Grotesk',sans-serif;font-size:17px;line-height:1.55;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+
+  /* Paper grain overlay */
+  .grain{
+    position:fixed;inset:0;z-index:200;pointer-events:none;
+    background-image:url('https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-0/paper-grain-overlay.jpg');
+    background-size:cover;background-position:center;
+    mix-blend-mode:overlay;opacity:0;
+    transition:opacity .6s ease;
+  }
+  .grain.in{opacity:.4}
+
+  /* Acid light leak under hero */
+  .leak{
+    position:absolute;left:0;right:0;bottom:0;height:60%;
+    background-image:url('https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-0/chartreuse-light-leak.jpg');
+    background-size:cover;background-position:bottom center;
+    mix-blend-mode:screen;opacity:0;pointer-events:none;z-index:1;
+    transition:opacity .8s ease .8s;
+  }
+  .leak.in{opacity:.35}
+
+  /* Editorial monogram stamp */
+  .stamp{
+    position:absolute;top:88px;right:96px;width:160px;height:160px;
+    opacity:0;transform:rotate(-6deg);
+    mix-blend-mode:screen;z-index:5;
+    transition:opacity 1s ease 1.3s;
+  }
+  .stamp.in{opacity:.55}
+  .stamp img{width:100%;height:100%;object-fit:contain}
+  .stamp-footer{position:relative;width:96px;height:96px;opacity:.45;transform:rotate(-6deg);mix-blend-mode:screen;display:inline-block;vertical-align:middle}
+  .stamp-footer img{width:100%;height:100%;object-fit:contain}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 96px 0 96px;position:relative;z-index:10}
+
+  /* Nav */
+  nav.top{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:18px 0;border-bottom:1px solid var(--rule);
+    font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--metal);
+  }
+  nav.top a:hover{color:var(--bone)}
+  nav.top .right span{color:var(--bone)}
+
+  /* HERO */
+  .hero{position:relative;padding-top:80px;padding-bottom:120px;overflow:hidden}
+  .hero-inner{position:relative;z-index:3}
+  .grid-floor-wrap{
+    position:absolute;left:0;right:0;bottom:-20px;height:560px;
+    perspective:1200px;perspective-origin:50% 0%;
+    pointer-events:none;z-index:2;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%,#000 70%,transparent 100%);
+    mask-image:linear-gradient(to bottom,transparent 0,#000 18%,#000 70%,transparent 100%);
+  }
+  .grid-floor{
+    position:absolute;left:-25%;right:-25%;top:0;height:1400px;
+    transform:rotateX(60deg);transform-origin:50% 0%;
+    background-image:
+      repeating-linear-gradient(to right, rgba(198,255,61,.08) 0 1px, transparent 1px 64px),
+      repeating-linear-gradient(to bottom, rgba(198,255,61,.08) 0 1px, transparent 1px 64px);
+    background-position:0 -200px;
+    opacity:0;
+    transition:opacity 1.2s cubic-bezier(0.22,1,0.36,1), background-position 1.2s cubic-bezier(0.22,1,0.36,1);
+  }
+  .grid-floor.in{opacity:1;background-position:0 0;animation:gridPan 40s linear infinite 1.4s}
+  @keyframes gridPan{
+    from{background-position:0 0,0 0}
+    to{background-position:0 -640px,640px 0}
+  }
+
+  .hero-name{
+    font-family:'Archivo Black',sans-serif;
+    font-weight:900;
+    font-size:clamp(96px,18vw,280px);
+    line-height:.82;
+    letter-spacing:-0.04em;
+    color:var(--bone);
+    text-transform:uppercase;
+    margin-bottom:36px;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .hero-name .row{display:block;white-space:nowrap}
+  .hero-name .char{
+    display:inline-block;
+    transform:translateY(40px) translateZ(-200px);
+    opacity:0;
+    text-shadow:
+      1px 1px 0 #1a1d22, 2px 2px 0 #181b20, 3px 3px 0 #16191e,
+      4px 4px 0 #14171c, 5px 5px 0 #12151a, 6px 6px 0 #111419,
+      7px 7px 0 #0f1217, 8px 8px 0 #0e1116, 9px 9px 0 #0d1015,
+      10px 10px 0 #0c0f14, 11px 11px 0 #0b0e13, 12px 12px 0 #0a0d12,
+      13px 13px 0 #0a0c11, 14px 14px 0 #090c10, 15px 15px 0 #090b0f,
+      16px 16px 0 #080b0f, 17px 17px 0 #080a0e, 18px 18px 0 #070a0e,
+      19px 19px 0 #07090d, 20px 20px 0 #07090d, 21px 21px 0 #06080c,
+      22px 22px 0 #06080c, 23px 23px 0 #06080b, 24px 24px 0 #0a0b0e,
+      24px 24px 40px rgba(0,0,0,0.6);
+  }
+  .hero-name .char.in{
+    transform:translateY(0) translateZ(0);
+    opacity:1;
+    transition:transform 700ms cubic-bezier(0.16,1,0.3,1), opacity 700ms cubic-bezier(0.16,1,0.3,1);
+  }
+  .hero-name .arrow{color:var(--acid);font-family:'Archivo Black',sans-serif;display:inline-block;margin-left:.1em}
+
+  .subtitle{
+    font-family:'Fraunces',serif;
+    font-style:italic;font-weight:600;
+    font-size:22px;line-height:1.4;
+    max-width:640px;color:var(--bone);
+    margin-bottom:40px;
+    min-height:88px;
+  }
+  .subtitle .caret{display:inline-block;width:.5em;background:var(--acid);height:.9em;vertical-align:-2px;margin-left:2px;animation:blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+
+  .telemetry{
+    display:flex;gap:24px;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--metal);
+    mix-blend-mode:difference;
+    opacity:0;transform:translateX(40px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .telemetry.in{opacity:1;transform:translateX(0)}
+  .telemetry .bar{
+    width:160px;height:8px;background:var(--rule);position:relative;overflow:hidden;
+  }
+  .telemetry .bar::after{
+    content:'';position:absolute;inset:0;width:74%;background:var(--acid);
+  }
+  .telemetry .status{color:var(--bone)}
+
+  /* Sections */
+  section.s{padding:80px 0;border-top:1px solid var(--rule);position:relative;z-index:10}
+  .eyebrow{
+    font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+    font-size:14px;letter-spacing:.04em;color:var(--metal);
+    margin-bottom:32px;
+  }
+  .eyebrow span{color:var(--acid);font-style:normal;font-family:'JetBrains Mono',monospace}
+
+  .copy{max-width:680px;font-size:17px;line-height:1.55;color:var(--bone)}
+  .copy p+p{margin-top:18px}
+  .copy em{font-family:'Fraunces',serif;font-style:italic;color:var(--bone)}
+
+  /* Stat plinths */
+  .plinths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:56px;background:var(--rule);border:1px solid var(--rule);perspective:2000px}
+  .plinth{
+    background:var(--ink);padding:28px 28px 24px;
+    transform:translateZ(0);
+    transform-style:preserve-3d;
+    transition:transform 800ms cubic-bezier(0.22,1,0.36,1);
+  }
+  .plinth.lift{transform:translateZ(40px)}
+  .plinth .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--metal);margin-bottom:12px}
+  .plinth .num{
+    font-family:'Archivo Black',sans-serif;
+    font-size:72px;line-height:1;color:var(--acid);
+    letter-spacing:-0.02em;
+  }
+  .plinth .sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--metal);margin-top:10px}
+
+  /* Work cards */
+  .work-stack{perspective:2000px;transform-style:preserve-3d;margin-top:8px}
+  .work{
+    background:var(--ink);
+    border-top:1px solid var(--rule);
+    padding:34px 36px 36px;
+    transform:translateZ(0) rotateX(2deg);
+    transform-origin:50% 100%;
+    opacity:.6;
+    transform-style:preserve-3d;
+    transition:transform 800ms cubic-bezier(0.16,1,0.3,1), opacity 800ms cubic-bezier(0.16,1,0.3,1);
+    margin-bottom:24px;
+  }
+  .work.lift{transform:translateZ(40px) rotateX(0);opacity:1}
+  .work .head{display:flex;justify-content:space-between;align-items:baseline;gap:24px;flex-wrap:wrap;margin-bottom:18px}
+  .work .co{
+    font-family:'Archivo Black',sans-serif;font-size:34px;letter-spacing:-0.02em;color:var(--bone);text-transform:uppercase;
+  }
+  .work .meta{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--metal)}
+  .work .meta b{color:var(--bone);font-weight:400}
+  .work .rule{height:1px;background:var(--rule);margin:0 0 18px;transform-origin:left;transform:scaleX(0);transition:transform 600ms ease}
+  .work.lift .rule{transform:scaleX(1)}
+  .work .lead{font-size:18px;line-height:1.5;color:var(--bone);margin-bottom:10px}
+  .work .lead b{color:var(--acid);font-family:'Archivo Black',sans-serif;font-weight:400;font-size:20px;letter-spacing:-0.01em}
+  .work ul{list-style:none;margin-top:10px;padding-left:0}
+  .work ul li{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--metal);padding-left:20px;position:relative;margin-bottom:6px}
+  .work ul li::before{content:'→';position:absolute;left:0;color:var(--acid)}
+
+  /* Toolkit marquee */
+  .marquee{
+    overflow:hidden;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+    padding:24px 0;margin-top:8px;
+    mix-blend-mode:difference;
+  }
+  .marquee-track{
+    display:flex;gap:48px;width:max-content;
+    animation:marquee 28s linear infinite;
+    font-family:'JetBrains Mono',monospace;font-size:18px;letter-spacing:.18em;text-transform:uppercase;color:var(--bone);
+  }
+  .marquee-track span{display:inline-flex;align-items:center;gap:48px}
+  .marquee-track span::after{content:'·';color:var(--acid);margin-left:48px}
+  @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* Reading */
+  .reading{margin-top:16px}
+  .reading a{
+    display:flex;align-items:baseline;gap:18px;
+    border-top:1px solid var(--rule);
+    padding:22px 0;font-size:22px;color:var(--bone);
+    font-family:'Fraunces',serif;font-weight:600;font-style:italic;
+    transition:color .2s;
+  }
+  .reading a:last-child{border-bottom:1px solid var(--rule)}
+  .reading a .arr{color:var(--metal);font-family:'JetBrains Mono',monospace;font-style:normal;font-size:14px;letter-spacing:.16em}
+  .reading a .date{margin-left:auto;font-family:'JetBrains Mono',monospace;font-style:normal;font-size:12px;letter-spacing:.14em;color:var(--metal);text-transform:uppercase}
+  .reading a:hover{color:var(--acid)}
+  .reading a:hover .arr{color:var(--acid)}
+
+  /* Contact */
+  .contact{padding:120px 0 80px;text-align:left}
+  .cta-wrap{margin:48px 0 40px}
+  .cta{
+    display:inline-flex;align-items:center;justify-content:space-between;gap:48px;
+    background:var(--acid);color:var(--void);
+    height:96px;padding:0 40px;
+    border-radius:2px;
+    font-family:'Archivo Black',sans-serif;font-size:28px;
+    letter-spacing:.04em;text-transform:lowercase;
+    min-width:560px;
+    transition:letter-spacing .2s ease;
+    position:relative;
+  }
+  .cta:hover{letter-spacing:.12em;animation:rgbflash .08s steps(2) 1}
+  @keyframes rgbflash{
+    50%{text-shadow:1px 0 0 #ff3df0, -1px 0 0 #3df0ff}
+  }
+  .cta .arr{font-size:32px}
+  .secondary{display:flex;gap:32px;font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--metal)}
+  .secondary a:hover{color:var(--acid)}
+
+  footer{border-top:1px solid var(--rule);padding:36px 0 48px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--metal);display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+
+  /* Mobile */
+  @media (max-width: 768px){
+    .wrap{padding:0 24px}
+    .hero{padding-top:48px;padding-bottom:80px}
+    .hero-name{font-size:clamp(64px,18vw,120px);letter-spacing:-0.03em}
+    .grid-floor-wrap{display:none}
+    .stamp{display:none}
+    .subtitle{font-size:18px;min-height:0}
+    .telemetry{flex-wrap:wrap;gap:12px}
+    .telemetry .bar{width:120px}
+    .plinths{grid-template-columns:1fr}
+    .work{transform:none!important;opacity:1!important;padding:24px}
+    .work .co{font-size:24px}
+    .cta{min-width:0;width:100%;font-size:20px;padding:0 24px;gap:16px;height:84px}
+    .marquee-track{font-size:14px;gap:32px}
+    nav.top{font-size:11px;flex-wrap:wrap;gap:8px}
+    .secondary{flex-wrap:wrap;gap:16px}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    .hero-name .char{transform:none;opacity:1}
+    .work{transform:none;opacity:1}
+    .plinth{transform:none}
+    .grid-floor{opacity:1}
+    .subtitle .caret{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="grain" id="grain"></div>
+
+<nav class="top">
+  <div class="wrap" style="padding:0 96px;display:flex;justify-content:space-between;width:100%;align-items:center">
+    <div>§ ZC · ISSUE 01 · 2026</div>
+    <div class="right"><span>hi@zackchang.com</span></div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="grid-floor-wrap"><div class="grid-floor" id="grid"></div></div>
+  <div class="leak" id="leak"></div>
+  <div class="stamp" id="stamp">
+    <img src="https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-0/editorial-monogram-stamp.jpg" alt="ZC Issue 01 stamp" width="160" height="160">
+  </div>
+
+  <div class="wrap">
+    <div class="hero-inner">
+      <h1 class="hero-name" id="heroName" aria-label="Zack Chang">
+        <span class="row" data-word="ZACK"></span>
+        <span class="row" data-word="CHANG"><span class="arrow">◢</span></span>
+      </h1>
+      <p class="subtitle" id="subtitle"></p>
+      <div class="telemetry" id="telemetry">
+        <div class="bar"></div>
+        <div>BUILD 2026.06</div>
+        <div>·</div>
+        <div>REMOTE</div>
+        <div>·</div>
+        <div class="status">STATUS SHIPPING</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <section class="s">
+    <div class="eyebrow"><span>§ 01</span> &nbsp;/&nbsp; CURRENTLY</div>
+    <div class="copy">
+      <p>Head of Product &amp; Creative Technologist at <em>Complex Networks</em>. Player-coach owning overall product vision while shipping as a single-person team — designing, prototyping, and engineering the systems that move the business.</p>
+      <p>Built a multi-agent workflow on LangGraph that runs the editorial pipeline end-to-end: brief → concept → asset → build → ship. Drove a <b style="color:var(--acid);font-family:'Archivo Black';font-weight:400">15%</b> engagement lift across the content network in Q2, and put <b style="color:var(--acid);font-family:'Archivo Black';font-weight:400">100K+</b> merchants into a single commerce surface.</p>
+    </div>
+
+    <div class="plinths" id="plinths">
+      <div class="plinth" data-target="30" data-prefix="$" data-suffix="M">
+        <div class="label">GMV · YEAR 2</div>
+        <div class="num"><span class="val">$0M</span></div>
+        <div class="sub">FROM $3.7M · 12 MO</div>
+      </div>
+      <div class="plinth" data-target="15" data-suffix="%">
+        <div class="label">ENGAGEMENT LIFT</div>
+        <div class="num"><span class="val">0%</span></div>
+        <div class="sub">Q2 · CONTENT NETWORK</div>
+      </div>
+      <div class="plinth" data-target="55" data-suffix="K">
+        <div class="label">MAU · COMPLEX APP</div>
+        <div class="num"><span class="val">0K</span></div>
+        <div class="sub">TOP 50 US SHOPPING</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="eyebrow"><span>§ 02</span> &nbsp;/&nbsp; SELECTED WORK</div>
+    <div class="work-stack" id="workStack">
+
+      <article class="work">
+        <div class="head">
+          <div class="co">Complex</div>
+          <div class="meta">2024 — 2026 &nbsp; ◢ &nbsp; <b>HEAD OF PRODUCT</b></div>
+        </div>
+        <div class="rule"></div>
+        <div class="lead">Launched <em>Complex Shop</em> and scaled it from <b>$3.7M → $30M</b> GMV in 12 months. Launched <em>Complex App</em> — <b>Top 50 US Shopping</b>, <b>55K MAU</b>.</div>
+        <ul>
+          <li>Built multi-agent editorial pipeline (LangGraph, Claude, GPT-5)</li>
+          <li>15% engagement lift across the network in Q2</li>
+        </ul>
+      </article>
+
+      <article class="work">
+        <div class="head">
+          <div class="co">NTWRK</div>
+          <div class="meta">2022 — 2024 &nbsp; ◢ &nbsp; <b>DIRECTOR, PRODUCT</b></div>
+        </div>
+        <div class="rule"></div>
+        <div class="lead">Stood up live-commerce marketplace from zero. Onboarded <b>2,000+ sellers</b>, reached <b>30K MAU</b> on the redesigned app shell.</div>
+        <ul>
+          <li>Owned the seller console, drop calendar, and bidding UX</li>
+          <li>Cut time-to-list 64% via guided publishing flow</li>
+        </ul>
+      </article>
+
+      <article class="work">
+        <div class="head">
+          <div class="co">Amazon</div>
+          <div class="meta">2019 — 2022 &nbsp; ◢ &nbsp; <b>SENIOR PM</b></div>
+        </div>
+        <div class="rule"></div>
+        <div class="lead">Product lead on a merchant tooling surface serving <b>100K+ merchants</b>. Shipped self-serve onboarding that compressed activation from 11 days to under 48 hours.</div>
+        <ul>
+          <li>Owned roadmap, experimentation, and pricing</li>
+          <li>Three patents on automated catalog inference</li>
+        </ul>
+      </article>
+
+      <article class="work">
+        <div class="head">
+          <div class="co">Levi's</div>
+          <div class="meta">2017 — 2019 &nbsp; ◢ &nbsp; <b>PM, DIGITAL</b></div>
+        </div>
+        <div class="rule"></div>
+        <div class="lead">Rebuilt the e-commerce checkout and PDP across web + iOS. <b>+11%</b> conversion, <b>+18%</b> AOV on denim category.</div>
+        <ul>
+          <li>Localized checkout across 14 markets</li>
+          <li>Replatformed PIM &amp; OMS in partnership with eng</li>
+        </ul>
+      </article>
+
+      <article class="work">
+        <div class="head">
+          <div class="co">Independent</div>
+          <div class="meta">2026 — &nbsp; ◢ &nbsp; <b>CREATIVE TECHNOLOGIST</b></div>
+        </div>
+        <div class="rule"></div>
+        <div class="lead">Building <em>OpenClaw</em> — an orchestration layer for autonomous creative pipelines. Production runs ship landing pages, decks, and editorial features end-to-end with human taste gates.</div>
+        <ul>
+          <li>Open-source pipeline runner + brief authoring DSL</li>
+          <li>Used internally at Complex; in private beta for partners</li>
+        </ul>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="eyebrow"><span>§ 03</span> &nbsp;/&nbsp; TOOLKIT</div>
+  </section>
+</div>
+
+<div class="marquee">
+  <div class="marquee-track">
+    <span>CLAUDE CODE</span><span>CODEX</span><span>GHOSTTY</span><span>FLORA</span><span>PAPER</span><span>LANGGRAPH</span><span>CURSOR</span><span>FIGMA</span><span>RAYCAST</span><span>LINEAR</span>
+    <span>CLAUDE CODE</span><span>CODEX</span><span>GHOSTTY</span><span>FLORA</span><span>PAPER</span><span>LANGGRAPH</span><span>CURSOR</span><span>FIGMA</span><span>RAYCAST</span><span>LINEAR</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="s">
+    <div class="eyebrow"><span>§ 04</span> &nbsp;/&nbsp; READING</div>
+    <div class="reading">
+      <a href="#"><span class="arr">→</span> Notes on agent-driven editorial<span class="date">2026.05</span></a>
+      <a href="#"><span class="arr">→</span> Why the creative pipeline replaced our brief doc<span class="date">2026.04</span></a>
+      <a href="#"><span class="arr">→</span> Spec-driven development for product teams<span class="date">2026.02</span></a>
+    </div>
+  </section>
+
+  <section class="s contact">
+    <div class="eyebrow"><span>§ 05</span> &nbsp;/&nbsp; CONTACT</div>
+    <div class="copy"><p>Open to advisory, partnership, and the occasional build. Fastest path is email.</p></div>
+    <div class="cta-wrap">
+      <a class="cta" href="mailto:hi@zackchang.com">
+        <span>hi@zackchang.com</span><span class="arr">→</span>
+      </a>
+    </div>
+    <div class="secondary">
+      <a href="https://linkedin.com/in/zackchang" target="_blank" rel="noopener">LINKEDIN ↗</a>
+      <a href="https://github.com/changzack" target="_blank" rel="noopener">GITHUB ↗</a>
+    </div>
+  </section>
+
+  <footer>
+    <div>© 2026 ZACK CHANG · REMOTE</div>
+    <div><span class="stamp-footer"><img src="https://changzack.github.io/prototypes/_assets/zackchang-v1/concept-0/editorial-monogram-stamp.jpg" alt=""></span> &nbsp; BUILT IN CLAUDE CODE &amp; CODEX</div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Build hero letters
+  const rows = document.querySelectorAll('.hero-name .row');
+  const allChars = [];
+  rows.forEach(row=>{
+    const word = row.dataset.word;
+    const trailing = row.querySelector('.arrow');
+    [...word].forEach(c=>{
+      const s = document.createElement('span');
+      s.className='char';
+      s.textContent = c;
+      row.insertBefore(s, trailing);
+      allChars.push(s);
+    });
+  });
+
+  // Boot sequence
+  requestAnimationFrame(()=>{
+    document.getElementById('grain').classList.add('in');
+    setTimeout(()=>document.getElementById('grid').classList.add('in'),200);
+    setTimeout(()=>document.getElementById('leak').classList.add('in'),400);
+    setTimeout(()=>document.getElementById('stamp').classList.add('in'),1300);
+
+    if(reduce){
+      allChars.forEach(c=>c.classList.add('in'));
+      typeSubtitle(true);
+      document.getElementById('telemetry').classList.add('in');
+      return;
+    }
+
+    allChars.forEach((c,i)=>{
+      setTimeout(()=>c.classList.add('in'), 400 + i*60);
+    });
+    setTimeout(typeSubtitle, 1100);
+    setTimeout(()=>document.getElementById('telemetry').classList.add('in'), 1400);
+  });
+
+  // Subtitle typewriter
+  function typeSubtitle(instant){
+    const el = document.getElementById('subtitle');
+    const text = 'Product leader. Builds with AI. Currently Head of Product & Creative Technologist at Complex.';
+    if(instant){ el.innerHTML = text; return; }
+    let i = 0;
+    el.innerHTML = '<span class="caret"></span>';
+    const caret = el.querySelector('.caret');
+    const tick = ()=>{
+      if(i>=text.length){ caret.remove(); return; }
+      caret.insertAdjacentText('beforebegin', text[i]);
+      i++;
+      setTimeout(tick, 18);
+    };
+    tick();
+  }
+
+  // Mouse tilt on hero
+  const hero = document.querySelector('.hero-inner');
+  const heroName = document.getElementById('heroName');
+  let targetRY=0, targetRX=0, curRY=0, curRX=0;
+  if(!reduce){
+    window.addEventListener('mousemove', e=>{
+      const x = e.clientX/window.innerWidth;
+      const y = e.clientY/window.innerHeight;
+      targetRY = (x-0.5)*6;
+      targetRX = (0.5-y)*4;
+    });
+    function tilt(){
+      curRY += (targetRY-curRY)*0.08;
+      curRX += (targetRX-curRX)*0.08;
+      heroName.style.transform = `perspective(1200px) rotateY(${curRY}deg) rotateX(${curRX}deg)`;
+      requestAnimationFrame(tilt);
+    }
+    requestAnimationFrame(tilt);
+  }
+
+  // IntersectionObserver: plinths + work cards
+  const ease = t => 1 - Math.pow(1-t, 3);
+
+  function tickNum(el, target, prefix, suffix, dur){
+    const start = performance.now();
+    function frame(now){
+      const t = Math.min(1, (now-start)/dur);
+      const e = ease(t);
+      const v = target*e;
+      let s = (target>=10) ? Math.round(v) : v.toFixed(1);
+      el.textContent = (prefix||'') + s + (suffix||'');
+      if(t<1) requestAnimationFrame(frame);
+      else el.textContent = (prefix||'') + target + (suffix||'');
+    }
+    requestAnimationFrame(frame);
+  }
+
+  const plinthObs = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        const p = en.target;
+        p.classList.add('lift');
+        const val = p.querySelector('.val');
+        const target = parseFloat(p.dataset.target);
+        const prefix = p.dataset.prefix||'';
+        const suffix = p.dataset.suffix||'';
+        if(reduce){
+          val.textContent = prefix+target+suffix;
+        } else {
+          tickNum(val, target, prefix, suffix, 1800);
+        }
+        plinthObs.unobserve(p);
+      }
+    });
+  },{threshold:0.4});
+  document.querySelectorAll('.plinth').forEach(p=>plinthObs.observe(p));
+
+  const workObs = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        en.target.classList.add('lift');
+        workObs.unobserve(en.target);
+      }
+    });
+  },{threshold:0.25});
+  document.querySelectorAll('.work').forEach(w=>workObs.observe(w));
+
+})();
+</script>
+</body>
+</html>
