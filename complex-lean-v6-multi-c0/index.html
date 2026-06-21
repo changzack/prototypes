@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Complex Allegiance — The Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@144,900&family=Inter+Tight:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root {
+    --vault: #0B0B0D;
+    --bone: #EFE7D6;
+    --oxblood: #6B1416;
+    --brass: #8B6F47;
+    --brass-hairline: rgba(139, 111, 71, 0.35);
+    --card-rx: 0deg;
+    --card-ry: 0deg;
+    --cur-x: 50%;
+    --cur-y: 50%;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--vault);
+    color: var(--bone);
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body {
+    perspective: 2400px;
+    perspective-origin: 50% 35%;
+    min-height: 100vh;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: 0; background: 0; color: inherit; }
+
+  /* ============== GRAIN / TEXTURE LAYERS ============== */
+  .vault-bg {
+    position: fixed; inset: 0;
+    background-image: url('https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-0/concrete-vault-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    opacity: 0.85;
+    mix-blend-mode: multiply;
+    z-index: -2;
+    pointer-events: none;
+  }
+  .vault-bg::after {
+    /* SVG feTurbulence noise overlay (required technique) */
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.12  0 0 0 0 0.09  0 0 0 0 0.06  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    mix-blend-mode: overlay;
+    opacity: 0.35;
+  }
+  .archival-grain {
+    position: fixed; inset: 0;
+    background-image: url('https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-0/archival-grain.jpg');
+    background-size: cover;
+    mix-blend-mode: overlay;
+    opacity: 0.22;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  /* ============== NAV ============== */
+  nav.top {
+    height: 64px;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--brass-hairline);
+    position: relative;
+    z-index: 10;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bone);
+  }
+  nav.top .left, nav.top .right { display: flex; align-items: center; gap: 24px; }
+  nav.top .dot { width: 4px; height: 4px; background: var(--brass); border-radius: 50%; }
+  nav.top .brand { font-weight: 700; }
+  nav.top .serial { color: var(--brass); }
+
+  /* hairline draw helper */
+  .hairline {
+    height: 1px;
+    background: var(--brass);
+    opacity: 0.35;
+    clip-path: inset(0 100% 0 0);
+    will-change: clip-path;
+  }
+  .hairline.reveal { clip-path: inset(0 0 0 0); transition: clip-path 600ms cubic-bezier(0.7, 0, 0.3, 1); }
+
+  /* ============== HERO ============== */
+  section.hero {
+    min-height: calc(100vh - 64px);
+    display: grid;
+    grid-template-columns: 55% 45%;
+    align-items: end;
+    padding: 80px 40px 80px;
+    position: relative;
+  }
+  .hero-text { padding-bottom: 40px; max-width: 760px; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 28px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 32px; height: 1px;
+    background: var(--brass);
+  }
+  h1.display {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144, 'SOFT' 0;
+    font-size: clamp(56px, 9vw, 148px);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    color: var(--bone);
+    margin-bottom: 40px;
+  }
+  h1.display .word {
+    display: inline-block;
+    overflow: hidden;
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(20px);
+    will-change: clip-path, transform;
+  }
+  h1.display .word.in {
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+    transition: clip-path 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  h1.display .accent {
+    color: var(--oxblood);
+    font-style: italic;
+  }
+
+  .hero-rule {
+    width: 96px;
+    height: 1px;
+    background: var(--brass);
+    opacity: 0.6;
+    margin: 0 0 28px;
+  }
+
+  .hero-stats {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: var(--bone);
+    margin-bottom: 48px;
+    line-height: 1.7;
+  }
+  .hero-stats .lead {
+    color: var(--bone);
+  }
+  .hero-stats b {
+    color: var(--brass);
+    font-weight: 700;
+  }
+
+  /* Bone-cream pill CTA */
+  .cta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 24px;
+    background: var(--bone);
+    color: var(--oxblood);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 22px 44px;
+    border-radius: 4px;
+    position: relative;
+    transition: letter-spacing 240ms ease-out;
+    overflow: visible;
+  }
+  .cta-pill .arrow { transition: transform 240ms ease-out; display: inline-block; }
+  .cta-pill::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -8px;
+    height: 1px;
+    width: 0;
+    background: var(--brass);
+    transition: width 240ms ease-out;
+  }
+  .cta-pill:hover { letter-spacing: 0.08em; }
+  .cta-pill:hover .arrow { transform: translateX(8px); }
+  .cta-pill:hover::after { width: 100%; }
+
+  /* ============== HERO CARD (3D) ============== */
+  .hero-card-wrap {
+    align-self: center;
+    justify-self: center;
+    width: 520px;
+    height: 780px;
+    position: relative;
+    transform-style: preserve-3d;
+  }
+  .hero-card {
+    width: 100%; height: 100%;
+    /* rest pose: rotateX(-15deg) rotateY(25deg) translateZ(40px) */
+    transform: rotateX(calc(-15deg + var(--card-rx))) rotateY(calc(25deg + var(--card-ry))) translateZ(40px);
+    transform-style: preserve-3d;
+    transition: transform 80ms linear;
+    position: relative;
+    filter: drop-shadow(0 40px 80px rgba(0,0,0,0.6));
+    will-change: transform;
+  }
+  .hero-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid var(--brass-hairline);
+  }
+  .hero-card .specular {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at var(--cur-x) var(--cur-y), rgba(255,240,200,0.35) 0%, rgba(255,240,200,0) 35%);
+    mix-blend-mode: screen;
+    border-radius: 4px;
+    pointer-events: none;
+  }
+  /* Letterpress emboss overlay number on the card */
+  .hero-card .emboss {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 48px;
+    letter-spacing: 0.06em;
+    color: var(--brass);
+    background: linear-gradient(135deg, #6B5235 0%, #C4A574 35%, #8B6F47 60%, #C4A574 80%, #6B5235 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: foil-shift 4s linear infinite;
+    text-shadow: 1px 1px 0 rgba(239,231,214,0.18), -1px -1px 0 rgba(0,0,0,0.55), 0 0 24px rgba(139,111,71,0.25);
+    pointer-events: none;
+    opacity: 0;
+  }
+  @keyframes foil-shift {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 200%; }
+  }
+
+  /* Card entry */
+  .hero-card.entering {
+    animation: card-in 1400ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes card-in {
+    0% { transform: rotateX(-15deg) rotateY(60deg) translateZ(-300px); opacity: 0; }
+    100% { transform: rotateX(calc(-15deg + var(--card-rx))) rotateY(calc(25deg + var(--card-ry))) translateZ(40px); opacity: 1; }
+  }
+
+  /* ============== VAULT MANIFESTO ============== */
+  section.vault {
+    position: relative;
+    min-height: 100vh;
+    padding: 160px 40px;
+    overflow: hidden;
+    border-top: 1px solid var(--brass-hairline);
+  }
+  .vault-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .vault-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 32px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .vault-label::before {
+    content: '§';
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 900;
+    color: var(--oxblood);
+    font-size: 18px;
+  }
+  h2.section-head {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144, 'SOFT' 0;
+    font-size: clamp(40px, 5vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--bone);
+    margin-bottom: 32px;
+  }
+  .vault-body p {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--bone);
+    opacity: 0.85;
+    margin-bottom: 24px;
+    max-width: 52ch;
+  }
+  .vault-body p em {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--oxblood);
+    font-weight: 900;
+  }
+
+  /* Vault perspective tunnel */
+  .vault-tunnel {
+    position: absolute;
+    inset: 0;
+    perspective: 1200px;
+    overflow: hidden;
+    z-index: 1;
+    opacity: 0.7;
+  }
+  .vault-tunnel .shelf {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform-origin: center center;
+    width: 800px;
+    height: 1px;
+    background: var(--brass);
+    opacity: 0.5;
+  }
+  .vault-tunnel .fog {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 20%, var(--vault) 75%);
+    mix-blend-mode: multiply;
+  }
+  .vault-seal {
+    position: absolute;
+    top: 80px; right: 40px;
+    width: 120px; height: 120px;
+    transform: rotate(-6deg);
+    opacity: 0.75;
+    z-index: 3;
+  }
+  .vault-seal img { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; mix-blend-mode: screen; filter: brightness(1.1); }
+
+  /* ============== PRICING ============== */
+  section.pricing {
+    position: relative;
+    padding: 160px 40px;
+    border-top: 1px solid var(--brass-hairline);
+    perspective: 2400px;
+    overflow: hidden;
+  }
+  .pricing-floor {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-0/tier-perspective-floor.jpg');
+    background-size: cover;
+    background-position: center bottom;
+    opacity: 0.7;
+    mix-blend-mode: lighten;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .pricing-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .pricing-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 80px;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .pricing-head h2 { max-width: 720px; }
+  .pricing-head .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brass);
+    text-align: right;
+    line-height: 1.6;
+  }
+  .tier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1fr;
+    gap: 32px;
+    transform-style: preserve-3d;
+  }
+  .tier {
+    background: rgba(11, 11, 13, 0.78);
+    border: 1px solid var(--brass-hairline);
+    padding: 48px;
+    border-radius: 4px;
+    transform-style: preserve-3d;
+    position: relative;
+    backdrop-filter: blur(2px);
+  }
+  .tier.left { transform: rotateY(-8deg); }
+  .tier.right { transform: rotateY(8deg); }
+  .tier.middle {
+    transform: translateZ(60px);
+    border-color: var(--oxblood);
+    background: rgba(11, 11, 13, 0.92);
+    z-index: 2;
+  }
+  .tier .tier-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--brass);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .tier.middle .tier-name { color: var(--oxblood); }
+  .tier.middle .tier-name .star {
+    color: var(--oxblood);
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+  }
+  .tier .tier-price {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 64px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--bone);
+    margin-bottom: 8px;
+  }
+  .tier .tier-period {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: var(--brass);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .tier hr {
+    border: 0;
+    border-top: 1px solid var(--brass-hairline);
+    margin: 0 0 24px;
+  }
+  .tier ul {
+    list-style: none;
+    margin-bottom: 40px;
+  }
+  .tier ul li {
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--bone);
+    padding: 12px 0;
+    border-bottom: 1px solid var(--brass-hairline);
+    display: flex;
+    gap: 16px;
+    opacity: 0.92;
+  }
+  .tier ul li::before {
+    content: counter(b, decimal-leading-zero);
+    counter-increment: b;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--brass);
+    letter-spacing: 0.08em;
+    min-width: 24px;
+  }
+  .tier ul { counter-reset: b; }
+  .tier.middle ul li::before { color: var(--oxblood); }
+  .tier-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 16px 28px;
+    border: 1px solid var(--brass);
+    color: var(--bone);
+    border-radius: 4px;
+    transition: letter-spacing 240ms ease-out, background 240ms ease-out, color 240ms ease-out;
+  }
+  .tier-cta:hover { letter-spacing: 0.18em; }
+  .tier.middle .tier-cta {
+    background: var(--bone);
+    color: var(--oxblood);
+    border-color: var(--bone);
+  }
+
+  /* ============== INTEL ============== */
+  section.intel {
+    padding: 160px 40px;
+    border-top: 1px solid var(--brass-hairline);
+    position: relative;
+  }
+  .intel-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .intel-list {
+    list-style: none;
+  }
+  .intel-list li {
+    padding: 32px 0;
+    border-bottom: 1px solid var(--brass-hairline);
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 32px;
+    align-items: baseline;
+  }
+  .intel-list li:first-child { border-top: 1px solid var(--brass-hairline); }
+  .intel-list .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: var(--brass);
+  }
+  .intel-list h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144, 'SOFT' 0;
+    font-size: 28px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--bone);
+    margin-bottom: 8px;
+  }
+  .intel-list p {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--bone);
+    opacity: 0.78;
+    max-width: 56ch;
+  }
+
+  /* ============== TICKER ============== */
+  section.ticker-bar {
+    height: 56px;
+    background: var(--oxblood);
+    overflow: hidden;
+    border-top: 1px solid var(--brass-hairline);
+    border-bottom: 1px solid var(--brass-hairline);
+    display: flex;
+    align-items: center;
+    mix-blend-mode: difference;
+    position: relative;
+  }
+  .ticker-track {
+    display: flex;
+    gap: 64px;
+    white-space: nowrap;
+    animation: ticker 24s linear infinite;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bone);
+    padding-left: 64px;
+  }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ============== FINAL CTA ============== */
+  section.final {
+    padding: 200px 40px;
+    border-top: 1px solid var(--brass-hairline);
+    border-bottom: 1px solid var(--brass-hairline);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .final-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+  .final h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-variation-settings: 'opsz' 144, 'SOFT' 0;
+    font-size: clamp(48px, 7vw, 124px);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--bone);
+    margin-bottom: 40px;
+  }
+  .final h2 em {
+    font-style: italic;
+    color: var(--oxblood);
+  }
+  .final .counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #6B5235 0%, #C4A574 35%, #8B6F47 60%, #C4A574 80%, #6B5235 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: foil-shift 4s linear infinite;
+  }
+  .final p.sub {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--bone);
+    opacity: 0.75;
+    max-width: 56ch;
+    margin: 0 auto 56px;
+  }
+
+  /* small floating card on final */
+  .final-card {
+    width: 280px;
+    height: 420px;
+    margin: 0 auto 56px;
+    transform: rotateX(-15deg) rotateY(8deg) translateZ(40px);
+    transform-style: preserve-3d;
+    filter: drop-shadow(0 30px 60px rgba(0,0,0,0.6));
+  }
+  .final-card img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid var(--brass-hairline); }
+
+  /* ============== FOOTER ============== */
+  footer {
+    padding: 64px 40px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 40px;
+    flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--brass);
+    position: relative;
+  }
+  footer .seal-mini {
+    width: 80px; height: 80px;
+    opacity: 0.5;
+  }
+  footer .seal-mini img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: screen; filter: brightness(1.1); }
+  footer .left { display: flex; gap: 24px; align-items: center; }
+  footer .right { color: var(--bone); opacity: 0.7; }
+  footer .right em {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--oxblood);
+    font-weight: 900;
+    font-size: 13px;
+    text-transform: none;
+    letter-spacing: -0.01em;
+  }
+
+  /* ============== RESPONSIVE ============== */
+  @media (max-width: 900px) {
+    section.hero { grid-template-columns: 1fr; padding: 48px 24px; }
+    .hero-card-wrap { width: 80vw; height: 120vw; margin: 40px auto 0; }
+    .hero-card { transform: rotateX(-8deg) rotateY(15deg) translateZ(0); }
+    h1.display { font-size: clamp(40px, 11vw, 72px); }
+    .vault-inner { grid-template-columns: 1fr; gap: 32px; }
+    .vault-seal { width: 72px; height: 72px; top: 24px; right: 24px; }
+    section.vault, section.pricing, section.intel, section.final { padding: 96px 24px; }
+    .tier-grid { grid-template-columns: 1fr; gap: 24px; }
+    .tier.left, .tier.right { transform: none; }
+    .tier.middle { transform: translateZ(20px); }
+    .intel-inner { grid-template-columns: 1fr; gap: 32px; }
+    .intel-list li { grid-template-columns: 48px 1fr; gap: 16px; }
+    .pricing-head { flex-direction: column; align-items: flex-start; }
+    .pricing-head .meta { text-align: left; }
+    .final-card { width: 220px; height: 330px; }
+    nav.top { padding: 0 20px; font-size: 9px; gap: 12px; }
+    nav.top .left, nav.top .right { gap: 12px; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="vault-bg"></div>
+<div class="archival-grain"></div>
+
+<!-- NAV -->
+<nav class="top">
+  <div class="left">
+    <span class="brand">COMPLEX ALLEGIANCE</span>
+    <span class="dot"></span>
+    <span>EST. 2025</span>
+  </div>
+  <div class="right">
+    <span>VAULT ACCESS</span>
+    <span class="dot"></span>
+    <span class="serial">№ <span id="nav-serial">000147</span> / 14M</span>
+  </div>
+</nav>
+<div class="hairline" id="hr-1"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="eyebrow">Class of 2025 · Enrolling</div>
+    <h1 class="display" id="hero-head" aria-label="You're not subscribing. You're being numbered.">
+      <span class="word">You're</span> <span class="word">not</span> <span class="word">subscribing.</span><br>
+      <span class="word">You're</span> <span class="word accent">being</span> <span class="word accent">numbered.</span>
+    </h1>
+    <div class="hero-rule"></div>
+    <div class="hero-stats">
+      <div class="lead" aria-label="14,000,000 members. 96-second median sell-out."><b>14,000,000</b> members. <b>96-second</b> median sell-out.</div>
+      <div>Class of 2025 enrolling — founding rate locked forever.</div>
+    </div>
+    <a href="#claim" class="cta-pill" onclick="handleCTAClick(event,'hero')">
+      <span>CLAIM YOUR NUMBER</span>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="hero-card-wrap">
+    <div class="hero-card entering" id="hero-card">
+      <img
+        src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-0/member-card-recto.jpg"
+        alt="Complex Allegiance member card, № 000147, bone-cream stock with brass foil serial."
+        width="520" height="780"
+        onerror="this.style.background='var(--bone)';this.style.display='flex';this.alt='№ 000147';"
+      />
+      <div class="specular"></div>
+    </div>
+  </div>
+</section>
+
+<div class="hairline" id="hr-2"></div>
+
+<!-- VAULT MANIFESTO -->
+<section class="vault" id="vault-section">
+  <div class="vault-tunnel" id="vault-tunnel"></div>
+  <div class="vault-seal">
+    <img
+      src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-0/vault-seal.jpg"
+      alt="Complex Allegiance vault seal: C·A monogram in tarnished brass."
+      width="120" height="120"
+    />
+  </div>
+  <div class="vault-inner">
+    <div>
+      <div class="vault-label">Section I — THE VAULT</div>
+      <h2 class="section-head">A ledger,<br>not a&nbsp;subscription.</h2>
+    </div>
+    <div class="vault-body">
+      <p>Every member receives a <em>permanent serial</em>. Lower numbers are issued earlier. When yours is gone, it is gone — there is no second printing of № 000147.</p>
+      <p>Inside the vault: archival drops, member-only chapters, founder calls held in rooms with the lights out, and an unmoving promise that your founding rate will never re-price, never re-tier, never apologize.</p>
+      <p>You will be addressed by your number. So will we.</p>
+    </div>
+  </div>
+</section>
+
+<div class="hairline" id="hr-3"></div>
+
+<!-- PRICING -->
+<section class="pricing">
+  <div class="pricing-floor"></div>
+  <div class="pricing-inner">
+    <div class="pricing-head">
+      <div>
+        <div class="vault-label">Section II — Tiers of Allegiance</div>
+        <h2 class="section-head">Three numbers.<br>One of them is&nbsp;yours.</h2>
+      </div>
+      <div class="meta">
+        ENROLLMENT OPEN<br>
+        <span style="color:var(--oxblood)">●</span> CLASS OF 2025<br>
+        FOUNDING RATE LOCKED
+      </div>
+    </div>
+
+    <div class="tier-grid" id="tier-grid">
+      <!-- REGULAR -->
+      <div class="tier left">
+        <div class="tier-name">Regular · Tier 01</div>
+        <div class="tier-price">FREE</div>
+        <div class="tier-period">No commitment</div>
+        <hr>
+        <ul>
+          <li>The weekly newsletter, on Tuesdays</li>
+          <li>Public archive — last 30 days only</li>
+          <li>Standard release queue on drops</li>
+          <li>Comment access, read-only forum</li>
+        </ul>
+        <a href="#claim" class="tier-cta" onclick="handleCTAClick(event,'regular')">Take a Number →</a>
+      </div>
+
+      <!-- OBSESSED (featured) -->
+      <div class="tier middle">
+        <div class="tier-name"><span class="star">★</span> Obsessed · Tier 02 <span class="star">★</span></div>
+        <div class="tier-price">$9<span style="font-size:24px;color:var(--brass);">/MO</span></div>
+        <div class="tier-period">Founding rate · locked forever</div>
+        <hr>
+        <ul>
+          <li>First dibs on every drop, 24 hours before public</li>
+          <li>Full archival vault — every issue since № 000001</li>
+          <li>Member-only chapters and city dispatches</li>
+          <li>Founder calls — monthly, off-record</li>
+          <li>Numbered serial embossed on physical card</li>
+          <li>Founding rate locked even if list price rises</li>
+        </ul>
+        <a href="#claim" class="tier-cta" onclick="handleCTAClick(event,'obsessed')">Claim My Number →</a>
+      </div>
+
+      <!-- FAMILY -->
+      <div class="tier right">
+        <div class="tier-name">Family · Tier 03</div>
+        <div class="tier-price">$29<span style="font-size:24px;color:var(--brass);">/MO</span></div>
+        <div class="tier-period">Four serials, one household</div>
+        <hr>
+        <ul>
+          <li>Four member numbers under one billing</li>
+          <li>Everything in Obsessed, multiplied</li>
+          <li>Family allocation on capped drops</li>
+          <li>Private household forum room</li>
+          <li>Annual gathering — invitation by serial</li>
+        </ul>
+        <a href="#claim" class="tier-cta" onclick="handleCTAClick(event,'family')">Enroll Household →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hairline" id="hr-4"></div>
+
+<!-- INTEL -->
+<section class="intel">
+  <div class="intel-inner">
+    <div>
+      <div class="vault-label">Section III — Intel</div>
+      <h2 class="section-head">What being numbered actually gets you.</h2>
+    </div>
+    <ul class="intel-list">
+      <li>
+        <div class="num">№ 01</div>
+        <div>
+          <h3>Drops, before the algorithm decides.</h3>
+          <p>Every capped drop — sneakers, prints, capsule editorials — is released to numbered members 24 hours before the public queue. 421 member-only drops shipped since founding.</p>
+        </div>
+      </li>
+      <li>
+        <div class="num">№ 02</div>
+        <div>
+          <h3>The archive, in full.</h3>
+          <p>Every issue since № 000001 — staff picks, lost interviews, the spreads that never made the homepage. Searchable by year, by writer, by serial.</p>
+        </div>
+      </li>
+      <li>
+        <div class="num">№ 03</div>
+        <div>
+          <h3>Founder calls. Off the record.</h3>
+          <p>Monthly. No transcript. No screenshare. The room is lit by a single lamp and we tell you what is actually happening before it's anywhere else.</p>
+        </div>
+      </li>
+      <li>
+        <div class="num">№ 04</div>
+        <div>
+          <h3>Your serial. For life.</h3>
+          <p>A pressed bone-cream card with your number in brass foil, mailed once. If you stay, the rate stays. If we re-price, you don't.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- TICKER -->
+<section class="ticker-bar" aria-hidden="true">
+  <div class="ticker-track">
+    <span>14M MEMBERS</span><span>·</span>
+    <span>421 MEMBER-ONLY DROPS</span><span>·</span>
+    <span>96s MEDIAN SELL-OUT</span><span>·</span>
+    <span>CANCEL ANYTIME</span><span>·</span>
+    <span>FOUNDING RATE LOCKED FOREVER</span><span>·</span>
+    <span>14M MEMBERS</span><span>·</span>
+    <span>421 MEMBER-ONLY DROPS</span><span>·</span>
+    <span>96s MEDIAN SELL-OUT</span><span>·</span>
+    <span>CANCEL ANYTIME</span><span>·</span>
+    <span>FOUNDING RATE LOCKED FOREVER</span><span>·</span>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final" id="claim">
+  <div class="final-inner">
+    <div class="final-card">
+      <img
+        src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-0/member-card-recto.jpg"
+        alt="Complex Allegiance member card — your serial waits."
+        width="280" height="420"
+      />
+    </div>
+    <div class="counter">NEXT SERIAL ISSUED · № <span id="final-serial">000148</span></div>
+    <h2>Take your <em>number.</em></h2>
+    <p class="sub">96-second median sell-out. 14M ahead of you. Your serial increments by one every time someone else gets there first.</p>
+    <a href="#" class="cta-pill" onclick="handleCTAClick(event,'final')">
+      <span>TAKE YOUR NUMBER</span>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <div class="left">
+    <div class="seal-mini">
+      <img
+        src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-0/vault-seal.jpg"
+        alt="C·A seal" width="80" height="80"
+      />
+    </div>
+    <span>© 2025 COMPLEX ALLEGIANCE</span>
+    <span class="dot" style="width:4px;height:4px;background:var(--brass);border-radius:50%;display:inline-block"></span>
+    <span class="right"><em>numbered, never average</em></span>
+  </div>
+  <div class="right" style="opacity:0.5">VAULT BUILD 002025.06 · NY</div>
+</footer>
+
+<script>
+  // ===== Cursor lerp for hero card =====
+  const card = document.getElementById('hero-card');
+  const wrap = document.querySelector('.hero-card-wrap');
+  const specEl = document.querySelector('.hero-card .specular');
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  let sx = 50, sy = 50;
+  const isTouch = window.matchMedia('(hover: none)').matches;
+
+  if (!isTouch) {
+    window.addEventListener('mousemove', (e) => {
+      const r = wrap.getBoundingClientRect();
+      const px = (e.clientX - r.left - r.width / 2) / r.width;
+      const py = (e.clientY - r.top - r.height / 2) / r.height;
+      tx = Math.max(-1, Math.min(1, px)) * 10;
+      ty = Math.max(-1, Math.min(1, py)) * -10;
+      sx = ((e.clientX - r.left) / r.width) * 100;
+      sy = ((e.clientY - r.top) / r.height) * 100;
+    });
+    function loop() {
+      cx += (tx - cx) * 0.08;
+      cy += (ty - cy) * 0.08;
+      document.documentElement.style.setProperty('--card-ry', cx.toFixed(2) + 'deg');
+      document.documentElement.style.setProperty('--card-rx', cy.toFixed(2) + 'deg');
+      document.documentElement.style.setProperty('--cur-x', sx.toFixed(1) + '%');
+      document.documentElement.style.setProperty('--cur-y', sy.toFixed(1) + '%');
+      requestAnimationFrame(loop);
+    }
+    loop();
+  }
+
+  // Remove entering animation class after it plays so cursor tracking re-engages
+  card.addEventListener('animationend', () => card.classList.remove('entering'));
+
+  // ===== Hairline staggered reveal + headline words =====
+  const hairlines = document.querySelectorAll('.hairline');
+  hairlines.forEach((h, i) => {
+    setTimeout(() => h.classList.add('reveal'), 300 + i * 80);
+  });
+  const heroWords = document.querySelectorAll('#hero-head .word');
+  heroWords.forEach((w, i) => {
+    setTimeout(() => w.classList.add('in'), 700 + i * 120);
+  });
+
+  // ===== Vault tunnel — generate stacked shelves with translateZ =====
+  const tunnel = document.getElementById('vault-tunnel');
+  const numerals = ['MMXXV','MMXXIV','MMXXIII','MMXXII','MMXXI','MMXX','MMXIX','MMXVIII'];
+  for (let i = 0; i < 8; i++) {
+    const shelf = document.createElement('div');
+    shelf.className = 'shelf';
+    shelf.style.transform = `translate(-50%, -50%) translateZ(${-i * 100}px)`;
+    shelf.style.width = (800 - i * 60) + 'px';
+    shelf.style.opacity = (0.5 - i * 0.05).toFixed(2);
+    tunnel.appendChild(shelf);
+
+    // roman numeral index
+    const idx = document.createElement('div');
+    idx.style.cssText = `
+      position:absolute;left:50%;top:50%;
+      transform:translate(-50%, calc(-50% + ${40 + i * 12}px)) translateZ(${-i * 100}px);
+      font-family:'JetBrains Mono', monospace; font-weight:700;
+      font-size:${11 - i * 0.4}px; letter-spacing:0.3em;
+      color:#8B6F47; opacity:${(0.6 - i * 0.06).toFixed(2)};
+      white-space:nowrap;
+    `;
+    idx.textContent = `${numerals[i]} · SHELF ${String(i + 1).padStart(2, '0')}`;
+    tunnel.appendChild(idx);
+  }
+  const fog = document.createElement('div');
+  fog.className = 'fog';
+  tunnel.appendChild(fog);
+
+  // ===== GSAP ScrollTrigger — pin vault, drive depth via --scroll =====
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    ScrollTrigger.create({
+      trigger: '#vault-section',
+      start: 'top top',
+      end: '+=80%',
+      pin: true,
+      pinSpacing: true,
+      scrub: true,
+      onUpdate: (self) => {
+        const p = self.progress;
+        tunnel.querySelectorAll('.shelf').forEach((s, i) => {
+          const z = -i * 100 + p * 400;
+          s.style.transform = `translate(-50%, -50%) translateZ(${z}px)`;
+        });
+        fog.style.opacity = (0.4 + p * 0.5).toString();
+      }
+    });
+
+    // Tier reveal
+    gsap.from('.tier', {
+      scrollTrigger: { trigger: '.tier-grid', start: 'top 80%' },
+      y: 80, opacity: 0, duration: 1, stagger: 0.2, ease: 'power3.out'
+    });
+    gsap.fromTo('.tier.middle',
+      { z: 80 },
+      {
+        scrollTrigger: { trigger: '.tier-grid', start: 'top 80%' },
+        z: 60, duration: 1, ease: 'elastic.out(1, 0.5)'
+      }
+    );
+
+    // Intel reveal
+    gsap.from('.intel-list li', {
+      scrollTrigger: { trigger: '.intel-list', start: 'top 85%' },
+      y: 30, opacity: 0, duration: 0.6, stagger: 0.1, ease: 'power3.out'
+    });
+  }
+
+  // ===== Serial counter — increments every 96s =====
+  let serial = 147;
+  setInterval(() => {
+    serial++;
+    const padded = String(serial).padStart(6, '0');
+    const nav = document.getElementById('nav-serial');
+    const fin = document.getElementById('final-serial');
+    if (nav) nav.textContent = padded;
+    if (fin) fin.textContent = String(serial + 1).padStart(6, '0');
+  }, 96000);
+
+  // ===== CTA click handler =====
+  function handleCTAClick(e, which) {
+    // intentionally a no-op nav (prototype) — visually flash the brass underline
+    e.preventDefault();
+    const t = e.currentTarget;
+    t.style.transition = 'transform 120ms ease-out';
+    t.style.transform = 'scale(0.98)';
+    setTimeout(() => { t.style.transform = ''; }, 140);
+    if (which === 'hero' || which === 'final') {
+      document.getElementById('claim').scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+  window.handleCTAClick = handleCTAClick;
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complex Allegiance — Index</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,900;1,900&family=Archivo:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0B0B0C;
+      --news:rgba(239,230,210,1);
+      --red:#FF2E1F;
+      --dim:#6E6B5E;
+      --rule:rgba(239,230,210,0.4);
+      --ease-out:cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-chart:cubic-bezier(0.65, 0, 0.35, 1);
+      --ease-pop:cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; background:#0B0B0C; }
+    body{
+      margin:0;
+      background:#0B0B0C;
+      color:rgba(239,230,210,1);
+      font-family:'Archivo', sans-serif;
+      font-weight:400;
+      font-size:clamp(15px, 1.18vw, 18px);
+      line-height:1.35;
+      overflow-x:hidden;
+    }
+
+    button, a{ font:inherit; color:inherit; }
+    button{ border:0; cursor:pointer; }
+    img{ display:block; max-width:100%; height:auto; }
+
+    .paper-grain{
+      position:fixed;
+      inset:0;
+      z-index:100;
+      pointer-events:none;
+      opacity:0.18;
+      mix-blend-mode:overlay;
+      background-image:url('https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-1/paper-grain.jpg');
+      background-size:420px 420px;
+      background-repeat:repeat;
+      background-position:0 0;
+    }
+
+    .cursor{
+      position:fixed;
+      top:0;
+      left:0;
+      z-index:150;
+      width:22px;
+      height:22px;
+      pointer-events:none;
+      opacity:0;
+      transform:translate3d(-50%, -50%, 0);
+      mix-blend-mode:difference;
+      will-change:transform, opacity;
+    }
+    .cursor svg{ width:22px; height:22px; overflow:visible; }
+    .cursor circle{ fill:none; stroke:rgba(239,230,210,1); stroke-width:1.4; }
+    .cursor .cursor-label{
+      position:absolute;
+      top:30px;
+      left:8px;
+      min-width:132px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(10px, .75vw, 11px);
+      letter-spacing:.08em;
+      color:rgba(239,230,210,1);
+      opacity:0;
+      transform:translate3d(0, 6px, 0);
+      transition:opacity 180ms var(--ease-out), transform 180ms var(--ease-out);
+      mix-blend-mode:normal;
+    }
+    .cursor.is-hot{ width:44px; height:44px; }
+    .cursor.is-hot svg{ width:44px; height:44px; }
+    .cursor.is-hot .cursor-label{ opacity:1; transform:translate3d(0, 0, 0); }
+
+    .masthead{
+      position:sticky;
+      top:0;
+      z-index:80;
+      height:56px;
+      border-bottom:1px solid rgba(239,230,210,0.4);
+      background:rgba(11,11,12,0.92);
+      display:grid;
+      grid-template-columns:minmax(190px, 1fr) auto auto auto;
+      align-items:center;
+      column-gap:clamp(14px, 2vw, 34px);
+      padding-left:56px;
+      padding-right:16px;
+      backdrop-filter:blur(8px);
+    }
+    .brand{
+      font-family:'Archivo', sans-serif;
+      font-weight:700;
+      letter-spacing:.02em;
+      font-size:clamp(16px, 1.2vw, 19px);
+    }
+    .chip, .mast-link, .join-top{
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(10px, .78vw, 11px);
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .join-top{
+      background:rgba(239,230,210,1);
+      color:#0B0B0C;
+      padding:12px 14px;
+      transition:transform 100ms var(--ease-out), opacity 100ms var(--ease-out);
+    }
+    .join-top:hover{ transform:translate3d(2px, -1px, 0); opacity:.86; }
+    .mast-seal{
+      width:44px;
+      height:44px;
+      object-fit:cover;
+      opacity:.85;
+      mix-blend-mode:screen;
+    }
+
+    .controls{
+      position:fixed;
+      z-index:90;
+      right:16px;
+      bottom:16px;
+      display:flex;
+      gap:1px;
+      background:rgba(239,230,210,0.4);
+    }
+    .controls button{
+      background:#0B0B0C;
+      color:rgba(239,230,210,1);
+      padding:10px 12px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(10px, .72vw, 11px);
+      letter-spacing:.1em;
+      text-transform:uppercase;
+      transition:opacity 100ms var(--ease-out), transform 100ms var(--ease-out);
+    }
+    .controls button:hover{ opacity:.72; transform:translate3d(0, -1px, 0); }
+
+    main{
+      width:100%;
+      max-width:none;
+      padding-left:56px;
+      padding-right:0;
+    }
+
+    .section{
+      position:relative;
+      border-top:1px solid rgba(239,230,210,0.4);
+      padding-top:clamp(34px, 5vw, 72px);
+      padding-bottom:clamp(48px, 7vw, 96px);
+    }
+    .section:first-of-type{ border-top:0; }
+
+    .issue-open{
+      min-height:calc(100vh - 56px);
+      padding-top:clamp(34px, 4.8vw, 74px);
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) minmax(280px, 34vw);
+      column-gap:28px;
+      overflow:hidden;
+    }
+    .word-area{ position:relative; z-index:2; }
+    .wordmark{
+      margin:0;
+      font-family:'Fraunces', serif;
+      font-weight:900;
+      font-size:clamp(72px, 11vw, 168px);
+      line-height:0.88;
+      letter-spacing:-0.04em;
+      color:rgba(239,230,210,1);
+      filter:url(#inkBleed);
+      text-transform:uppercase;
+      max-width:980px;
+      transform:translate3d(0,0,0);
+    }
+    .wordmark em{
+      font-family:'Fraunces', serif;
+      font-style:italic;
+      font-weight:900;
+    }
+    .word-rule{
+      margin-top:clamp(22px, 3.6vw, 48px);
+      width:min(720px, calc(100vw - 112px));
+      border-top:1px solid rgba(239,230,210,0.4);
+    }
+    .hero-card{
+      position:absolute;
+      right:clamp(-28px, -2vw, 0px);
+      top:clamp(74px, 13vw, 170px);
+      width:clamp(250px, 30vw, 430px);
+      opacity:.54;
+      transform:rotate(-8deg) translate3d(0,0,0);
+      z-index:1;
+      mix-blend-mode:screen;
+    }
+    .index-block{
+      margin-top:clamp(26px, 4vw, 56px);
+      max-width:760px;
+      padding-bottom:32px;
+    }
+    .index-title{
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(12px, .98vw, 14px);
+      letter-spacing:.12em;
+      margin:0 0 18px;
+      text-transform:uppercase;
+    }
+    .index-row{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:baseline;
+      gap:12px;
+      min-height:30px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(12px, .98vw, 14px);
+      opacity:0;
+      transform:translate3d(0, 8px, 0);
+    }
+    .loaded .index-row{
+      animation:indexReveal 400ms var(--ease-out) forwards;
+      animation-delay:calc(var(--i) * 60ms);
+    }
+    .leader{
+      border-bottom:1px dotted rgba(239,230,210,0.55);
+      transform:translateY(-4px);
+    }
+    @keyframes indexReveal{
+      to{ opacity:1; transform:translate3d(0,0,0); }
+    }
+
+    .fig-head{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:center;
+      gap:16px;
+      padding-right:56px;
+      margin-bottom:clamp(26px, 4vw, 52px);
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(11px, .85vw, 13px);
+      letter-spacing:.09em;
+      text-transform:uppercase;
+    }
+    .fig-head .dash{ height:1px; background:rgba(239,230,210,0.4); }
+    .source{ color:#6E6B5E; text-align:right; }
+
+    .tier-chart{
+      cursor:none;
+      padding-right:0;
+      max-width:none;
+    }
+    .tier-row{
+      display:grid;
+      grid-template-columns:72px 150px minmax(360px, 1fr) 190px;
+      align-items:center;
+      column-gap:18px;
+      margin-bottom:28px;
+      min-width:0;
+    }
+    .tier-price{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:700;
+      font-size:clamp(20px, 1.7vw, 24px);
+      color:rgba(239,230,210,1);
+    }
+    .tier-name{
+      font-family:'Fraunces', serif;
+      font-weight:900;
+      font-size:clamp(26px, 3.2vw, 48px);
+      line-height:.9;
+      letter-spacing:-.04em;
+      text-transform:uppercase;
+      transition:font-style 120ms var(--ease-out), transform 120ms var(--ease-out);
+    }
+    .tier-row:hover .tier-name{ font-style:italic; transform:translate3d(6px, 0, 0); }
+    .bar-track{
+      position:relative;
+      height:var(--h);
+      border-top:1px solid rgba(239,230,210,0.4);
+      border-bottom:1px solid rgba(239,230,210,0.4);
+      overflow:visible;
+    }
+    .bar-fill{
+      height:100%;
+      width:var(--w);
+      background:#6E6B5E;
+      clip-path:inset(0 100% 0 0);
+      transform-origin:left center;
+      transition:width 240ms var(--ease-out), opacity 180ms var(--ease-out);
+      will-change:clip-path, width, opacity;
+      display:grid;
+      grid-template-columns:repeat(16, 1fr);
+      gap:1px;
+      padding:0;
+    }
+    .bar-fill span{ background:rgba(239,230,210,0.28); opacity:.62; }
+    .bar-fill .filled{ background:#6E6B5E; opacity:1; }
+    .tier-row.featured .bar-fill{
+      width:calc(100% + 80px);
+      background:#FF2E1F;
+      animation:red-pulse 4s ease-in-out infinite;
+    }
+    .tier-row.featured .bar-fill span,
+    .tier-row.featured .bar-fill .filled{ background:#FF2E1F; opacity:1; }
+    .tier-row:hover .bar-fill{ width:calc(var(--w) + 12px); }
+    .tier-row.featured:hover .bar-fill{ width:calc(100% + 92px); }
+    @keyframes red-pulse{
+      0%,100%{ opacity:1; }
+      50%{ opacity:.85; }
+    }
+    .bar-label{
+      position:absolute;
+      top:50%;
+      right:12px;
+      transform:translate3d(18px, -50%, 0);
+      opacity:0;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(10px, .78vw, 11px);
+      letter-spacing:.08em;
+      color:rgba(239,230,210,1);
+      white-space:nowrap;
+      transition:opacity 240ms var(--ease-out), transform 240ms var(--ease-out);
+    }
+    .tier-row:hover .bar-label{ opacity:1; transform:translate3d(0, -50%, 0); }
+    .tier-cta{
+      justify-self:start;
+      background:transparent;
+      color:rgba(239,230,210,1);
+      border-top:1px solid rgba(239,230,210,0.4);
+      border-bottom:1px solid rgba(239,230,210,0.4);
+      padding:12px 0;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(10px, .78vw, 11px);
+      letter-spacing:.09em;
+      text-transform:uppercase;
+      min-width:150px;
+      text-align:left;
+      transition:transform 100ms var(--ease-out), opacity 100ms var(--ease-out);
+    }
+    .tier-cta:hover{ transform:translate3d(6px, 0, 0); opacity:.72; }
+    .fig1.in-view .tier-row:nth-child(1) .bar-fill{ animation:barDraw 800ms var(--ease-chart) forwards; }
+    .fig1.in-view .tier-row:nth-child(2) .bar-fill{ animation:barDraw 1400ms var(--ease-chart) 1100ms forwards, red-pulse 4s ease-in-out 2600ms infinite; }
+    .fig1.in-view .tier-row:nth-child(3) .bar-fill{ animation:barDraw 800ms var(--ease-chart) 2800ms forwards; }
+    @keyframes barDraw{
+      from{ clip-path:inset(0 100% 0 0); }
+      to{ clip-path:inset(0 0 0 0); }
+    }
+    .tier-note{
+      margin-top:20px;
+      color:#6E6B5E;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(11px, .85vw, 13px);
+      letter-spacing:.04em;
+    }
+
+    .benefit-layout{
+      position:relative;
+      display:grid;
+      grid-template-columns:minmax(280px, 38vw) 1fr;
+      gap:clamp(26px, 6vw, 86px);
+      min-height:560px;
+      padding-right:56px;
+      overflow:hidden;
+    }
+    .benefit-copy{
+      position:relative;
+      z-index:2;
+      max-width:470px;
+    }
+    .benefit-copy h3{
+      margin:0 0 18px;
+      font-family:'Fraunces', serif;
+      font-weight:900;
+      font-size:clamp(40px, 6vw, 92px);
+      line-height:.88;
+      letter-spacing:-.04em;
+    }
+    .benefit-copy p{
+      margin:0 0 20px;
+      color:rgba(239,230,210,1);
+      font-size:clamp(17px, 1.4vw, 22px);
+    }
+    .active-benefit{
+      margin-top:28px;
+      padding-top:16px;
+      border-top:1px solid rgba(239,230,210,0.4);
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(12px, .9vw, 13px);
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      color:rgba(239,230,210,1);
+    }
+    .benefit-card-img{
+      position:absolute;
+      right:-80px;
+      top:40px;
+      width:420px;
+      opacity:.7;
+      transform:rotate(-8deg) translate3d(0, var(--parallax, 0px), 0);
+      z-index:0;
+      will-change:transform;
+      mix-blend-mode:screen;
+    }
+    .polar-wrap{
+      position:relative;
+      z-index:1;
+      align-self:start;
+      justify-self:center;
+      width:min(480px, 100%);
+      cursor:none;
+    }
+    .polar{
+      width:480px;
+      height:480px;
+      max-width:100%;
+      overflow:visible;
+    }
+    .polar .axis{ stroke:rgba(239,230,210,0.4); stroke-width:1; }
+    .polar .ring{ fill:none; stroke:rgba(239,230,210,0.2); stroke-width:1; }
+    .polar .spoke-path{
+      stroke:rgba(239,230,210,1);
+      stroke-width:10;
+      stroke-linecap:square;
+      fill:none;
+      transform-box:fill-box;
+      transform-origin:240px 240px;
+      transform:rotate(0deg) scaleX(.05);
+      opacity:.58;
+      transition:stroke 160ms var(--ease-out), opacity 160ms var(--ease-out), stroke-width 160ms var(--ease-out);
+      cursor:none;
+    }
+    .polar .spoke-path:hover{ stroke:#FF2E1F; opacity:1; stroke-width:14; }
+    .fig2.in-view .spoke-path{
+      animation:spokeIn 600ms var(--ease-pop) forwards;
+      animation-delay:calc(var(--i) * 80ms);
+    }
+    @keyframes spokeIn{
+      from{ transform:rotate(0deg) scaleX(.05); opacity:.2; }
+      to{ transform:rotate(var(--a)) scaleX(1); opacity:.78; }
+    }
+
+    .kpi-strip{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));
+      gap:1px;
+      background-color:rgba(239,230,210,0.4);
+      margin-right:56px;
+    }
+    .kpi{
+      background:#0B0B0C;
+      padding:24px 18px 18px 0;
+      min-height:188px;
+    }
+    .kpi-number{
+      font-family:'Fraunces', serif;
+      font-weight:900;
+      font-size:clamp(42px, 4.5vw, 64px);
+      line-height:.9;
+      letter-spacing:-.05em;
+      color:rgba(239,230,210,1);
+      white-space:nowrap;
+    }
+    .kpi-label{
+      margin-top:12px;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:clamp(10px, .78vw, 11px);
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:rgba(239,230,210,1);
+    }
+    .spark{
+      margin-top:20px;
+      width:136px;
+      height:34px;
+      overflow:visible;
+    }
+    .spark polyline{
+      fill:none;
+      stroke:rgba(239,230,210,1);
+      stroke-width:2;
+      stroke-dasharray:160;
+      stroke-dashoffset:160;
+    }
+    .fig3.in-view .spark polyline{ animation:sparkDraw 1200ms var(--ease-out) 180ms forwards; }
+    @keyframes sparkDraw{ to{ stroke-dashoffset:0; } }
+
+    .manifesto-grid{
+      display:grid;
+      grid-template-columns:minmax(280px, 520px) minmax(320px, 720px);
+      gap:clamp(28px, 6vw, 82px);
+      padding-right:56px;
+      align-items:start;
+    }
+    .atmosphere{
+      border:1px solid rgba(239,230,210,0.4);
+      opacity:.92;
+      width:100%;
+      aspect-ratio:4/5;
+      object-fit:cover;
+    }
+    .caption{
+      margin-top:10px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(10px, .78vw, 11px);
+      letter-spacing:.08em;
+      color:#6E6B5E;
+      text-transform:uppercase;
+    }
+    .manifesto-copy p{
+      margin:0 0 24px;
+      font-size:clamp(19px, 1.75vw, 27px);
+      line-height:1.24;
+      color:rgba(239,230,210,1);
+    }
+    .manifesto-copy p:first-child::first-letter{
+      font-family:'Fraunces', serif;
+      font-weight:900;
+      font-style:italic;
+      font-size:clamp(92px, 9vw, 132px);
+      float:left;
+      line-height:0.9;
+      padding-right:12px;
+      color:rgba(239,230,210,1);
+    }
+
+    .faq{
+      margin-right:56px;
+      border-top:1px solid rgba(239,230,210,0.4);
+    }
+    .faq-row{
+      border-bottom:1px solid rgba(239,230,210,0.4);
+    }
+    .faq-q{
+      width:100%;
+      background:transparent;
+      color:rgba(239,230,210,1);
+      padding:22px 0;
+      display:grid;
+      grid-template-columns:92px 1fr 32px;
+      gap:18px;
+      align-items:center;
+      text-align:left;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(12px, .95vw, 14px);
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .faq-plus{ transition:transform 180ms var(--ease-out); }
+    .faq-row.open .faq-plus{ transform:rotate(45deg); }
+    .faq-a{
+      max-height:0;
+      overflow:hidden;
+      transition:max-height 260ms var(--ease-out), opacity 260ms var(--ease-out);
+      opacity:0;
+    }
+    .faq-row.open .faq-a{ max-height:160px; opacity:1; }
+    .faq-a p{
+      margin:0;
+      padding:0 0 24px 110px;
+      max-width:760px;
+      color:rgba(239,230,210,1);
+      font-size:clamp(16px, 1.18vw, 18px);
+    }
+
+    .cta-section{
+      padding:0;
+      border-top:1px solid rgba(239,230,210,0.4);
+      overflow:hidden;
+    }
+    .cta-band{
+      position:relative;
+      height:168px;
+      background:#FF2E1F;
+      color:#0B0B0C;
+      display:flex;
+      align-items:center;
+      overflow:hidden;
+      cursor:pointer;
+    }
+    .cta-band::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      opacity:.22;
+      background-image:repeating-linear-gradient(90deg, rgba(11,11,12,0.22) 0 1px, transparent 1px 32px);
+      background-size:240px 100%;
+      animation:bandDrift 6s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes bandDrift{
+      from{ background-position:0 0; }
+      to{ background-position:100% 0; }
+    }
+    .cta-text{
+      position:relative;
+      z-index:1;
+      padding-left:56px;
+      padding-right:260px;
+      font-family:'Fraunces', serif;
+      font-weight:900;
+      font-size:clamp(42px, 6.1vw, 88px);
+      line-height:.92;
+      letter-spacing:-.05em;
+      color:#0B0B0C;
+      white-space:nowrap;
+    }
+    .cta-seal{
+      position:absolute;
+      right:46px;
+      top:50%;
+      width:200px;
+      height:200px;
+      transform:translate3d(0, -50%, 0) rotate(6deg);
+      mix-blend-mode:screen;
+      z-index:2;
+      animation:sealSpin 20s linear infinite;
+    }
+    @keyframes sealSpin{
+      from{ transform:translate3d(0, -50%, 0) rotate(6deg); }
+      to{ transform:translate3d(0, -50%, 0) rotate(366deg); }
+    }
+
+    footer{
+      border-top:1px solid rgba(239,230,210,0.4);
+      padding:40px 56px;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(10px, .78vw, 11px);
+      letter-spacing:.1em;
+      color:#6E6B5E;
+      text-transform:uppercase;
+    }
+
+    .status{
+      position:fixed;
+      left:56px;
+      bottom:16px;
+      z-index:91;
+      font-family:'JetBrains Mono', monospace;
+      font-size:clamp(10px, .72vw, 11px);
+      letter-spacing:.08em;
+      color:rgba(239,230,210,1);
+      opacity:0;
+      transform:translate3d(0, 8px, 0);
+      transition:opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
+      pointer-events:none;
+    }
+    .status.show{ opacity:1; transform:translate3d(0,0,0); }
+
+    @media (max-width:900px){
+      body{ cursor:auto; }
+      .cursor{ display:none; }
+      .masthead{
+        padding-left:20px;
+        grid-template-columns:1fr auto;
+        column-gap:10px;
+      }
+      .chip, .mast-link, .mast-seal{ display:none; }
+      main{ padding-left:20px; }
+      .issue-open{
+        grid-template-columns:1fr;
+        min-height:auto;
+        padding-bottom:54px;
+      }
+      .hero-card{
+        position:relative;
+        right:auto;
+        top:auto;
+        width:min(330px, 84vw);
+        margin-top:22px;
+        opacity:.64;
+      }
+      .word-rule{ width:calc(100vw - 40px); }
+      .fig-head{ padding-right:20px; grid-template-columns:auto 1fr; }
+      .source{ grid-column:1 / -1; text-align:left; }
+      .tier-row{
+        grid-template-columns:68px 1fr;
+        row-gap:10px;
+        column-gap:12px;
+        margin-bottom:34px;
+      }
+      .bar-track{ grid-column:1 / -1; }
+      .tier-cta{ grid-column:1 / -1; }
+      .tier-row.featured .bar-fill{ width:calc(100vw - 20px); }
+      .tier-row.featured:hover .bar-fill{ width:calc(100vw - 8px); }
+      .benefit-layout{
+        grid-template-columns:1fr;
+        padding-right:20px;
+        min-height:auto;
+      }
+      .benefit-card-img{
+        position:relative;
+        right:auto;
+        top:auto;
+        width:min(360px, 90vw);
+        margin:20px 0 -90px auto;
+      }
+      .polar-wrap{ width:100%; }
+      .kpi-strip{ margin-right:20px; }
+      .manifesto-grid{
+        grid-template-columns:1fr;
+        padding-right:20px;
+      }
+      .faq{ margin-right:20px; }
+      .faq-q{ grid-template-columns:64px 1fr 28px; }
+      .faq-a p{ padding-left:82px; }
+      .cta-text{
+        padding-left:20px;
+        padding-right:20px;
+        white-space:normal;
+      }
+      .cta-seal{ width:120px; height:120px; right:18px; opacity:.75; }
+      footer{ padding:34px 20px; }
+      .controls{ right:10px; bottom:10px; }
+      .status{ left:20px; bottom:62px; }
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *, *::before, *::after{
+        animation-duration:1ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:1ms !important;
+        scroll-behavior:auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" focusable="false">
+    <filter id="inkBleed">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="8" result="noise"/>
+      <feDisplacementMap id="inkDisp" in="SourceGraphic" in2="noise" scale="0.6" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
+  <div class="paper-grain" aria-hidden="true"></div>
+
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="10"></circle></svg>
+    <div class="cursor-label" id="cursorLabel">$9 OBSESSED</div>
+  </div>
+
+  <header class="masthead">
+    <div class="brand">ALLEGIANCE</div>
+    <div class="chip">N° 002 · VOL.01</div>
+    <button class="join-top" data-cta="Masthead Join">JOIN $9 →</button>
+    <img class="mast-seal" src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-1/foil-seal-stamp.jpg" alt="ALLEGIANCE — N° 002 — VOL.01 seal" width="44" height="44" loading="eager" onerror="this.style.opacity='0'">
+  </header>
+
+  <div class="controls" aria-label="Animation controls">
+    <button id="playBtn">PLAY</button>
+    <button id="resetBtn">RESET</button>
+  </div>
+  <div class="status" id="status">SELECTION REGISTERED</div>
+
+  <main>
+    <section class="issue-open section" id="top">
+      <div class="word-area">
+        <h1 class="wordmark" aria-label="COMPLEX ALLEGIANCE">
+          COMPLEX<br>
+          <em>ALLEGI-</em><br>
+          ANCE
+        </h1>
+        <div class="word-rule"></div>
+
+        <nav class="index-block" aria-label="Issue index">
+          <p class="index-title">INDEX</p>
+          <div class="index-row" style="--i:0"><span>FIG 1&nbsp; TIERS, RANKED</span><span class="leader"></span><span>P.02</span></div>
+          <div class="index-row" style="--i:1"><span>FIG 2&nbsp; WHAT MEMBERS GET</span><span class="leader"></span><span>P.03</span></div>
+          <div class="index-row" style="--i:2"><span>FIG 3&nbsp; BY THE NUMBERS</span><span class="leader"></span><span>P.04</span></div>
+          <div class="index-row" style="--i:3"><span>FIG 4&nbsp; THE MANIFESTO</span><span class="leader"></span><span>P.05</span></div>
+          <div class="index-row" style="--i:4"><span>FIG 5&nbsp; INTEL</span><span class="leader"></span><span>P.06</span></div>
+          <div class="index-row" style="--i:5"><span>FIG 6&nbsp; JOIN</span><span class="leader"></span><span>P.07</span></div>
+        </nav>
+      </div>
+
+      <img class="hero-card" src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-1/member-card-render.jpg" alt="Matte black Complex Allegiance membership card with red membership number" width="1024" height="768" loading="eager" onerror="this.style.opacity='0'">
+    </section>
+
+    <section class="section fig1 chart-zone" id="fig1" data-fig>
+      <div class="fig-head"><span>FIG 1 ── TIERS, RANKED</span><span class="dash"></span><span class="source">SOURCE: COMPLEX</span></div>
+
+      <div class="tier-chart" aria-label="Three Complex Allegiance pricing tiers">
+        <div class="tier-row" data-cursor-label="$0 REGULAR" data-tier="REGULAR" style="--h:32px; --w:44%;">
+          <div class="tier-price">$0</div>
+          <div class="tier-name">REGULAR</div>
+          <div class="bar-track">
+            <div class="bar-fill" aria-hidden="true">
+              <span class="filled"></span><span class="filled"></span><span class="filled"></span><span class="filled"></span>
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <span class="bar-label">OPEN CULTURE FEED</span>
+          </div>
+          <button class="tier-cta" data-cta="Regular">READ FREE →</button>
+        </div>
+
+        <div class="tier-row featured" data-cursor-label="$9 OBSESSED" data-tier="OBSESSED" style="--h:56px; --w:calc(100% + 80px);">
+          <div class="tier-price">$9</div>
+          <div class="tier-name">OBSESSED</div>
+          <div class="bar-track">
+            <div class="bar-fill" aria-hidden="true">
+              <span class="filled"></span><span class="filled"></span><span class="filled"></span><span class="filled"></span>
+              <span class="filled"></span><span class="filled"></span><span class="filled"></span><span class="filled"></span>
+              <span class="filled"></span><span class="filled"></span><span class="filled"></span><span class="filled"></span>
+              <span class="filled"></span><span class="filled"></span><span class="filled"></span><span class="filled"></span>
+            </div>
+            <span class="bar-label">FIRST DIBS ON EVERY DROP</span>
+          </div>
+          <button class="tier-cta" data-cta="Obsessed">JOIN OBSESSED →</button>
+        </div>
+
+        <div class="tier-row" data-cursor-label="$29 FAMILY" data-tier="FAMILY" style="--h:32px; --w:82%;">
+          <div class="tier-price">$29</div>
+          <div class="tier-name">FAMILY</div>
+          <div class="bar-track">
+            <div class="bar-fill" aria-hidden="true">
+              <span class="filled"></span><span class="filled"></span><span class="filled"></span><span class="filled"></span>
+              <span class="filled"></span><span class="filled"></span><span class="filled"></span><span class="filled"></span>
+              <span class="filled"></span><span class="filled"></span><span class="filled"></span><span class="filled"></span>
+              <span class="filled"></span><span></span><span></span><span></span>
+            </div>
+            <span class="bar-label">HOUSEHOLD ACCESS + ARCHIVE</span>
+          </div>
+          <button class="tier-cta" data-cta="Family">BRING FAMILY →</button>
+        </div>
+      </div>
+
+      <p class="tier-note">↳ Hover any bar segment to see the benefit it encodes. Click any tier CTA to claim your lane.</p>
+    </section>
+
+    <section class="section fig2 chart-zone" id="fig2" data-fig>
+      <div class="fig-head"><span>FIG 2 ── WHAT MEMBERS GET</span><span class="dash"></span><span class="source">SURVEY WEIGHTED</span></div>
+
+      <div class="benefit-layout">
+        <div class="benefit-copy">
+          <h3>Six demands.<br>One obsession.</h3>
+          <p>Member perks weighted by cultural urgency: drops, rooms, stories, archives, alerts, and proof you were early.</p>
+          <div class="active-benefit" id="activeBenefit">⊛ First dibs on every drop before the public feed wakes up.</div>
+        </div>
+
+        <img class="benefit-card-img" id="benefitCard" src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-1/member-card-render.jpg" alt="Complex Allegiance premium member card" width="1024" height="768" loading="eager" onerror="this.style.opacity='0'">
+
+        <div class="polar-wrap" data-cursor-label="BENEFIT POLAR">
+          <svg class="polar" viewBox="0 0 480 480" role="img" aria-label="Six spoke polar chart of member benefits">
+            <circle class="ring" cx="240" cy="240" r="72"></circle>
+            <circle class="ring" cx="240" cy="240" r="146"></circle>
+            <circle class="ring" cx="240" cy="240" r="220"></circle>
+            <line class="axis" x1="20" y1="240" x2="460" y2="240"></line>
+            <line class="axis" x1="240" y1="20" x2="240" y2="460"></line>
+            <line class="axis" x1="84" y1="84" x2="396" y2="396"></line>
+            <line class="axis" x1="396" y1="84" x2="84" y2="396"></line>
+
+            <path class="spoke-path" style="--i:0; --a:0deg;" d="M240 240 L460 240" data-benefit="First dibs on every drop before the public feed wakes up."></path>
+            <path class="spoke-path" style="--i:1; --a:60deg;" d="M240 240 L436 240" data-benefit="Members-only events: listening rooms, screenings, and release-night tables."></path>
+            <path class="spoke-path" style="--i:2; --a:120deg;" d="M240 240 L408 240" data-benefit="Private intel alerts when a sneaker, ticket, or capsule starts moving."></path>
+            <path class="spoke-path" style="--i:3; --a:180deg;" d="M240 240 L420 240" data-benefit="Archive access: deep cuts, cover stories, and the receipts behind the canon."></path>
+            <path class="spoke-path" style="--i:4; --a:240deg;" d="M240 240 L388 240" data-benefit="Concierge pulls for selected drops when the queue gets hostile."></path>
+            <path class="spoke-path" style="--i:5; --a:300deg;" d="M240 240 L452 240" data-benefit="Numbered membership proof: your place in the issue, permanently stamped."></path>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="section fig3" id="fig3" data-fig>
+      <div class="fig-head"><span>FIG 3 ── BY THE NUMBERS</span><span class="dash"></span><span class="source">LIVE KPI STRIP</span></div>
+
+      <div class="kpi-strip">
+        <div class="kpi">
+          <div class="kpi-number" data-counter="14000000" data-format="comma">0</div>
+          <div class="kpi-label">MEMBERS</div>
+          <svg class="spark" viewBox="0 0 136 34"><polyline points="0,31 16,27 30,22 46,18 62,12 78,8 94,5 112,3 136,2"></polyline></svg>
+        </div>
+        <div class="kpi">
+          <div class="kpi-number" data-counter="421" data-format="plain">0</div>
+          <div class="kpi-label">DROPS</div>
+          <svg class="spark" viewBox="0 0 136 34"><polyline points="0,30 20,26 40,18 60,8 80,4 102,12 122,18 136,24"></polyline></svg>
+        </div>
+        <div class="kpi">
+          <div class="kpi-number" data-counter="96" data-format="time">00:00:00</div>
+          <div class="kpi-label">SELL-OUT</div>
+          <svg class="spark" viewBox="0 0 136 34"><polyline points="0,5 18,9 36,15 54,20 72,27 96,30 118,31 136,31"></polyline></svg>
+        </div>
+        <div class="kpi">
+          <div class="kpi-number" data-counter="1" data-format="infinity">∞</div>
+          <div class="kpi-label">CANCEL</div>
+          <svg class="spark" viewBox="0 0 136 34"><polyline points="0,17 26,17 54,17 82,17 108,17 136,17"></polyline></svg>
+        </div>
+        <div class="kpi">
+          <div class="kpi-number" data-counter="2025" data-format="plain">0</div>
+          <div class="kpi-label">FOUNDING</div>
+          <svg class="spark" viewBox="0 0 136 34"><polyline points="4,16 28,16 52,16 76,16 100,16 124,16"></polyline></svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="section fig4" id="fig4" data-fig>
+      <div class="fig-head"><span>FIG 4 ── THE MANIFESTO</span><span class="dash"></span><span class="source">02:14 AM FIELD NOTE</span></div>
+
+      <div class="manifesto-grid">
+        <div>
+          <img class="atmosphere" src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-1/manifesto-atmosphere.jpg" alt="Black and white street figure walking at night" width="1024" height="1280" loading="lazy" onerror="this.style.opacity='0'">
+          <div class="caption">FIG 4.1 — STREET, 02:14 AM</div>
+        </div>
+        <div class="manifesto-copy">
+          <p>In culture, timing is the whole instrument. Allegiance is for the people who know the drop before the caption, the room before the recap, the story before it becomes a thread.</p>
+          <p>This is not a velvet rope. It is a numbered index of proximity: earlier access, sharper intel, cleaner entry, and receipts that prove you were there when the signal first hit.</p>
+          <p>Free keeps you in the conversation. Family brings your circle into the archive. Obsessed is the line that breaks the chart because obsession is the only tier that understands the clock.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section fig5" id="fig5" data-fig>
+      <div class="fig-head"><span>FIG 5 ── INTEL</span><span class="dash"></span><span class="source">FAQ TABLE</span></div>
+
+      <div class="faq">
+        <div class="faq-row open">
+          <button class="faq-q"><span>Q:01</span><span>What does Obsessed get first?</span><span class="faq-plus">+</span></button>
+          <div class="faq-a"><p>Drop windows, event holds, and editorial capsules surface to Obsessed members before the public calendar catches up.</p></div>
+        </div>
+        <div class="faq-row">
+          <button class="faq-q"><span>Q:02</span><span>Can I cancel after the month?</span><span class="faq-plus">+</span></button>
+          <div class="faq-a"><p>Yes. Cancel anytime. Your membership number remains in the issue ledger even if you step out.</p></div>
+        </div>
+        <div class="faq-row">
+          <button class="faq-q"><span>Q:03</span><span>Is Family just more seats?</span><span class="faq-plus">+</span></button>
+          <div class="faq-a"><p>More seats, shared archive access, household alerts, and a circle pass for selected Complex rooms.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section fig6" id="fig6" data-fig>
+      <button class="cta-band" data-cta="Final CTA" aria-label="Claim your Complex Allegiance number">
+        <span class="cta-text">$9 / MO ─ OBSESSED ─ CLAIM YOUR NUMBER →</span>
+        <img class="cta-seal" src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-1/foil-seal-stamp.jpg" alt="Rotating Allegiance issue seal" width="200" height="200" loading="lazy" onerror="this.style.opacity='0'">
+      </button>
+    </section>
+  </main>
+
+  <footer>
+    © COMPLEX MMXXVI · ALLEGIANCE · CANCEL ANYTIME · N° 002
+  </footer>
+
+  <script>
+    const pricing_tiers = [
+      {
+        name: "REGULAR",
+        price: "$0",
+        benefits: [
+          "Open Complex culture feed",
+          "Weekly drop calendar",
+          "Public event recaps",
+          "Selected archive reads"
+        ],
+        cta_label: "READ FREE →",
+        is_featured_flag: false
+      },
+      {
+        name: "OBSESSED",
+        price: "$9",
+        benefits: [
+          "First dibs on every drop",
+          "Members-only event holds",
+          "Private intel alerts",
+          "Deep archive access",
+          "Numbered membership proof",
+          "Concierge pulls on selected releases"
+        ],
+        cta_label: "JOIN OBSESSED →",
+        is_featured_flag: true
+      },
+      {
+        name: "FAMILY",
+        price: "$29",
+        benefits: [
+          "Four member seats",
+          "Shared archive access",
+          "Household drop alerts",
+          "Circle pass for selected rooms",
+          "Family ledger number"
+        ],
+        cta_label: "BRING FAMILY →",
+        is_featured_flag: false
+      }
+    ];
+
+    const supporting_sections = [
+      {
+        section_purpose: "WHAT MEMBERS GET",
+        content: "A six-spoke benefit polar chart surfaces demand-weighted perks: drops, rooms, intel, archive, concierge, and numbered proof."
+      },
+      {
+        section_purpose: "THE MANIFESTO",
+        content: "An editorial field note explains Allegiance as proximity to culture: earlier access, sharper intel, cleaner entry, and receipts."
+      }
+    ];
+
+    const stats_or_ticker_items = [
+      { stat_text: "14,000,000 MEMBERS" },
+      { stat_text: "421 DROPS" },
+      { stat_text: "00:00:96 SELL-OUT" },
+      { stat_text: "∞ CANCEL" },
+      { stat_text: "2025 FOUNDING" }
+    ];
+
+    const doc = document.documentElement;
+    const body = document.body;
+    const inkDisp = document.getElementById('inkDisp');
+    const cursor = document.getElementById('cursor');
+    const cursorLabel = document.getElementById('cursorLabel');
+    const status = document.getElementById('status');
+    let counterPlayed = false;
+    let statusTimer = null;
+    let rafCursor = null;
+    let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
+
+    function easeOutQuart(x){ return 1 - Math.pow(1 - x, 4); }
+
+    function showStatus(message){
+      status.textContent = message;
+      status.classList.add('show');
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => status.classList.remove('show'), 1600);
+    }
+
+    function inkPress(){
+      if(!inkDisp) return;
+      const start = performance.now();
+      function frame(now){
+        const t = Math.min(1, (now - start) / 1400);
+        const wave = t < .5 ? t * 2 : (1 - t) * 2;
+        inkDisp.setAttribute('scale', (wave * 0.6).toFixed(3));
+        if(t < 1) requestAnimationFrame(frame);
+        else inkDisp.setAttribute('scale', '0.6');
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function animateCounters(){
+      if(counterPlayed) return;
+      counterPlayed = true;
+      const counters = document.querySelectorAll('[data-counter]');
+      const start = performance.now();
+      function frame(now){
+        const p = Math.min(1, (now - start) / 1800);
+        const eased = easeOutQuart(p);
+        counters.forEach(el => {
+          const target = Number(el.dataset.counter);
+          const format = el.dataset.format;
+          if(format === 'infinity'){
+            el.textContent = '∞';
+          } else if(format === 'comma'){
+            el.textContent = Math.round(target * eased).toLocaleString('en-US');
+          } else if(format === 'time'){
+            const v = String(Math.round(target * eased)).padStart(2, '0');
+            el.textContent = '00:00:' + v;
+          } else {
+            el.textContent = String(Math.round(target * eased));
+          }
+        });
+        if(p < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function resetCounters(){
+      counterPlayed = false;
+      document.querySelectorAll('[data-counter]').forEach(el => {
+        const format = el.dataset.format;
+        if(format === 'time') el.textContent = '00:00:00';
+        else if(format === 'infinity') el.textContent = '∞';
+        else el.textContent = '0';
+      });
+    }
+
+    function initObserver(){
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting){
+            entry.target.classList.add('in-view');
+            if(entry.target.classList.contains('fig3')) animateCounters();
+          }
+        });
+      }, { threshold: 0.22 });
+      document.querySelectorAll('[data-fig]').forEach(el => observer.observe(el));
+    }
+
+    function updateCursor(){
+      curX += (mouseX - curX) * 0.22;
+      curY += (mouseY - curY) * 0.22;
+      cursor.style.transform = `translate3d(${curX}px, ${curY}px, 0) translate3d(-50%, -50%, 0)`;
+      rafCursor = requestAnimationFrame(updateCursor);
+    }
+
+    function initCursor(){
+      if(window.matchMedia('(max-width: 900px)').matches) return;
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.opacity = '1';
+      }, { passive:true });
+      rafCursor = requestAnimationFrame(updateCursor);
+
+      document.querySelectorAll('.chart-zone, [data-cursor-label], .spoke-path, .tier-row').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          const label = el.dataset.cursorLabel || el.getAttribute('data-cursor-label') || 'DATA';
+          cursorLabel.textContent = label;
+          cursor.classList.add('is-hot');
+        });
+        el.addEventListener('mouseleave', () => {
+          cursor.classList.remove('is-hot');
+        });
+      });
+    }
+
+    function initBenefitSpokes(){
+      const active = document.getElementById('activeBenefit');
+      document.querySelectorAll('.spoke-path').forEach(path => {
+        path.addEventListener('mouseenter', () => {
+          active.textContent = '⊛ ' + path.dataset.benefit;
+          cursorLabel.textContent = 'BENEFIT';
+          cursor.classList.add('is-hot');
+        });
+      });
+    }
+
+    function initFaq(){
+      document.querySelectorAll('.faq-q').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.closest('.faq-row').classList.toggle('open');
+        });
+      });
+    }
+
+    function initCtas(){
+      document.querySelectorAll('[data-cta]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          showStatus(btn.dataset.cta.toUpperCase() + ' · CLAIM LOGGED');
+        });
+      });
+    }
+
+    function initParallax(){
+      const card = document.getElementById('benefitCard');
+      const fig2 = document.getElementById('fig2');
+      if(!card || !fig2) return;
+      let ticking = false;
+      function update(){
+        const rect = fig2.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const progress = Math.max(0, Math.min(1, (vh - rect.top) / (vh + rect.height)));
+        card.style.setProperty('--parallax', `${(-60 * progress).toFixed(1)}px`);
+        ticking = false;
+      }
+      document.addEventListener('scroll', () => {
+        if(!ticking){
+          requestAnimationFrame(update);
+          ticking = true;
+        }
+      }, { passive:true });
+      update();
+    }
+
+    function playAll(){
+      body.classList.remove('loaded');
+      void body.offsetWidth;
+      body.classList.add('loaded');
+      inkPress();
+      document.querySelectorAll('[data-fig]').forEach(el => el.classList.add('in-view'));
+      resetCounters();
+      animateCounters();
+      showStatus('PRINT SEQUENCE REPLAYED');
+    }
+
+    function resetAll(){
+      document.querySelectorAll('[data-fig]').forEach(el => el.classList.remove('in-view'));
+      body.classList.remove('loaded');
+      resetCounters();
+      inkDisp && inkDisp.setAttribute('scale', '0.6');
+      setTimeout(() => body.classList.add('loaded'), 60);
+      showStatus('STATIC INDEX RESET');
+    }
+
+    document.getElementById('playBtn').addEventListener('click', playAll);
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+    window.addEventListener('beforeunload', () => {
+      if(rafCursor) cancelAnimationFrame(rafCursor);
+    });
+
+    body.classList.add('loaded');
+    inkPress();
+    initObserver();
+    initCursor();
+    initBenefitSpokes();
+    initFaq();
+    initCtas();
+    initParallax();
+  </script>
+</body>
+</html>

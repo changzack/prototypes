@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPLEX ALLEGIANCE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --black: #0A0A0A;
+            --acid: #C8FF00;
+            --cream: #F2EBDD;
+            --surface: #1A1A1A;
+            --hairline: rgba(242, 235, 221, 0.12);
+        }
+
+        /* Base Resets */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--black);
+            color: var(--cream);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Typography */
+        .font-display { font-family: 'Anton', sans-serif; font-weight: 400; text-transform: uppercase; }
+        .font-body { font-family: 'Space Grotesk', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; }
+
+        .text-acid { color: var(--acid); }
+        .text-black { color: var(--black); }
+        .text-cream { color: var(--cream); }
+
+        .bg-acid { background-color: var(--acid); }
+        .bg-black { background-color: var(--black); }
+        .bg-surface { background-color: var(--surface); }
+
+        /* Layout System */
+        .container-fluid { width: 100vw; }
+        .hard-left {
+            padding-left: max(24px, calc((100vw - 1440px) / 2 + 96px));
+            padding-right: max(24px, calc((100vw - 1440px) / 2 + 24px));
+        }
+
+        .hairline-top { border-top: 1px solid var(--hairline); }
+        .hairline-bottom { border-bottom: 1px solid var(--hairline); }
+
+        /* Texture & Grain */
+        #svg-filters { display: none; }
+        .grain-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.06;
+            mix-blend-mode: overlay;
+            background-image: url('https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-2/grain-overlay.jpg');
+            background-size: 300px; /* tile smaller to emphasize grain */
+            filter: url(#noise);
+        }
+
+        /* Ticker / Marquee */
+        .ticker-wrapper {
+            background-color: var(--acid);
+            color: var(--black);
+            mix-blend-mode: difference;
+            height: 48px;
+            position: relative;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker-track {
+            display: flex;
+            will-change: transform;
+        }
+        .ticker-content {
+            display: flex;
+            align-items: center;
+            gap: 48px;
+            padding-right: 48px;
+        }
+
+        /* Hero Typography */
+        .hero-wordmark {
+            font-size: clamp(72px, 18vw, 120px);
+            letter-spacing: -0.03em;
+            line-height: 0.82;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        @media (min-width: 768px) {
+            .hero-wordmark { font-size: clamp(120px, 22vw, 320px); }
+        }
+        .hero-char { display: inline-block; will-change: transform, clip-path, opacity; }
+
+        /* Pricing Tiers */
+        .tiers-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 80px 0;
+            align-items: center;
+        }
+        @media (min-width: 1024px) {
+            .tiers-grid { flex-direction: row; align-items: stretch; gap: 0; }
+        }
+
+        .tier-card {
+            border: 1px solid var(--hairline);
+            padding: 40px 32px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .tier-card.bg-black { background-color: var(--black); color: var(--cream); }
+
+        .tier-obsessed {
+            background-color: var(--acid);
+            color: var(--black);
+            border: none;
+            position: relative;
+            z-index: 10;
+            border-radius: 0;
+            transform-origin: center;
+            margin: 24px 0;
+        }
+        @media (max-width: 1023px) {
+            .tier-obsessed {
+                width: 100vw;
+                max-width: none;
+                margin-left: calc(-1 * max(24px, calc((100vw - 1440px) / 2 + 96px)));
+                padding-left: max(24px, calc((100vw - 1440px) / 2 + 96px));
+                transform: scale(1.05);
+            }
+        }
+        @media (min-width: 1024px) {
+            .tier-obsessed {
+                transform: scale(1.4);
+                margin: 0 40px;
+                flex: 1;
+            }
+            .tier-card { flex: 1; }
+        }
+
+        /* Risograph Print Bleed Effect */
+        .tier-obsessed::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: var(--acid);
+            opacity: 0.3;
+            transform: translate(4px, 4px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .tier-price { font-size: 80px; line-height: 1; margin: 16px 0 32px 0; }
+        @media (min-width: 768px) { .tier-price { font-size: 120px; } }
+
+        .tier-btn {
+            margin-top: auto;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid currentColor;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .bg-black .tier-btn:hover { background: var(--cream); color: var(--black); }
+        .tier-obsessed .tier-btn { border: 1px solid var(--black); }
+        .tier-obsessed .tier-btn:hover { background: var(--black); color: var(--acid); }
+
+        .benefit-list { list-style: none; margin-bottom: 40px; }
+        .benefit-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--hairline);
+            font-size: 16px;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+        }
+        .tier-obsessed .benefit-list li { border-bottom-color: rgba(10, 10, 10, 0.12); }
+        .benefit-list li::before {
+            content: '—';
+            margin-right: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            opacity: 0.5;
+        }
+
+        /* Splitflap */
+        .splitflap-wrap {
+            display: flex;
+            height: 1em;
+            overflow: hidden;
+            line-height: 1;
+        }
+        .splitflap-col { display: flex; flex-direction: column; will-change: transform; }
+        .splitflap-digit { height: 1em; display: flex; align-items: center; justify-content: center; }
+
+        /* 3D Card */
+        .card-perspective-container {
+            perspective: 1200px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card-3d-wrapper {
+            width: 90vw;
+            aspect-ratio: 3/2;
+            transform-style: preserve-3d;
+            will-change: transform;
+            position: relative;
+        }
+        @media (min-width: 768px) {
+            .card-3d-wrapper { width: 60vw; max-width: 900px; }
+        }
+        .card-3d-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px; /* Slight radius for physical card realism */
+            transform: translateZ(0); /* Base layer */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); /* Physical grounding */
+        }
+        /* Faking the etched foil parallax depth */
+        .card-3d-text-layer {
+            position: absolute;
+            inset: 0;
+            padding: 5%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transform: translateZ(20px); /* Pops off the card surface */
+            pointer-events: none;
+        }
+
+        /* Recent Drops Grid */
+        .drops-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            padding: 80px 0;
+        }
+        @media (min-width: 768px) { .drops-grid { grid-template-columns: repeat(3, 1fr); } }
+        
+        .drop-item { aspect-ratio: 1; position: relative; overflow: hidden; background: var(--surface); border-radius: 4px; }
+        .drop-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s; }
+        .drop-item:hover .drop-img { transform: scale(1.04); filter: grayscale(0); }
+        .drop-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.3; }
+        
+        .drop-offset { margin-top: 0; }
+        @media (min-width: 768px) { .drop-offset { margin-top: 80px; } }
+
+        /* Final CTA */
+        .final-cta-btn {
+            display: inline-block;
+            background: var(--acid);
+            color: var(--black);
+            padding: 24px 48px;
+            font-size: 24px;
+            text-decoration: none;
+            position: relative;
+            border-radius: 4px;
+            transition: all 0.2s;
+            animation: pulse-ring 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 var(--acid); }
+            70% { box-shadow: 0 0 0 24px transparent; }
+            100% { box-shadow: 0 0 0 0 transparent; }
+        }
+
+        /* Utility */
+        .section-header { font-size: clamp(48px, 10vw, 180px); line-height: 0.9; margin-bottom: 24px; }
+        .stamp { position: absolute; pointer-events: none; }
+        
+        /* Interactive Controls overlay */
+        .controls-overlay {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            gap: 12px;
+        }
+        .control-btn {
+            background: var(--surface);
+            color: var(--cream);
+            border: 1px solid var(--hairline);
+            padding: 8px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+        .control-btn:hover { background: var(--cream); color: var(--black); }
+        
+        /* Initial States for Reveal */
+        .reveal-hidden { opacity: 0; }
+    </style>
+</head>
+<body>
+
+    <!-- SVG Filters -->
+    <svg id="svg-filters">
+        <filter id="noise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+        </filter>
+    </svg>
+
+    <!-- Global Texture -->
+    <div class="grain-overlay"></div>
+
+    <!-- Controls -->
+    <div class="controls-overlay">
+        <button class="control-btn" id="btn-replay">Replay Intro</button>
+    </div>
+
+    <main id="app-root">
+        <!-- Nav -->
+        <nav class="hard-left flex justify-between font-mono h-[72px]" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(242,235,221,0.12);">
+            <div>COMPLEX / ALLEGIANCE</div>
+            <div style="display: flex; gap: 24px;">
+                <a href="#" class="text-cream" style="text-decoration: none;">MEMBER LOGIN</a>
+                <a href="#" class="text-acid" style="text-decoration: none;">&rarr; JOIN</a>
+            </div>
+        </nav>
+
+        <!-- Ticker 1 -->
+        <div class="ticker-wrapper hairline-bottom">
+            <div class="ticker-track">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <section class="hard-left relative" style="min-height: 60vh; display: flex; flex-direction: column; justify-content: center; padding-top: 80px; padding-bottom: 80px;">
+            <h1 class="hero-wordmark font-display text-acid" id="hero-wordmark">
+                <!-- Populated by JS -->
+                ALLEGIANCE
+            </h1>
+            <div class="font-mono text-cream reveal-hidden" id="hero-subtitle" style="margin-top: 24px; font-size: 14px;">
+                A PLEDGE. NOT A SUBSCRIPTION.
+            </div>
+        </section>
+
+        <!-- Ticker 2 -->
+        <div class="ticker-wrapper hairline-top hairline-bottom">
+            <div class="ticker-track"></div>
+        </div>
+
+        <!-- Counter & Manifesto -->
+        <section class="hard-left" style="min-height: 50vh; padding-top: 120px; padding-bottom: 120px; display: flex; flex-wrap: wrap; gap: 64px;">
+            <div style="flex: 1; min-width: 300px;">
+                <div class="font-mono mb-4 text-[14px]">WHO'S IN</div>
+                <div class="splitflap-wrap font-mono text-acid" style="font-size: clamp(60px, 8vw, 120px);" id="counter-target" data-value="14201883">
+                    <!-- JS handles splitflap -->
+                    14,201,883
+                </div>
+            </div>
+            <div style="flex: 1; min-width: 300px; border-left: 1px solid var(--hairline); padding-left: 32px;" class="font-body">
+                <p style="font-size: 24px; margin-bottom: 24px; max-width: 480px;">This isn't a mailing list. It's an oath. You either stand with the culture or you observe from the outside.</p>
+                <p style="font-size: 16px; opacity: 0.7; max-width: 480px;">Membership grants priority access to drops, invites to closed-door events, and a physical artifact identifying your rank.</p>
+            </div>
+        </section>
+
+        <!-- Ticker 3 -->
+        <div class="ticker-wrapper hairline-top hairline-bottom">
+            <div class="ticker-track"></div>
+        </div>
+
+        <!-- Tiers Section -->
+        <section class="hard-left relative" style="padding-top: 120px; padding-bottom: 120px; overflow: hidden;">
+            <div class="tiers-grid">
+                
+                <!-- Tier 1 -->
+                <div class="tier-card bg-black font-body reveal-hidden tier-reveal-item">
+                    <div class="font-display" style="font-size: 48px;">REGULAR</div>
+                    <div class="font-display tier-price">FREE</div>
+                    <ul class="benefit-list">
+                        <li>Intel newsletter</li>
+                        <li>Public drop access</li>
+                        <li>Community forum</li>
+                        <li>Basic shipping</li>
+                    </ul>
+                    <a href="#" class="tier-btn font-mono">ENTER</a>
+                </div>
+
+                <!-- Tier 2 (Obsessed) -->
+                <div class="tier-card tier-obsessed font-body reveal-hidden tier-reveal-item">
+                    <img src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-2/stamp-pledged.jpg" alt="Pledged" class="stamp" style="width: 180px; height: 90px; right: 10px; top: -20px; transform: rotate(-7deg); opacity: 0.85; mix-blend-mode: multiply;">
+                    
+                    <div class="font-display" style="font-size: 48px;">OBSESSED</div>
+                    <div class="font-display tier-price">$9<span style="font-size: 0.4em;">/MO</span></div>
+                    <ul class="benefit-list">
+                        <li>First dibs on every drop</li>
+                        <li>The physical metal card</li>
+                        <li>Private Discord access</li>
+                        <li>Free express shipping</li>
+                        <li>Archive sale invites</li>
+                    </ul>
+                    <a href="#" class="tier-btn font-mono">SELECT</a>
+                </div>
+
+                <!-- Tier 3 -->
+                <div class="tier-card bg-black font-body reveal-hidden tier-reveal-item">
+                    <div class="font-display" style="font-size: 48px;">FAMILY</div>
+                    <div class="font-display tier-price">$29<span style="font-size: 0.4em;">/MO</span></div>
+                    <ul class="benefit-list">
+                        <li>All Obsessed benefits</li>
+                        <li>3 guest passes per drop</li>
+                        <li>Studio tour lotteries</li>
+                        <li>Quarterly printed zine</li>
+                        <li>Direct line to editorial</li>
+                    </ul>
+                    <a href="#" class="tier-btn font-mono">SELECT</a>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Ticker 4 -->
+        <div class="ticker-wrapper hairline-top hairline-bottom">
+            <div class="ticker-track"></div>
+        </div>
+
+        <!-- The Card Showcase -->
+        <section class="hard-left" style="min-height: 90vh; display: flex; flex-direction: column; justify-content: center; padding-top: 120px; padding-bottom: 120px; overflow: hidden;">
+            <div class="font-display section-header text-cream reveal-hidden section-title">THE CARD /<br><span class="text-acid">NUMBERED FOR LIFE</span></div>
+            
+            <div class="card-perspective-container" id="card-wrap">
+                <div class="card-3d-wrapper" id="card-3d">
+                    <img src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-2/member-card-hero.jpg" alt="Membership Card" class="card-3d-image">
+                    <div class="card-3d-text-layer font-mono">
+                        <div style="font-size: clamp(14px, 2vw, 24px); color: var(--acid); opacity: 0.9;">COMPLEX ALLEGIANCE</div>
+                        <div style="font-size: clamp(14px, 2vw, 24px); text-align: right; color: var(--acid); opacity: 0.9;">MEMBER №00041</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ticker 5 -->
+        <div class="ticker-wrapper hairline-top hairline-bottom">
+            <div class="ticker-track"></div>
+        </div>
+
+        <!-- Recent Drops -->
+        <section class="hard-left" style="padding-top: 120px; padding-bottom: 120px;">
+            <div class="font-display section-header text-cream reveal-hidden section-title">INTEL DROP /<br>NOV 14</div>
+            
+            <div class="drops-grid">
+                <div class="drop-item reveal-hidden drop-reveal-item">
+                    <img src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-2/drop-thumb-1.jpg" alt="Jordan 1 Drop" class="drop-img" style="filter: grayscale(0.15);">
+                </div>
+                <div class="drop-item reveal-hidden drop-reveal-item">
+                    <div class="drop-placeholder font-mono">ENCRYPTED</div>
+                </div>
+                <div class="drop-item drop-offset reveal-hidden drop-reveal-item">
+                    <img src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-2/drop-thumb-2.jpg" alt="Hoodie Drop" class="drop-img" style="filter: grayscale(0.15);">
+                </div>
+                <div class="drop-item reveal-hidden drop-reveal-item">
+                    <div class="drop-placeholder font-mono">ENCRYPTED</div>
+                </div>
+                <div class="drop-item reveal-hidden drop-reveal-item">
+                    <div class="drop-placeholder font-mono">ENCRYPTED</div>
+                </div>
+                <div class="drop-item reveal-hidden drop-reveal-item">
+                    <div class="drop-placeholder font-mono">ENCRYPTED</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Oath -->
+        <section class="hard-left hairline-top relative" style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; overflow: hidden;">
+            <img src="https://changzack.github.io/prototypes/_assets/complex-lean-v6-multi/concept-2/stamp-pledged.jpg" alt="Pledged" id="final-stamp" class="stamp reveal-hidden" style="width: 320px; height: 160px; right: 10vw; bottom: 20vh; transform: rotate(-12deg);">
+            
+            <div class="font-mono text-[14px] mb-8">FINAL OATH</div>
+            <div class="font-display section-header text-cream" id="oath-text-1" style="margin-bottom: 0;">
+                <!-- JS populated -->
+                RAISE YOUR HAND.
+            </div>
+            <div class="font-display section-header text-cream reveal-hidden" id="oath-text-2" style="margin-bottom: 64px;">
+                GET YOUR NUMBER.
+            </div>
+            
+            <a href="#" class="final-cta-btn font-display reveal-hidden" id="final-cta">
+                PLEDGE ALLEGIANCE — $9/MO
+            </a>
+        </section>
+
+        <!-- Footer -->
+        <footer class="hard-left hairline-top font-mono h-[72px]" style="display: flex; align-items: center; justify-content: space-between; font-size: 14px; opacity: 0.6;">
+            <div>© COMPLEX 2026</div>
+            <div>NOT A SUBSCRIPTION</div>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Observer.min.js"></script>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger, Observer);
+
+        // Utility: Split text for animation
+        function splitText(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return [];
+            const text = el.innerText.trim();
+            el.innerHTML = '';
+            const spans = [];
+            text.split('').forEach(char => {
+                if(char === ' ') {
+                    el.appendChild(document.createTextNode(' '));
+                } else {
+                    const span = document.createElement('span');
+                    span.className = 'hero-char';
+                    span.innerText = char;
+                    el.appendChild(span);
+                    spans.push(span);
+                }
+            });
+            return spans;
+        }
+
+        // Setup Tickers
+        const tickerStrings = [
+            "MEMBER #14,201,883 JUST JOINED",
+            "421 DROPS / 96s SELL-OUT",
+            "THE TIERS / CHOOSE YOUR LANE",
+            "THE CARD / NUMBERED FOR LIFE",
+            "INTEL DROP / NOV 14",
+            "FOUNDING RATE LOCKED FOR LIFE"
+        ];
+        
+        function buildTickers() {
+            const tracks = document.querySelectorAll('.ticker-track');
+            const fullContent = `<div class="ticker-content font-mono text-[14px]">
+                ${tickerStrings.map(s => `<span>${s}</span>`).join('<span class="opacity-50">•</span>')}
+            </div>`;
+            
+            tracks.forEach(track => {
+                // Duplicate content for seamless loop
+                track.innerHTML = fullContent + fullContent + fullContent;
+            });
+
+            // Marquee Animation
+            gsap.to('.ticker-track', {
+                xPercent: -33.33, // Move one full unit of the 3 duplicated
+                ease: 'none',
+                duration: 20, // 40s per full visual loop mathematically adjusted
+                repeat: -1
+            });
+
+            // Velocity modifier
+            let velocityTween;
+            Observer.create({
+                target: window,
+                type: "wheel,touch",
+                onChangeY: (self) => {
+                    const vel = Math.abs(self.velocityY) / 100;
+                    const scale = 1 + vel;
+                    if(velocityTween) velocityTween.kill();
+                    gsap.to(gsap.globalTimeline, { timeScale: scale, duration: 0.1 });
+                    velocityTween = gsap.to(gsap.globalTimeline, { timeScale: 1, duration: 0.5, delay: 0.1 });
+                }
+            });
+        }
+
+        // Setup Splitflap
+        function buildSplitflap() {
+            const target = document.getElementById('counter-target');
+            const numStr = target.getAttribute('data-value');
+            target.innerHTML = '';
+            
+            const cols = [];
+            numStr.split('').forEach(char => {
+                if (char === ',') {
+                    const comma = document.createElement('div');
+                    comma.innerText = ',';
+                    target.appendChild(comma);
+                } else {
+                    const col = document.createElement('div');
+                    col.className = 'splitflap-col';
+                    col.dataset.target = char;
+                    
+                    let stripHTML = '';
+                    // 0-9 twice for scroll length
+                    for(let i=0; i<=20; i++) {
+                        stripHTML += `<div class="splitflap-digit">${i%10}</div>`;
+                    }
+                    col.innerHTML = stripHTML;
+                    target.appendChild(col);
+                    cols.push(col);
+                }
+            });
+            return cols;
+        }
+
+        // 3D Card Setup
+        function init3DCard() {
+            const wrap = document.getElementById('card-wrap');
+            const card = document.getElementById('card-3d');
+            if(!wrap || !card) return;
+
+            // Idle float
+            gsap.to(card, { y: -12, duration: 3, yoyo: true, repeat: -1, ease: 'sine.inOut' });
+
+            const isTouch = window.matchMedia("(pointer: coarse)").matches;
+            if(!isTouch) {
+                wrap.addEventListener('mousemove', e => {
+                    const rect = wrap.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const mouseX = e.clientX - centerX;
+                    const mouseY = e.clientY - centerY;
+                    
+                    // Max tilt 12deg
+                    const rotateY = (mouseX / (rect.width/2)) * 12;
+                    const rotateX = -(mouseY / (rect.height/2)) * 12;
+
+                    gsap.to(card, {
+                        rotateY: rotateY,
+                        rotateX: rotateX,
+                        duration: 0.5,
+                        ease: 'power2.out',
+                        overwrite: 'auto'
+                    });
+                });
+
+                wrap.addEventListener('mouseleave', () => {
+                    gsap.to(card, { rotateX: 0, rotateY: 0, duration: 1, ease: 'power3.out', overwrite: 'auto' });
+                });
+            }
+        }
+
+        // Master Animation Controller
+        let isInitialLoad = true;
+        const heroSpans = splitText('hero-wordmark');
+        const oathSpans = splitText('oath-text-1');
+        const splitflapCols = buildSplitflap();
+
+        function runInitialReveal() {
+            // Reset states
+            gsap.set(heroSpans, { y: '120%', clipPath: 'inset(0 100% 0 0)' });
+            gsap.set('#hero-subtitle', { opacity: 0 });
+            
+            // Phase 1 - Hero
+            const tl = gsap.timeline();
+            tl.to(heroSpans, {
+                y: '0%',
+                clipPath: 'inset(0 0% 0 0)',
+                stagger: 0.06,
+                duration: 0.6,
+                ease: 'power3.inOut'
+            }, 0.2)
+            .to('#hero-subtitle', { opacity: 1, duration: 0.4 }, "-=0.2");
+
+            // Setup ScrollTriggers only once
+            if(isInitialLoad) {
+                setupScrollTriggers();
+                isInitialLoad = false;
+            }
+        }
+
+        function setupScrollTriggers() {
+            // Phase 3 - Splitflap
+            splitflapCols.forEach((col, i) => {
+                const targetNum = parseInt(col.dataset.target);
+                // initial state
+                gsap.set(col, { y: '0em' });
+                
+                gsap.to(col, {
+                    y: `-${(10 + targetNum)}em`, // Move up by 10 units + target
+                    duration: 1.2 + (splitflapCols.length - i) * 0.1, // Stagger leftward
+                    ease: "power3.inOut",
+                    scrollTrigger: {
+                        trigger: '#counter-target',
+                        start: "top 85%"
+                    }
+                });
+            });
+
+            // Phase 4 - Tiers Reveal
+            gsap.set('.tier-reveal-item', { clipPath: 'inset(100% 0 0 0)', opacity: 1 });
+            gsap.to('.tier-reveal-item', {
+                clipPath: 'inset(0% 0 0 0)',
+                stagger: 0.15,
+                duration: 0.8,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: '.tiers-grid',
+                    start: 'top 75%'
+                }
+            });
+            // Obsessed scale punch
+            gsap.fromTo('.tier-obsessed', 
+                { scale: 0.95 },
+                { scale: window.innerWidth >= 1024 ? 1.4 : 1.05, duration: 0.4, ease: 'back.out(1.5)', scrollTrigger: {
+                    trigger: '.tiers-grid',
+                    start: 'top 75%'
+                }, delay: 0.4 } // wait for clip-path
+            );
+
+            // Headers Reveal
+            gsap.utils.toArray('.section-title').forEach(el => {
+                gsap.set(el, { y: 40, opacity: 0 });
+                gsap.to(el, {
+                    y: 0, opacity: 1, duration: 0.8, ease: 'power3.out',
+                    scrollTrigger: { trigger: el, start: 'top 85%' }
+                });
+            });
+
+            // Drops Grid
+            gsap.set('.drop-reveal-item', { y: 40, opacity: 0 });
+            gsap.to('.drop-reveal-item', {
+                y: 0, opacity: 1, stagger: 0.1, duration: 0.6, ease: 'power3.out',
+                scrollTrigger: { trigger: '.drops-grid', start: 'top 80%' }
+            });
+
+            // Final Oath Reveal
+            gsap.set(oathSpans, { rotateX: -90, transformOrigin: "0% 100%", opacity: 0 });
+            gsap.to(oathSpans, {
+                rotateX: 0,
+                opacity: 1,
+                stagger: 0.08,
+                duration: 0.8,
+                ease: "back.out(1.5)",
+                scrollTrigger: { trigger: '#oath-text-1', start: 'top 80%' }
+            });
+            
+            gsap.set('#oath-text-2', { y: 20, opacity: 0 });
+            gsap.to('#oath-text-2', {
+                y: 0, opacity: 1, duration: 0.6, delay: 0.8,
+                scrollTrigger: { trigger: '#oath-text-1', start: 'top 80%' }
+            });
+
+            gsap.set('#final-cta', { scale: 0.9, opacity: 0 });
+            gsap.to('#final-cta', {
+                scale: 1, opacity: 1, duration: 0.6, delay: 1.0, ease: 'back.out(1.2)',
+                scrollTrigger: { trigger: '#oath-text-1', start: 'top 80%' }
+            });
+
+            gsap.set('#final-stamp', { scale: 0, opacity: 0 });
+            gsap.to('#final-stamp', {
+                scale: 1, opacity: 0.9, duration: 0.4, delay: 1.2, ease: "back.out(2)",
+                scrollTrigger: { trigger: '#oath-text-1', start: 'top 80%' }
+            });
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            buildTickers();
+            init3DCard();
+            
+            // Remove hard hidden classes so GSAP can take over
+            document.querySelectorAll('.reveal-hidden').forEach(el => el.classList.remove('reveal-hidden'));
+            
+            runInitialReveal();
+
+            // Replay Button
+            document.getElementById('btn-replay').addEventListener('click', () => {
+                window.scrollTo({top: 0, behavior: 'smooth'});
+                setTimeout(() => {
+                    ScrollTrigger.refresh();
+                    runInitialReveal();
+                    
+                    // Reset scroll triggers
+                    splitflapCols.forEach(col => gsap.set(col, {y: '0em'}));
+                    gsap.set('.tier-reveal-item', { clipPath: 'inset(100% 0 0 0)' });
+                    gsap.set(oathSpans, { rotateX: -90, opacity: 0 });
+                    gsap.set(['#oath-text-2', '#final-cta', '#final-stamp'], { opacity: 0 });
+                    
+                    // Scroll down slightly to re-trigger if needed, or let user scroll naturally.
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>
