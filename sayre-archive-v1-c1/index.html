@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sayre Archive — № 01</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,300&family=EB+Garamond:wght@400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0B0A08;
+      --bone:#E8E2D2;
+      --char:#3A342B;
+      --brass:#8A7E66;
+      --hair:rgba(138,126,102,.35);
+      --ease:cubic-bezier(0.16, 1, 0.3, 1);
+      --side:48px;
+      --gutter:24px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:auto;background:var(--ink);color:var(--bone)}
+    body{
+      margin:0;
+      background:var(--ink);
+      color:var(--bone);
+      font-family:'EB Garamond', serif;
+      font-weight:400;
+      overflow-x:hidden;
+      text-rendering:geometricPrecision;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input{font:inherit}
+    img,video{display:block;max-width:100%}
+
+    .grain-overlay{
+      position:fixed;
+      inset:0;
+      z-index:999;
+      pointer-events:none;
+      opacity:.06;
+      mix-blend-mode:overlay;
+      background:var(--bone);
+      filter:url(#grain);
+    }
+
+    .page{
+      width:min(1440px, calc(100vw - 96px));
+      margin:0 auto;
+      position:relative;
+      z-index:2;
+    }
+
+    .mono{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:11px;
+      line-height:1.45;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--brass);
+    }
+
+    .mono-14{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:14px;
+      line-height:1.45;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--brass);
+    }
+
+    .display{
+      font-family:'Cormorant Garamond', serif;
+      font-weight:300;
+      font-style:italic;
+      font-size:148px;
+      line-height:.78;
+      letter-spacing:-.055em;
+      color:var(--bone);
+    }
+
+    .section-title{
+      font-family:'Cormorant Garamond', serif;
+      font-weight:500;
+      font-size:64px;
+      line-height:.92;
+      letter-spacing:-.035em;
+      color:var(--bone);
+      margin:0;
+    }
+
+    .body-copy{
+      font-family:'EB Garamond', serif;
+      font-weight:400;
+      font-size:18px;
+      line-height:1.65;
+      max-width:540px;
+      color:rgba(232,226,210,.9);
+    }
+
+    .hairline,
+    .nav,
+    .section{
+      position:relative;
+    }
+
+    .hairline::after,
+    .nav::after,
+    .section::before{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      height:1px;
+      background:var(--hair);
+      transform-origin:left center;
+      animation:drawHairline 800ms var(--ease) forwards;
+    }
+
+    .nav::after{bottom:0}
+    .section::before{top:0}
+
+    @keyframes drawHairline{
+      from{transform:scaleX(0)}
+      to{transform:scaleX(1)}
+    }
+
+    .nav{
+      height:48px;
+      display:grid;
+      grid-template-columns:1fr 2.3fr 1fr;
+      gap:var(--gutter);
+      align-items:center;
+    }
+
+    .nav-center{
+      border-left:1px solid var(--hair);
+      border-right:1px solid var(--hair);
+      height:100%;
+      display:flex;
+      align-items:center;
+      padding:0 24px;
+    }
+
+    .nav-right{
+      display:flex;
+      justify-content:flex-end;
+      gap:24px;
+      align-items:center;
+    }
+
+    .brand-lockup{
+      font-family:'JetBrains Mono', monospace;
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--bone);
+    }
+
+    .hero{
+      min-height:calc(100vh - 48px);
+      display:grid;
+      grid-template-columns:11% minmax(520px, 56vw) minmax(210px, 1fr) minmax(180px, .82fr);
+      gap:var(--gutter);
+      padding:60px 0 72px;
+      border-bottom:1px solid var(--hair);
+    }
+
+    .col-rule{
+      border-left:1px solid var(--hair);
+      padding-left:24px;
+      min-width:0;
+    }
+
+    .spec-column{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:620px;
+      padding-right:8px;
+    }
+
+    .spec-seal{
+      width:80px;
+      height:80px;
+      object-fit:cover;
+      opacity:.65;
+      mix-blend-mode:screen;
+      margin-top:36px;
+    }
+
+    .asset-fallback{
+      background:var(--char);
+      border:1px solid var(--hair);
+      min-height:80px;
+    }
+
+    .video-column{
+      min-width:0;
+    }
+
+    .vitrine{
+      width:100%;
+      aspect-ratio:9/5;
+      border:2px solid var(--char);
+      background:var(--char);
+      overflow:hidden;
+      position:relative;
+      box-shadow:inset 0 0 80px rgba(0,0,0,0.9);
+    }
+
+    .vitrine::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      box-shadow:inset 0 0 80px rgba(0,0,0,0.9);
+    }
+
+    .hero-video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      opacity:0;
+      animation:videoArrive 400ms var(--ease) 600ms forwards;
+    }
+
+    @keyframes videoArrive{
+      to{opacity:1}
+    }
+
+    .retention-strip{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:center;
+      gap:14px;
+      color:var(--brass);
+    }
+
+    .retention-strip .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      border:1px solid var(--bone);
+      position:relative;
+    }
+
+    .retention-strip .dot::after{
+      content:"";
+      position:absolute;
+      inset:3px;
+      border-radius:50%;
+      background:var(--bone);
+    }
+
+    .tickline{
+      height:1px;
+      background:repeating-linear-gradient(90deg, var(--hair) 0 38px, transparent 38px 54px);
+    }
+
+    .word-column{
+      padding-top:42px;
+    }
+
+    .wordmark{
+      opacity:0;
+      animation:glyphIn 600ms var(--ease) 400ms forwards;
+    }
+
+    @keyframes glyphIn{
+      from{opacity:0}
+      to{opacity:1}
+    }
+
+    .tagline{
+      margin-top:42px;
+      font-family:'Cormorant Garamond', serif;
+      font-weight:300;
+      font-style:italic;
+      font-size:28px;
+      line-height:1.18;
+      color:rgba(232,226,210,.94);
+      max-width:310px;
+    }
+
+    .hero-meta{
+      padding-top:42px;
+      display:flex;
+      flex-direction:column;
+      gap:36px;
+      min-height:620px;
+    }
+
+    .hero-meta .scroll{
+      color:var(--bone);
+    }
+
+    .brief-note{
+      margin-top:auto;
+      font-family:'EB Garamond', serif;
+      font-weight:400;
+      font-size:18px;
+      line-height:1.65;
+      color:rgba(232,226,210,.82);
+      max-width:230px;
+    }
+
+    .chrom-section{
+      min-height:130vh;
+      padding:74px 0 82px;
+      background:var(--ink);
+    }
+
+    .chrom-head{
+      display:grid;
+      grid-template-columns:1fr auto;
+      align-items:end;
+      gap:24px;
+      margin-bottom:44px;
+    }
+
+    .chrom-head .line{
+      height:1px;
+      background:var(--hair);
+      margin:0 18px 13px;
+    }
+
+    .chrom-title-row{
+      display:grid;
+      grid-template-columns:auto 1fr;
+      align-items:end;
+      min-width:0;
+    }
+
+    .chromatogram-scroll{
+      overflow-x:auto;
+      overflow-y:hidden;
+      padding-bottom:10px;
+      scrollbar-color:var(--brass) var(--ink);
+    }
+
+    .chromatogram{
+      width:1200px;
+      height:360px;
+      display:block;
+    }
+
+    .axis,
+    .peak{
+      fill:none;
+      stroke:var(--bone);
+      stroke-width:1.5;
+      vector-effect:non-scaling-stroke;
+    }
+
+    .axis{
+      stroke:var(--brass);
+      stroke-width:1;
+      opacity:.8;
+    }
+
+    .draw-path{
+      stroke-dasharray:1;
+      stroke-dashoffset:1;
+    }
+
+    .iris-fill{
+      fill:#6B3A30;
+      fill-opacity:0;
+      stroke:var(--bone);
+    }
+
+    .tick{
+      stroke:var(--brass);
+      stroke-width:1;
+      opacity:.6;
+    }
+
+    .svg-label{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      fill:var(--brass);
+      opacity:0;
+    }
+
+    .svg-tier{
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      fill:var(--bone);
+      opacity:.78;
+    }
+
+    .story{
+      display:grid;
+      grid-template-columns:18% 82%;
+      gap:var(--gutter);
+      padding:86px 0 98px;
+      border-bottom:1px solid var(--hair);
+      min-height:980px;
+    }
+
+    .marginalia{
+      border-right:1px solid var(--hair);
+      padding-right:24px;
+    }
+
+    .margin-numbers{
+      margin-top:96px;
+      display:flex;
+      flex-direction:column;
+      gap:86px;
+    }
+
+    .margin-numbers span{
+      opacity:0;
+      transform:translateY(10px);
+    }
+
+    .story-panel{
+      position:relative;
+      display:grid;
+      grid-template-columns:minmax(420px, 540px) 1fr;
+      gap:56px;
+      padding:44px 0 26px 34px;
+      overflow:hidden;
+    }
+
+    .story-panel::before{
+      content:"";
+      position:absolute;
+      inset:0 0 0 0;
+      background-image:url('https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-1/parchment-story-texture.jpg');
+      background-size:cover;
+      background-position:center;
+      opacity:.18;
+      mix-blend-mode:screen;
+      pointer-events:none;
+    }
+
+    .story-text,
+    .bottle-wrap{
+      position:relative;
+      z-index:1;
+    }
+
+    .story-kicker{
+      margin-bottom:30px;
+    }
+
+    .story-text p{
+      margin:0 0 24px;
+    }
+
+    .pullquote{
+      font-family:'Cormorant Garamond', serif;
+      font-weight:300;
+      font-style:italic;
+      font-size:28px;
+      line-height:1.15;
+      color:var(--bone);
+      margin:42px 0 0;
+      max-width:500px;
+    }
+
+    .bottle-wrap{
+      align-self:start;
+      width:min(540px, 100%);
+      min-height:720px;
+      overflow:hidden;
+      background:var(--char);
+    }
+
+    .bottle-img{
+      width:100%;
+      height:720px;
+      object-fit:cover;
+      transform:translateY(0);
+      will-change:transform;
+    }
+
+    .index-marquee{
+      height:140px;
+      display:flex;
+      align-items:center;
+      overflow:hidden;
+      border-bottom:1px solid var(--hair);
+      position:relative;
+    }
+
+    .marquee-track{
+      display:flex;
+      width:max-content;
+      animation:marquee 40s linear infinite;
+      mix-blend-mode:difference;
+      will-change:transform;
+    }
+
+    .marquee-track:hover{
+      animation-play-state:paused;
+    }
+
+    .marquee-line{
+      flex:0 0 auto;
+      white-space:nowrap;
+      font-family:'JetBrains Mono', monospace;
+      font-weight:400;
+      font-size:14px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:var(--bone);
+      padding-right:42px;
+    }
+
+    @keyframes marquee{
+      from{transform:translateX(0)}
+      to{transform:translateX(-50%)}
+    }
+
+    .waitlist{
+      padding:78px 0 86px;
+      border-bottom:1px solid var(--hair);
+      display:grid;
+      grid-template-columns:18% 1fr;
+      gap:var(--gutter);
+    }
+
+    .waitlist-form{
+      display:grid;
+      grid-template-columns:minmax(280px, 520px) 320px;
+      gap:28px;
+      align-items:end;
+      margin-top:40px;
+    }
+
+    .email-input{
+      height:56px;
+      background:transparent;
+      border:0;
+      border-bottom:1px solid var(--bone);
+      color:var(--bone);
+      outline:0;
+      padding:0 0 14px;
+      font-family:'EB Garamond', serif;
+      font-size:28px;
+      line-height:1;
+    }
+
+    .email-input::placeholder{
+      color:rgba(232,226,210,.42);
+    }
+
+    .cta-submit{
+      width:320px;
+      height:56px;
+      border:0;
+      background:#6B3A30;
+      color:var(--bone);
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+      font-family:'JetBrains Mono', monospace;
+      font-size:14px;
+      letter-spacing:.2em;
+      text-transform:uppercase;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .cta-submit::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:inherit;
+      opacity:.35;
+      clip-path:inset(0 100% 0 0);
+      transition:clip-path 280ms var(--ease);
+    }
+
+    .cta-submit:hover::after,
+    .cta-submit:focus-visible::after{
+      clip-path:inset(0 0 0 0);
+    }
+
+    .cta-submit span{
+      position:relative;
+      z-index:1;
+    }
+
+    .pitch{
+      margin-top:18px;
+      color:rgba(232,226,210,.78);
+    }
+
+    .submit-state{
+      min-height:18px;
+      margin-top:14px;
+      color:var(--brass);
+    }
+
+    .footer{
+      padding:72px 0 46px;
+      display:grid;
+      grid-template-columns:18% 1fr;
+      gap:var(--gutter);
+      align-items:end;
+    }
+
+    .footer-seal{
+      width:120px;
+      height:120px;
+      object-fit:cover;
+      opacity:.65;
+      mix-blend-mode:screen;
+    }
+
+    .footer-line{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:24px;
+      border-top:1px solid var(--hair);
+      padding-top:28px;
+    }
+
+    .manifesto{
+      max-width:360px;
+      text-align:right;
+    }
+
+    @media (max-width:1100px){
+      :root{--side:28px}
+      .page{width:calc(100vw - 56px)}
+      .hero{
+        grid-template-columns:1fr;
+        min-height:auto;
+        padding:42px 0 60px;
+      }
+      .col-rule{
+        border-left:0;
+        border-top:1px solid var(--hair);
+        padding:24px 0 0;
+      }
+      .spec-column,
+      .hero-meta{
+        min-height:auto;
+      }
+      .spec-column{
+        display:grid;
+        grid-template-columns:1fr auto;
+        gap:24px;
+      }
+      .video-column{order:-1}
+      .display{font-size:112px}
+      .story{
+        grid-template-columns:1fr;
+      }
+      .marginalia{
+        border-right:0;
+        border-bottom:1px solid var(--hair);
+        padding:0 0 28px;
+      }
+      .margin-numbers{
+        margin-top:28px;
+        flex-direction:row;
+        gap:32px;
+      }
+      .story-panel{
+        grid-template-columns:1fr;
+        padding-left:0;
+      }
+      .bottle-wrap{
+        width:100%;
+      }
+      .waitlist,
+      .footer{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:720px){
+      .page{width:calc(100vw - 32px)}
+      .nav{
+        grid-template-columns:1fr auto;
+      }
+      .nav-center{display:none}
+      .nav-right{gap:14px}
+      .hero{
+        gap:30px;
+      }
+      .display{font-size:82px}
+      .section-title{font-size:48px}
+      .tagline{font-size:28px}
+      .chrom-head,
+      .chrom-title-row{
+        display:block;
+      }
+      .chrom-head .line{display:none}
+      .story-panel{
+        gap:34px;
+      }
+      .bottle-img{
+        height:620px;
+      }
+      .waitlist-form{
+        grid-template-columns:1fr;
+      }
+      .cta-submit{
+        width:100%;
+      }
+      .footer-line{
+        display:block;
+      }
+      .manifesto{
+        text-align:left;
+        margin-top:18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" focusable="false">
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"></feTurbulence>
+      <feColorMatrix type="saturate" values="0"></feColorMatrix>
+    </filter>
+  </svg>
+
+  <div class="grain-overlay"></div>
+
+  <main class="page">
+    <nav class="nav" aria-label="Primary">
+      <div class="brand-lockup">Sayre Archive</div>
+      <div class="nav-center mono">№ 01 · Avignon · Nov 2026 · 187 ml · €240</div>
+      <div class="nav-right mono">
+        <a href="#index">Index</a>
+        <a href="#waitlist">Waitlist</a>
+      </div>
+    </nav>
+
+    <section class="hero" id="top" aria-label="Sayre Archive fragrance specimen">
+      <aside class="spec-column mono">
+        <div>
+          <div>Spec.</div>
+          <div style="margin-top:8px;color:var(--bone)">№ 01</div>
+          <div style="margin-top:34px">First<br>Press</div>
+          <div style="margin-top:34px">Copper<br>Slow</div>
+          <div style="margin-top:34px">187<br>ml</div>
+        </div>
+        <img
+          class="spec-seal"
+          src="https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-1/archive-seal-mark.jpg"
+          alt="Sayre Archive Avignon MMXXVI seal mark"
+          width="80"
+          height="80"
+          loading="eager"
+          onerror="this.style.display='none';this.parentElement.classList.add('asset-fallback')"
+        />
+      </aside>
+
+      <div class="video-column col-rule">
+        <div class="vitrine" aria-label="Museum vitrine viewing window">
+          <video
+            class="hero-video"
+            src='https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-1/hero-video-loop-—-"vitrine-smoke".mp4'
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="auto"
+          ></video>
+        </div>
+        <div class="retention-strip mono">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="tickline" aria-hidden="true"></span>
+          <span>00:04 ── 00:48</span>
+        </div>
+      </div>
+
+      <div class="word-column col-rule">
+        <div class="wordmark display">№ 01</div>
+        <div class="tagline">“A scent for the hour before dusk.”</div>
+      </div>
+
+      <aside class="hero-meta col-rule">
+        <div class="mono scroll">↓ Scroll<br><br>Retention<br>00:00:00</div>
+        <div class="brief-note">
+          Distilled in copper, on a slow press, over three weeks in November. Sayre № 01 is the first of a small archive: iris bruised against fig leaf, smoke folded into resin, dusk measured rather than described.
+        </div>
+        <div class="mono">Brand: Sayre Archive<br>Fragrance: Sayre № 01<br>Launch: Autumn 2026</div>
+      </aside>
+    </section>
+
+    <section class="section chrom-section" id="chromatogram">
+      <div class="chrom-head">
+        <div class="chrom-title-row">
+          <h1 class="section-title">The Chromatogram</h1>
+          <div class="line" aria-hidden="true"></div>
+        </div>
+        <div class="mono">fig. 01 · olfactory index</div>
+      </div>
+
+      <div class="chromatogram-scroll">
+        <svg class="chromatogram" viewBox="0 0 1200 360" role="img" aria-label="Gas chromatogram plot of Sayre № 01 notes across top heart and base tiers">
+          <path class="axis draw-path" id="x-axis" d="M82 282 H1128"></path>
+          <path class="axis draw-path" id="y-axis" d="M82 282 V46"></path>
+          <path class="axis draw-path" id="arrow-y" d="M82 46 L76 58 M82 46 L88 58"></path>
+          <path class="axis draw-path" id="arrow-x" d="M1128 282 L1116 276 M1128 282 L1116 288"></path>
+
+          <text class="svg-tier" x="36" y="70">intensity</text>
+          <text class="svg-tier" x="1140" y="287">t</text>
+
+          <g class="ticks">
+            <path class="tick" d="M154 276 V288"></path>
+            <path class="tick" d="M276 276 V288"></path>
+            <path class="tick" d="M398 276 V288"></path>
+            <path class="tick" d="M520 276 V288"></path>
+            <path class="tick" d="M642 276 V288"></path>
+            <path class="tick" d="M764 276 V288"></path>
+            <path class="tick" d="M886 276 V288"></path>
+            <path class="tick" d="M1008 276 V288"></path>
+            <path class="tick" d="M1090 276 V288"></path>
+          </g>
+
+          <path class="peak draw-path" id="peak-bergamot" d="M104 282 C126 205 148 186 172 282"></path>
+          <path class="peak draw-path" id="peak-pepper" d="M202 282 C232 155 274 118 322 282"></path>
+          <path class="peak draw-path" id="peak-fig" d="M334 282 C368 181 410 145 462 282"></path>
+          <path class="peak draw-path iris-fill" id="peak-iris" d="M488 282 C526 78 588 70 632 282 Z"></path>
+          <path class="peak draw-path" id="peak-myrrh" d="M650 282 C684 168 724 152 762 282"></path>
+          <path class="peak draw-path" id="peak-ambrette" d="M778 282 C806 194 842 178 878 282"></path>
+          <path class="peak draw-path" id="peak-oud" d="M886 282 C920 130 966 122 1008 282"></path>
+          <path class="peak draw-path" id="peak-vetiver" d="M1000 282 C1024 210 1058 204 1082 282"></path>
+          <path class="peak draw-path" id="peak-labdanum" d="M1062 282 C1082 222 1110 218 1126 282"></path>
+
+          <text class="svg-label" data-label-for="peak-bergamot" x="116" y="312">Bergamot</text>
+          <text class="svg-label" data-label-for="peak-pepper" x="222" y="312">Black Pepper</text>
+          <text class="svg-label" data-label-for="peak-fig" x="372" y="312">Fig Leaf</text>
+          <text class="svg-label" data-label-for="peak-iris" x="548" y="312">Iris</text>
+          <text class="svg-label" data-label-for="peak-myrrh" x="674" y="312">Myrrh</text>
+          <text class="svg-label" data-label-for="peak-ambrette" x="786" y="312">Ambrette</text>
+          <text class="svg-label" data-label-for="peak-oud" x="934" y="312">Oud</text>
+          <text class="svg-label" data-label-for="peak-vetiver" x="1022" y="312">Vetiver</text>
+          <text class="svg-label" data-label-for="peak-labdanum" x="1062" y="312">Labdanum</text>
+
+          <text class="svg-tier" x="170" y="342">── TOP ─────────────</text>
+          <text class="svg-tier" x="506" y="342">── HEART ─────────────</text>
+          <text class="svg-tier" x="880" y="342">── BASE ─────────────</text>
+        </svg>
+      </div>
+
+      <div class="mono" style="margin-top:26px;max-width:760px">
+        Notes × Top: Bergamot · Black Pepper · Fig Leaf / Heart: Iris · Myrrh · Ambrette / Base: Oud · Vetiver · Labdanum
+      </div>
+    </section>
+
+    <section class="section story" id="story">
+      <aside class="marginalia">
+        <div class="mono">Marginalia</div>
+        <div class="margin-numbers mono" id="marginNumbers">
+          <span>§1</span>
+          <span>§2</span>
+          <span>§3</span>
+        </div>
+      </aside>
+
+      <div class="story-panel">
+        <article class="story-text">
+          <div class="story-kicker mono">The bottle · archive specimen · batch I</div>
+          <p class="body-copy">At Avignon the rooms cool before the streets do. We worked in that hour: copper still warm, windows blackening, fig leaves drying flat under linen. The first tincture was not sweet. It carried the green snap of the branch.</p>
+          <p class="body-copy">Iris arrived slowly, a mineral powder in the register, then smoke. Not the theatrical smoke of a room made for being seen, but the residue left in wool after a candle has gone out. We kept the measurement marks because the scent resisted adjectives.</p>
+          <p class="body-copy">Sayre № 01 is bottled as a primary source. No decoration beyond the necessary number. No promise beyond the pressure of dusk, held briefly in amber glass.</p>
+          <div class="pullquote">“The page argues that fragrance is both: a felt thing and a measured thing.”</div>
+        </article>
+
+        <figure class="bottle-wrap" id="bottleWrap">
+          <img
+            class="bottle-img"
+            id="bottleImg"
+            src="https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-1/bottle-specimen-still.jpg"
+            alt="Sayre № 01 fragrance bottle on dark stone slab"
+            width="540"
+            height="720"
+            loading="eager"
+            onerror="this.style.display='none';this.parentElement.classList.add('asset-fallback')"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section class="index-marquee" id="index" aria-label="The index of fragrance notes">
+      <div class="marquee-track">
+        <div class="marquee-line">THE INDEX · BERGAMOT · BLACK PEPPER · FIG LEAF · IRIS · MYRRH · AMBRETTE · OUD · VETIVER · LABDANUM · </div>
+        <div class="marquee-line">THE INDEX · BERGAMOT · BLACK PEPPER · FIG LEAF · IRIS · MYRRH · AMBRETTE · OUD · VETIVER · LABDANUM · </div>
+      </div>
+    </section>
+
+    <section class="section waitlist" id="waitlist">
+      <aside class="mono">Waitlist<br><br>By appointment.<br>First batch, autumn 2026.</aside>
+      <div>
+        <h2 class="section-title">Request the first press.</h2>
+        <form class="waitlist-form" id="waitlistForm">
+          <label>
+            <span class="mono" style="display:block;margin-bottom:12px">Email input</span>
+            <input class="email-input" id="emailInput" type="email" name="email" placeholder="name@domain.com" autocomplete="email" required />
+          </label>
+          <button class="cta-submit" type="submit"><span>Request</span></button>
+        </form>
+        <div class="pitch body-copy">By appointment. First batch, autumn 2026. One product, one archive number, no public counter.</div>
+        <div class="submit-state mono" id="submitState" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <img
+        class="footer-seal"
+        src="https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-1/archive-seal-mark.jpg"
+        alt="Sayre Archive seal mark"
+        width="120"
+        height="120"
+        loading="eager"
+        onerror="this.style.display='none';this.parentElement.classList.add('asset-fallback')"
+      />
+      <div class="footer-line mono">
+        <div>© 2026 Sayre Archive · Avignon · MMXXVI</div>
+        <div class="manifesto">“The first of a small archive.”</div>
+      </div>
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+  <script>
+    (function(){
+      const ready = () => {
+        if (!window.gsap || !window.ScrollTrigger) return;
+        gsap.registerPlugin(ScrollTrigger);
+
+        const paths = Array.from(document.querySelectorAll('.draw-path'));
+        paths.forEach(path => {
+          const len = path.getTotalLength ? path.getTotalLength() : 1;
+          path.style.strokeDasharray = len;
+          path.style.strokeDashoffset = len;
+        });
+
+        const tl = gsap.timeline({
+          defaults:{ease:'none'},
+          scrollTrigger:{
+            trigger:'.chrom-section',
+            start:'top top',
+            end:'+=150%',
+            scrub:true,
+            pin:true,
+            anticipatePin:1
+          }
+        });
+
+        const draw = (selector, pos, dur) => {
+          const el = document.querySelector(selector);
+          if (!el) return;
+          tl.to(el, {strokeDashoffset:0, duration:dur}, pos);
+        };
+
+        draw('#x-axis', 0.00, .10);
+        draw('#y-axis', 0.00, .10);
+        draw('#arrow-y', .08, .04);
+        draw('#arrow-x', .08, .04);
+
+        const sequence = [
+          ['#peak-bergamot', .00, .14],
+          ['#peak-pepper', .12, .14],
+          ['#peak-fig', .24, .14],
+          ['#peak-iris', .44, .12],
+          ['#peak-myrrh', .56, .10],
+          ['#peak-ambrette', .64, .10],
+          ['#peak-oud', .72, .12],
+          ['#peak-vetiver', .84, .08],
+          ['#peak-labdanum', .92, .08]
+        ];
+
+        sequence.forEach(item => {
+          draw(item[0], item[1], item[2]);
+          const label = document.querySelector('[data-label-for="' + item[0].replace('#','') + '"]');
+          if (label) tl.to(label, {opacity:1, duration:.035}, item[1] + item[2] - .015);
+        });
+
+        tl.to('#peak-iris', {fillOpacity:.88, duration:.08}, .44);
+
+        gsap.to('#bottleImg', {
+          y:40,
+          ease:'none',
+          scrollTrigger:{
+            trigger:'#bottleWrap',
+            start:'top bottom',
+            end:'bottom top',
+            scrub:true
+          }
+        });
+
+        const marginNumbers = document.querySelectorAll('#marginNumbers span');
+        gsap.to(marginNumbers, {
+          opacity:1,
+          y:0,
+          duration:.4,
+          stagger:.12,
+          ease:'cubic-bezier(0.16, 1, 0.3, 1)',
+          scrollTrigger:{
+            trigger:'#marginNumbers',
+            start:'top 80%',
+            once:true
+          }
+        });
+
+        const form = document.getElementById('waitlistForm');
+        const input = document.getElementById('emailInput');
+        const state = document.getElementById('submitState');
+        if (form && input && state) {
+          form.addEventListener('submit', function(e){
+            e.preventDefault();
+            const value = input.value.trim();
+            state.textContent = value ? 'Request logged · ' + value : 'Enter an email to request the archive note.';
+          });
+        }
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ready);
+      } else {
+        ready();
+      }
+    })();
+  </script>
+</body>
+</html>

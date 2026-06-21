@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sayre Archive — Concept 2</title>
+    
+    <!-- Required Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    
+    <!-- GSAP & Lenis CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+
+    <style>
+        :root {
+            --bone: #EDE6D8;
+            --parchment: #F5EFE2;
+            --ink: #14110E;
+            --fog: #6B6358;
+            --copper: #8A5A3B;
+        }
+
+        /* Reset & Base */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bone);
+            color: var(--ink);
+            font-family: 'Fraunces', serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Typography */
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--fog);
+        }
+        
+        .fraunces-italic { font-style: italic; font-weight: 400; }
+        
+        .text-body {
+            font-size: 16px;
+            line-height: 1.65;
+            max-width: 52ch;
+        }
+        
+        .text-label { font-size: 11px; }
+        
+        h2 { font-size: 40px; line-height: 1.1; font-weight: 400; }
+        h3 { font-size: 28px; line-height: 1.2; font-weight: 400; max-width: 20ch; }
+        
+        @media(min-width: 768px) {
+            h2 { font-size: 64px; }
+            h3 { font-size: 64px; }
+        }
+
+        .accent-hover { transition: color 0.6s ease; }
+        .accent-hover:hover { color: var(--copper); }
+
+        /* Layout Utilities */
+        .px-outer { padding-left: 24px; padding-right: 24px; }
+        .py-rhythm { padding-top: 120px; padding-bottom: 120px; }
+        .mt-rhythm { margin-top: 120px; }
+        .mb-rhythm { margin-bottom: 120px; }
+        
+        @media(min-width: 768px) {
+            .px-outer { padding-left: 160px; padding-right: 160px; }
+            .py-rhythm { padding-top: 220px; padding-bottom: 220px; }
+            .mt-rhythm { margin-top: 220px; }
+            .mb-rhythm { margin-bottom: 220px; }
+        }
+
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .justify-between { justify-content: space-between; }
+        .items-baseline { align-items: baseline; }
+        .items-center { align-items: center; }
+        .w-full { width: 100%; }
+        .h-full { height: 100%; }
+        .relative { position: relative; }
+        
+        /* Specific Components */
+        
+        /* 1. Grain Texture Overlay */
+        .grain-overlay {
+            position: fixed; inset: 0; z-index: 99; pointer-events: none;
+            background-image: url('https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-2/paper-grain.jpg');
+            background-size: 1024px; background-repeat: repeat;
+            mix-blend-mode: multiply; opacity: 0.55;
+        }
+
+        /* 2. Video Background */
+        .video-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100vh;
+            overflow: hidden; pointer-events: none; z-index: -1;
+        }
+        .hero-video {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.6; /* Default visible state */
+        }
+        .video-gradient {
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(237,230,216,0) 0%, rgba(237,230,216,0.95) 92%);
+        }
+
+        /* 3. Header & Wordmark */
+        .header-wrap {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 50; padding-top: 64px;
+        }
+        
+        #wordmark-target {
+            font-size: 28px;
+            font-variation-settings: 'wght' 700, 'opsz' 144;
+            display: flex; gap: 2px;
+            opacity: 1; /* Default visible */
+        }
+        
+        .target-letter { line-height: 1; }
+
+        .header-hairline {
+            width: 100%; height: 0.5px;
+            background-color: var(--ink); opacity: 0.55;
+            margin-top: 24px;
+            transform: scaleX(1); /* Default visible */
+            transform-origin: left;
+        }
+
+        /* 4. Floating Kinetic Typography */
+        #floating-letters {
+            position: fixed; inset: 0; z-index: 51; pointer-events: none;
+        }
+        
+        .float-letter {
+            position: fixed; line-height: 1; margin: 0; padding: 0;
+            font-family: 'Fraunces', serif;
+            font-variation-settings: "wght" var(--wght, 400), "opsz" var(--opsz, 144);
+            will-change: font-variation-settings, transform, font-size, opacity;
+            opacity: 0; /* Hidden by default */
+        }
+
+        /* 5. Asymmetric Story Grid */
+        .story-grid {
+            display: flex; flex-direction: column; gap: 40px;
+        }
+        @media(min-width: 768px) {
+            .story-grid {
+                display: grid;
+                grid-template-columns: 5fr 170px 4fr;
+                gap: 0;
+            }
+            .story-text { grid-column: 1 / 2; }
+            .story-bottle { grid-column: 3 / 4; }
+        }
+
+        .bottle-card {
+            background: var(--parchment);
+            padding: 32px;
+            box-shadow: inset 0 0 120px rgba(20,17,14,0.05);
+            aspect-ratio: 4/5;
+            width: 100%;
+        }
+        .bottle-card img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* 6. Notes Marquee */
+        .marquee-section {
+            border-top: 0.5px solid rgba(20,17,14,0.55);
+            border-bottom: 0.5px solid rgba(20,17,14,0.55);
+            padding: 80px 0; overflow: hidden;
+        }
+        
+        .marquee-container {
+            display: flex; flex-direction: column; gap: 16px;
+            white-space: nowrap; mix-blend-mode: multiply;
+        }
+        
+        .marquee-row {
+            display: inline-block; white-space: nowrap; will-change: transform;
+            font-size: 28px; line-height: 1.2;
+        }
+        
+        @media(min-width: 768px) {
+            .marquee-row { font-size: 64px; }
+        }
+        
+        .marquee-content { display: inline-block; padding-right: 64px; }
+        
+        .row-1 { animation: marquee 78s linear infinite; }
+        .row-2 { animation: marquee 80s linear infinite; }
+        .row-3 { animation: marquee 84s linear infinite; }
+        
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* 7. CTA & Form */
+        .cta-btn {
+            position: relative; overflow: hidden; background: transparent;
+            border: 0.5px solid var(--copper); color: var(--copper);
+            padding: 16px 40px; cursor: pointer;
+            transition: color 0.6s cubic-bezier(0.65,0,0.35,1);
+            z-index: 1; outline: none;
+        }
+        
+        .cta-btn::before {
+            content: ""; position: absolute; inset: 0;
+            background-color: var(--copper);
+            clip-path: circle(0% at 50% 50%);
+            transition: clip-path 0.6s cubic-bezier(0.65,0,0.35,1);
+            z-index: -1;
+        }
+        
+        .cta-btn:hover { color: var(--bone); }
+        .cta-btn:hover::before { clip-path: circle(100% at 50% 50%); }
+        
+        .email-input {
+            background: transparent; border: none; outline: none;
+            border-bottom: 0.5px solid rgba(20,17,14,0.55);
+            padding: 16px 0; width: 100%; max-width: 320px;
+            color: var(--ink);
+        }
+        .email-input::placeholder { color: var(--fog); }
+        
+        .footer-seal { width: 24px; height: 24px; opacity: 0.85; }
+        .main-seal { width: 80px; height: 80px; opacity: 0.85; transform: rotate(0.4deg); }
+
+        /* Controls Panel */
+        .controls-panel {
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            display: flex; gap: 8px;
+        }
+        .control-btn {
+            background: var(--parchment); border: 0.5px solid var(--ink);
+            padding: 8px 16px; cursor: pointer; color: var(--ink);
+            transition: background 0.3s; outline: none;
+        }
+        .control-btn:hover { background: var(--bone); }
+    </style>
+</head>
+<body>
+
+    <!-- Grain Texture -->
+    <div class="grain-overlay"></div>
+
+    <!-- Background Video Layer -->
+    <div class="video-container">
+        <video class="hero-video" src="https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-2/sayre-mist-video.mp4" autoplay muted loop playsinline preload="auto"></video>
+        <div class="video-gradient"></div>
+    </div>
+
+    <!-- Fixed Header -->
+    <header class="header-wrap">
+        <div class="px-outer flex justify-between items-baseline">
+            <div id="wordmark-target">
+                <span class="target-letter">S</span>
+                <span class="target-letter">A</span>
+                <span class="target-letter">Y</span>
+                <span class="target-letter">R</span>
+                <span class="target-letter">E</span>
+            </div>
+            <div class="mono text-label header-label">SAYRE ARCHIVE — EST. 2026</div>
+        </div>
+        <div class="px-outer">
+            <div class="header-hairline"></div>
+        </div>
+    </header>
+
+    <!-- Floating Letters for Animation -->
+    <div id="floating-letters">
+        <span class="float-letter">S</span>
+        <span class="float-letter">A</span>
+        <span class="float-letter">Y</span>
+        <span class="float-letter">R</span>
+        <span class="float-letter">E</span>
+    </div>
+
+    <!-- Scrollable Space for Hero -->
+    <div class="w-full" style="height: 150vh;"></div>
+
+    <!-- Story Section -->
+    <section class="px-outer mb-rhythm story-grid">
+        <div class="story-text">
+            <h2 class="mb-12" style="margin-bottom: 48px;">SAYRE <span class="fraunces-italic accent-hover">№ 01</span></h2>
+            <p class="mono mb-8" style="margin-bottom: 48px;">Distilled in November.<br>Bottled in stone.</p>
+            
+            <div class="story-paras">
+                <p class="text-body mb-6" style="margin-bottom: 24px;">A scent constructed around the cold mineral memory of Avignon's cathedral stones, warmed by the human trace of incense, designed to unfold gradually as it wears.</p>
+                <p class="text-body mb-6" style="margin-bottom: 24px;">It begins as a sharp, atmospheric mist—bergamot and fig leaf catching the chill—before settling into a dense, tactile heart of iris and smoked vetiver. The shift is deliberate, moving from pure air to heavy earth.</p>
+                <p class="text-body">The base notes act as an anchor, tethering the ethereal upper layers to the skin with raw labdanum and ambrette seed. A formula not for the crowd, but strictly for the wearer.</p>
+            </div>
+        </div>
+        <div class="story-bottle">
+            <div class="bottle-card">
+                <img src="https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-2/sayre-bottle-photo.jpg" alt="Sayre No 01 Fragrance Bottle" width="1200" height="1500" loading="eager">
+            </div>
+        </div>
+    </section>
+
+    <!-- Notes Pyramid Marquee -->
+    <section class="marquee-section mb-rhythm">
+        <div class="px-outer mono text-label" style="margin-bottom: 48px;">THE PYRAMID</div>
+        <div class="marquee-container">
+            <div class="marquee-row row-1">
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">TOP</span> Bergamot ·· Black Pepper ·· Fig Leaf</div>
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">TOP</span> Bergamot ·· Black Pepper ·· Fig Leaf</div>
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">TOP</span> Bergamot ·· Black Pepper ·· Fig Leaf</div>
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">TOP</span> Bergamot ·· Black Pepper ·· Fig Leaf</div>
+            </div>
+            <div class="marquee-row row-2">
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">HEART</span> Iris ·· Oud ·· Smoked Vetiver</div>
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">HEART</span> Iris ·· Oud ·· Smoked Vetiver</div>
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">HEART</span> Iris ·· Oud ·· Smoked Vetiver</div>
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">HEART</span> Iris ·· Oud ·· Smoked Vetiver</div>
+            </div>
+            <div class="marquee-row row-3">
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">BASE</span> Labdanum ·· Ambrette Seed ·· Sandalwood</div>
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">BASE</span> Labdanum ·· Ambrette Seed ·· Sandalwood</div>
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">BASE</span> Labdanum ·· Ambrette Seed ·· Sandalwood</div>
+                <div class="marquee-content"><span class="mono text-label" style="margin-right: 32px;">BASE</span> Labdanum ·· Ambrette Seed ·· Sandalwood</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA & Footer -->
+    <section class="px-outer flex flex-col items-center" style="text-align: center; padding-bottom: 120px;">
+        <img src="https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-2/sayre-seal.jpg" class="main-seal" alt="Sayre Archive Seal" width="480" height="480" style="margin-bottom: 48px;">
+        <h3 style="margin-bottom: 64px;">A scent for the hour before dusk.</h3>
+        
+        <form class="flex items-center" style="gap: 16px; width: 100%; max-width: 480px; justify-content: center;" onsubmit="event.preventDefault();">
+            <input type="email" placeholder="YOUR EMAIL" class="email-input mono text-label" required>
+            <button type="submit" class="cta-btn mono text-label">SUBMIT</button>
+        </form>
+    </section>
+
+    <footer class="px-outer py-8 flex justify-between items-center mono text-label" style="border-top: 0.5px solid rgba(20,17,14,0.55);">
+        <div class="flex items-center" style="gap: 16px;">
+            <img src="https://changzack.github.io/prototypes/_assets/sayre-archive-v1/concept-2/sayre-seal.jpg" class="footer-seal" alt="Seal">
+            <span>© Sayre Archive 2026</span>
+        </div>
+        <span>Avignon — By waitlist only</span>
+    </footer>
+
+    <!-- Controls -->
+    <div class="controls-panel">
+        <button id="btn-play" class="control-btn mono text-label">PLAY</button>
+        <button id="btn-reset" class="control-btn mono text-label">RESET</button>
+    </div>
+
+    <script>
+        // Initialize Lenis Smooth Scroll
+        const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => lenis.raf(time * 1000));
+        gsap.ticker.lagSmoothing(0);
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        const floaters = document.querySelectorAll('.float-letter');
+        const targets = document.querySelectorAll('.target-letter');
+        
+        let introTl, scrollTl, stHairline, stParas;
+
+        // Force initial completion state (Rule 4)
+        function setCompletedState() {
+            // Kill existing GSAP tweens and triggers
+            if(introTl) introTl.kill();
+            if(scrollTl) scrollTl.kill();
+            if(stHairline) stHairline.kill();
+            if(stParas) stParas.kill();
+            ScrollTrigger.getAll().forEach(st => st.kill());
+
+            gsap.set('.target-letter', { opacity: 1 });
+            gsap.set('.float-letter', { opacity: 0 });
+            gsap.set('.header-hairline', { scaleX: 1 });
+            gsap.set('.hero-video', { opacity: 0.6 });
+            gsap.set('.header-label', { opacity: 1 });
+            gsap.set('.story-paras', { opacity: 1 });
+            gsap.set('.story-paras p', { y: 0, opacity: 1 });
+        }
+
+        function triggerAnimation() {
+            setCompletedState();
+            window.scrollTo(0, 0);
+
+            // Hide statics
+            gsap.set('.target-letter', { opacity: 0 });
+            gsap.set('.header-hairline', { scaleX: 0 });
+            gsap.set('.hero-video', { opacity: 0 });
+            gsap.set('.header-label', { opacity: 0 });
+            gsap.set('.story-paras p', { y: 24, opacity: 0 });
+
+            // Prepare floaters
+            floaters.forEach((floater, i) => {
+                const startX = Math.random() * (window.innerWidth - 100);
+                const startY = Math.random() * (window.innerHeight - 200) + 100;
+                const startSize = gsap.utils.random(80, 280);
+                const startWght = gsap.utils.random(100, 300);
+
+                gsap.set(floater, {
+                    x: startX,
+                    y: startY,
+                    fontSize: startSize,
+                    '--wght': startWght,
+                    '--opsz': 144,
+                    opacity: 0
+                });
+            });
+
+            // Intro timeline (Phase 0-1)
+            introTl = gsap.timeline();
+            introTl.to('.header-label', { opacity: 1, duration: 0.4 }, 0.2);
+            introTl.to('.float-letter', { opacity: 0.4, duration: 0.8, ease: 'power3.out' }, 0.4);
+            introTl.to('.hero-video', { opacity: 0.6, duration: 1.6 }, 0.4);
+
+            // Scroll timeline (Phase 2)
+            scrollTl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: 'body',
+                    start: 'top top',
+                    end: () => "+=" + (window.innerHeight * (window.innerWidth < 768 ? 0.7 : 0.6)),
+                    scrub: 1.2,
+                    invalidateOnRefresh: true
+                }
+            });
+            
+            // Normalize timeline duration to 1
+            scrollTl.to({}, {duration: 1});
+
+            const arrivals = [0.15, 0.25, 0.35, 0.45, 0.55];
+
+            floaters.forEach((floater, i) => {
+                const target = targets[i];
+                scrollTl.to(floater, {
+                    x: () => target.getBoundingClientRect().left,
+                    y: () => target.getBoundingClientRect().top,
+                    fontSize: 28,
+                    '--wght': 700,
+                    opacity: 1,
+                    duration: arrivals[i],
+                    ease: 'power1.inOut'
+                }, 0);
+            });
+
+            // Lock Phase (Phase 3)
+            stHairline = ScrollTrigger.create({
+                trigger: 'body',
+                start: () => "top+=" + (window.innerHeight * (window.innerWidth < 768 ? 0.7 : 0.6)) + " top",
+                onEnter: () => {
+                    gsap.to('.header-hairline', { scaleX: 1, duration: 1.4, ease: 'power3.out' });
+                    gsap.set('.target-letter', { opacity: 1 });
+                    gsap.set('.float-letter', { opacity: 0 });
+                },
+                onLeaveBack: () => {
+                    gsap.to('.header-hairline', { scaleX: 0, duration: 1.4, ease: 'power3.out' });
+                    gsap.set('.target-letter', { opacity: 0 });
+                    gsap.set('.float-letter', { opacity: 1 });
+                }
+            });
+
+            // Story Reveal (Phase 4)
+            stParas = ScrollTrigger.create({
+                trigger: '.story-paras',
+                start: "top 85%",
+                onEnter: () => {
+                    gsap.fromTo('.story-paras p',
+                        { y: 24, opacity: 0 },
+                        { y: 0, opacity: 1, duration: 0.9, stagger: 0.08, ease: 'power3.out' }
+                    );
+                }
+            });
+        }
+
+        // Initialize to static completed state as required
+        document.fonts.ready.then(() => {
+            setCompletedState();
+        });
+
+        // Controls
+        document.getElementById('btn-play').addEventListener('click', triggerAnimation);
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            setCompletedState();
+            window.scrollTo(0, 0);
+        });
+
+    </script>
+</body>
+</html>
