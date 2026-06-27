@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Zack Chang — Head of Product &amp; Creative Technologist</title>
+<meta name="description" content="Zack Chang. Product leader who builds with AI. Currently Head of Product &amp; Creative Technologist at Complex." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+  :root {
+    --bg: #f6f4ee;
+    --bg-sub: #efece4;
+    --ink: #161613;
+    --ink-soft: #2c2c28;
+    --muted: #8a877d;
+    --muted-2: #b9b6ab;
+    --rule: #d9d4c4;
+    --rule-strong: #b9b6ab;
+    --accent: #c0432e;          /* persimmon — used only at $ and ▸ */
+    --available: #4caf6a;
+    --link: #161613;
+    --link-hover: #161613;
+    --serif: "Instrument Serif", "Cormorant", Georgia, serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --display: "Inter Tight", "Inter", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    font-feature-settings: "ss01","cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: var(--link); text-decoration: none; transition: opacity .15s ease, border-color .15s ease; }
+  a:hover { opacity: .65; }
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  .shell { max-width: 1180px; margin: 0 auto; padding: 32px 32px 96px; display: grid; grid-template-columns: 230px 1fr; gap: 84px; }
+  @media (max-width: 880px) {
+    .shell { grid-template-columns: 1fr; gap: 0; padding: 20px 22px 80px; }
+  }
+
+  /* ─── sidebar ─── */
+  aside.nav {
+    position: sticky; top: 32px; align-self: start;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.02em;
+    color: var(--muted);
+  }
+  aside.nav .id { color: var(--ink); font-size: 12px; margin-bottom: 28px; line-height: 1.3; }
+  aside.nav .id b { display: block; font-family: var(--sans); font-weight: 600; font-size: 14px; color: var(--ink); letter-spacing: -.005em; }
+  aside.nav .id span { color: var(--muted); }
+  aside.nav ul { list-style: none; padding: 0; margin: 0 0 24px; }
+  aside.nav li { margin: 6px 0; }
+  aside.nav li a { display: flex; align-items: baseline; gap: 8px; color: var(--ink-soft); }
+  aside.nav li a span.idx { color: var(--muted-2); width: 18px; display: inline-block; }
+  aside.nav li a:hover { color: var(--ink); opacity: 1; }
+
+  aside.nav .open-to {
+    border: 1px solid var(--rule);
+    padding: 12px 14px;
+    border-radius: 6px;
+    background: var(--bg-sub);
+    margin-top: 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  aside.nav .open-to .lbl {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--muted); letter-spacing: .05em;
+    text-transform: uppercase; font-size: 10px;
+    margin-bottom: 8px;
+  }
+  aside.nav .open-to .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--available);
+    box-shadow: 0 0 0 3px rgba(76,175,106,.18);
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+  aside.nav .open-to b { color: var(--ink); font-family: var(--sans); font-weight: 500; font-size: 13px; display: block; margin-bottom: 6px; letter-spacing: -.005em; line-height: 1.4; }
+  aside.nav .open-to em { font-style: normal; color: var(--muted); }
+
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(76,175,106,.18); } 50% { box-shadow: 0 0 0 6px rgba(76,175,106,.04); } }
+
+  aside.nav .meta { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 18px; line-height: 1.7; }
+
+  @media (max-width: 880px) {
+    aside.nav { position: static; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+    aside.nav .id { margin-bottom: 14px; }
+    aside.nav ul { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 14px; }
+    aside.nav li { margin: 0; }
+    aside.nav li a span.idx { display: none; }
+    aside.nav .open-to { margin-top: 6px; }
+    aside.nav .meta { margin-top: 10px; }
+  }
+
+  /* ─── main ─── */
+  main { min-width: 0; }
+  section { padding: 18px 0 12px; }
+  section + section { border-top: 1px solid var(--rule); margin-top: 32px; padding-top: 36px; }
+  .section-meta {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+    color: var(--muted); text-transform: uppercase;
+    margin-bottom: 18px;
+    display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap;
+  }
+  .section-meta b { color: var(--ink); font-weight: 500; }
+
+  /* ─── hero: NAME wins (rec #1) ─── */
+  .hero { padding-top: 8px; padding-bottom: 4px; }
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(60px, 11vw, 156px);
+    line-height: .92;
+    letter-spacing: -.04em;
+    margin: 6px 0 18px;
+    color: var(--ink);
+  }
+  .hero h1 .serif {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -.01em;
+    color: var(--ink-soft);
+    padding: 0 .04em;
+  }
+  .hero .role {
+    font-family: var(--sans);
+    font-size: clamp(15px, 1.4vw, 17px);
+    color: var(--ink-soft);
+    max-width: 44ch;
+    line-height: 1.45;
+    margin: 14px 0 26px;
+  }
+  .hero .role em { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 1.08em; color: var(--ink); }
+  .hero .role strong { color: var(--ink); font-weight: 500; }
+
+  /* anchor evidence — shrunk to evidence size (rec #1) */
+  .anchor {
+    margin: 14px 0 28px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 18px 0 18px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .anchor .big {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(44px, 6vw, 80px);
+    letter-spacing: -.04em;
+    line-height: .92;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .anchor .big .currency { color: var(--accent); font-family: var(--serif); font-style: italic; font-weight: 400; padding-right: .04em; }
+  .anchor .ctx {
+    font-family: var(--sans);
+    color: var(--ink-soft);
+    max-width: 36ch;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .anchor .ctx b { color: var(--ink); font-weight: 500; }
+  .anchor .ctx .lbl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+
+  @media (max-width: 720px) {
+    .anchor { grid-template-columns: 1fr; gap: 10px; }
+  }
+
+  /* small "Currently" line ABOVE the name now — magazine kicker style */
+  .kicker {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    letter-spacing: .04em; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 14px;
+  }
+  .kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--available); box-shadow: 0 0 0 3px rgba(76,175,106,.18); }
+  .kicker em { font-style: normal; color: var(--ink-soft); text-transform: none; letter-spacing: .005em; }
+
+  /* ─── REC #3: Bio paragraph — voice break ─── */
+  .bio {
+    padding: 36px 0 26px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin: 6px 0 0;
+  }
+  .bio p {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(20px, 2vw, 26px);
+    line-height: 1.42;
+    color: var(--ink);
+    max-width: 36ch;
+    margin: 0;
+    letter-spacing: -.005em;
+  }
+  .bio p::before { content: "“"; color: var(--muted-2); font-size: 1.2em; line-height: 0; vertical-align: -.15em; margin-right: .04em; }
+  .bio p::after  { content: "”"; color: var(--muted-2); font-size: 1.2em; line-height: 0; vertical-align: -.15em; margin-left: .04em; }
+  .bio .sig {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    letter-spacing: .04em; margin-top: 14px;
+  }
+
+  /* ─── currently ─── */
+  .currently p {
+    font-size: 17px;
+    line-height: 1.62;
+    max-width: 60ch;
+    color: var(--ink-soft);
+    margin: 4px 0 10px;
+  }
+  .currently p strong { color: var(--ink); font-weight: 500; }
+  .currently ul { margin: 14px 0 4px; padding: 0; list-style: none; max-width: 64ch; }
+  .currently ul li {
+    padding: 10px 0;
+    border-top: 1px solid var(--rule);
+    display: grid; grid-template-columns: 22px 1fr;
+    gap: 14px;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+  .currently ul li:last-child { border-bottom: 1px solid var(--rule); }
+  .currently ul li .ix { font-family: var(--mono); font-size: 11px; color: var(--muted); padding-top: 4px; }
+  .currently ul li strong { color: var(--ink); font-weight: 500; }
+
+  /* ─── work archive ─── */
+  .archive { list-style: none; padding: 0; margin: 4px 0 0; }
+  .archive li {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 28px;
+    padding: 22px 0 22px;
+    border-top: 1px solid var(--rule);
+    transition: background .14s ease;
+  }
+  .archive li:last-child { border-bottom: 1px solid var(--rule); }
+  .archive li:hover { background: linear-gradient(to right, var(--bg-sub) 0%, transparent 60%); }
+  .archive .year { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 6px; letter-spacing: .01em; }
+  .archive .row { min-width: 0; }
+  .archive .top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 6px; }
+  .archive .co { font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: -.018em; color: var(--ink); }
+  .archive .role-t { font-family: var(--sans); font-size: 14px; color: var(--ink-soft); font-weight: 400; }
+  .archive .headline {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: -.012em;
+    color: var(--ink);
+    margin: 4px 0 10px;
+  }
+  .archive .headline .accent { color: var(--accent); font-family: var(--mono); font-weight: 500; font-size: .85em; vertical-align: 1px; margin-right: 4px; letter-spacing: 0; }
+  .archive .bullets { margin: 0; padding: 0; list-style: none; }
+  .archive .bullets li {
+    display: block; padding: 0; border: 0;
+    color: var(--ink-soft); font-size: 14.5px; line-height: 1.55;
+    padding-left: 16px; position: relative; margin: 3px 0; background: transparent;
+  }
+  .archive .bullets li::before {
+    content: "—"; position: absolute; left: 0;
+    color: var(--muted-2); font-family: var(--mono);
+  }
+  .archive li.compact { padding: 16px 0; }
+  .archive li.compact .top { margin-bottom: 0; }
+  .archive li.compact .one-line { font-family: var(--sans); font-size: 14.5px; color: var(--ink-soft); line-height: 1.55; max-width: 70ch; margin-top: 4px; }
+  .archive li.compact .one-line b { color: var(--ink); font-weight: 500; }
+
+  @media (max-width: 720px) {
+    .archive li { grid-template-columns: 1fr; gap: 4px; padding: 18px 0; }
+    .archive .year { padding-top: 0; }
+  }
+
+  /* ─── REC #2: visual product evidence strip ─── */
+  .evidence {
+    margin: 8px 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 720px) {
+    .evidence { grid-template-columns: 1fr 1fr; }
+    .evidence .frame:nth-child(3) { display: none; }
+  }
+  .evidence .frame {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border: 1px solid var(--rule);
+    background: var(--bg-sub);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform .25s ease, border-color .2s;
+  }
+  .evidence .frame:hover { transform: translateY(-2px); border-color: var(--rule-strong); }
+  .evidence .frame .device {
+    position: absolute;
+    inset: 22px 22px 50px 22px;
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 24px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .evidence .frame .device::before {
+    content: "";
+    display: block; width: 30%; height: 4px; background: var(--rule-strong);
+    border-radius: 4px; margin: 8px auto 0;
+  }
+  .evidence .frame .device .surface {
+    flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 6px;
+    font-family: var(--mono); font-size: 9px; color: var(--muted);
+  }
+  .evidence .frame .device .surface .row { display: flex; align-items: center; gap: 6px; }
+  .evidence .frame .device .surface .bar { height: 4px; background: var(--rule); border-radius: 2px; }
+  .evidence .frame .device .surface .tile { aspect-ratio: 1; background: var(--rule); border-radius: 4px; flex: 1; }
+  .evidence .frame .device .surface .tile.accent { background: var(--accent); opacity: .85; }
+  .evidence .frame .device .surface .strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .evidence .frame .device .surface .ticker {
+    background: var(--ink); color: var(--bg); padding: 4px 6px; border-radius: 3px;
+    font-size: 8px; letter-spacing: .03em; text-align: center;
+  }
+  .evidence .frame .device .surface .price {
+    font-family: var(--display); font-weight: 600; font-size: 14px; color: var(--ink); letter-spacing: -.02em; margin-top: auto;
+  }
+  .evidence .frame .device .surface .price small { color: var(--muted); font-weight: 400; font-size: 8px; margin-left: 3px; letter-spacing: 0; font-family: var(--mono); }
+  .evidence .frame .device .surface .heart {
+    width: 14px; height: 14px; border-radius: 50%; background: var(--bg-sub); border: 1px solid var(--rule);
+    margin-left: auto;
+  }
+  .evidence .frame .device .surface .live {
+    position: absolute; top: 14px; right: 14px;
+    background: var(--accent); color: var(--bg); font-family: var(--mono); font-size: 8px;
+    letter-spacing: .08em; padding: 2px 5px; border-radius: 2px;
+  }
+  .evidence .frame .label {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 12px 16px 14px;
+    border-top: 1px solid var(--rule);
+    background: var(--bg);
+    font-family: var(--mono); font-size: 10px; color: var(--muted);
+    letter-spacing: .04em; text-transform: uppercase;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  }
+  .evidence .frame .label b { color: var(--ink); font-weight: 500; font-family: var(--sans); letter-spacing: -.005em; text-transform: none; font-size: 12px; }
+
+  /* ─── stack: 6 tools (rec #4) ─── */
+  .stack {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    margin-top: 4px;
+    border-top: 1px solid var(--rule);
+  }
+  @media (max-width: 720px) { .stack { grid-template-columns: 1fr; } }
+  .stack .tool {
+    padding: 14px 18px 14px 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: baseline; gap: 18px;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 19px;
+    letter-spacing: -.012em;
+    color: var(--ink);
+  }
+  .stack .tool .ix { font-family: var(--mono); font-weight: 500; font-size: 11px; color: var(--muted); width: 24px; }
+  .stack .tool .desc { font-family: var(--sans); font-size: 13px; color: var(--muted); margin-left: auto; font-weight: 400; max-width: 22ch; text-align: right; line-height: 1.35; }
+  .stack .tool:nth-child(odd) { padding-right: 24px; border-right: 1px solid var(--rule); padding-left: 0; }
+  .stack .tool:nth-child(even) { padding-left: 20px; }
+  @media (max-width: 720px) {
+    .stack .tool:nth-child(odd) { border-right: 0; padding-right: 0; }
+    .stack .tool:nth-child(even) { padding-left: 0; }
+    .stack .tool .desc { max-width: 16ch; }
+  }
+
+  /* ─── REC #4: influences 2-col ─── */
+  .influences {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 36px;
+    margin: 4px 0 0;
+  }
+  @media (max-width: 720px) { .influences { grid-template-columns: 1fr; gap: 0; } }
+  .influences .inf {
+    padding: 14px 0;
+    border-top: 1px solid var(--rule);
+    display: block;
+  }
+  .influences .inf:nth-last-child(-n+2) { border-bottom: 1px solid var(--rule); }
+  @media (max-width: 720px) {
+    .influences .inf:nth-last-child(2) { border-bottom: 0; }
+    .influences .inf:last-child { border-bottom: 1px solid var(--rule); }
+  }
+  .influences .inf .title {
+    font-family: var(--display); font-weight: 500; font-size: 17px;
+    letter-spacing: -.012em; color: var(--ink);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 14px;
+  }
+  .influences .inf .title .arrow { font-family: var(--mono); color: var(--muted); font-size: 12px; font-weight: 400; }
+  .influences .inf .by { font-family: var(--serif); font-style: italic; font-size: 14px; color: var(--muted); margin-top: 4px; line-height: 1.4; max-width: 30ch; }
+
+  /* ─── contact ─── */
+  .contact { padding-top: 8px; }
+  .contact .big-email {
+    display: inline-block;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(36px, 6.4vw, 76px);
+    letter-spacing: -.03em;
+    color: var(--ink);
+    line-height: 1.04;
+    margin: 8px 0 18px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 4px;
+  }
+  .contact .big-email:hover { opacity: 1; border-bottom-color: var(--ink); }
+  .contact .links { font-family: var(--mono); font-size: 13px; color: var(--muted); display: flex; gap: 22px; flex-wrap: wrap; }
+  .contact .links a { color: var(--ink-soft); display: inline-flex; align-items: center; gap: 6px; }
+  .contact .links a .arrow { display: inline-block; transition: transform .15s; }
+  .contact .links a:hover .arrow { transform: translate(2px, -2px); }
+  .contact .sign-off {
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 28px;
+    line-height: 1.5;
+    max-width: 44ch;
+  }
+  .contact .sign-off b { color: var(--ink); font-weight: 500; }
+
+  /* ─── footer ─── */
+  footer {
+    margin-top: 60px; padding-top: 22px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  footer em { font-family: var(--serif); font-style: italic; }
+  footer b { color: var(--ink); font-weight: 500; }
+
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(8px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* hero char stagger */
+  .hero h1 .ch { display: inline-block; opacity: 0; transform: translateY(14px); animation: charIn .55s cubic-bezier(.2,.7,.2,1) forwards; }
+  @keyframes charIn { to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <aside class="nav">
+    <div class="id">
+      <b>Zack Chang</b>
+      <span>Head of Product &amp; Creative Technologist</span>
+    </div>
+
+    <ul>
+      <li><a href="#now"><span class="idx">01</span> Now</a></li>
+      <li><a href="#work"><span class="idx">02</span> Work</a></li>
+      <li><a href="#stack"><span class="idx">03</span> Stack</a></li>
+      <li><a href="#influences"><span class="idx">04</span> Influences</a></li>
+      <li><a href="#contact"><span class="idx">05</span> Contact</a></li>
+    </ul>
+
+    <div class="open-to">
+      <div class="lbl"><span class="dot"></span>Open to</div>
+      <b>Head of Product / VP roles at AI-native commerce, media, or consumer companies.</b>
+      <em>Selective advisory.</em>
+    </div>
+
+    <div class="meta">NYC · <span id="clock">—</span></div>
+  </aside>
+
+  <main>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="section-meta">
+        <span>① Index</span>
+        <span>— Personal site of <b>Zack Chang</b></span>
+        <span>— Updated <span id="updated">today</span></span>
+      </div>
+
+      <!-- kicker moved above the name -->
+      <div class="kicker">
+        <span class="dot"></span>
+        Currently <em>— shipping an editorial quiz pipeline on LangGraph at Complex</em>
+      </div>
+
+      <h1 id="hero-name">Zack&nbsp;<span class="serif">Chang.</span></h1>
+
+      <p class="role">
+        Product leader who ships. <em>Builds with AI.</em>
+        Currently Head of Product &amp; Creative Technologist at <strong>Complex</strong> — owning vision and shipping production features end-to-end via spec-driven development with Claude and Codex.
+      </p>
+
+      <!-- REC #1: anchor sized as evidence, not co-hero -->
+      <div class="anchor">
+        <div class="big" id="big-num"><span class="currency">$</span>30M</div>
+        <div class="ctx">
+          <span class="lbl">2024 → 2026 · Complex Shop</span>
+          <b>Scaled from <span style="white-space:nowrap;">$3.7M to $30M</span> GMV</b> in twelve months
+          via site optimization, A/B testing, and personalization.
+        </div>
+      </div>
+    </section>
+
+    <!-- REC #3: Bio / voice break -->
+    <section class="bio" aria-label="bio">
+      <p>
+        I’m happiest when product strategy and the actual codebase are the same conversation. Started in retail at Levi’s, learned scale at Amazon, learned speed at NTWRK, learned culture at Complex — now building agentic editorial tools and shipping features myself.
+      </p>
+      <div class="sig">— Zack · written in his own voice, not a marketing one</div>
+    </section>
+
+    <!-- NOW -->
+    <section id="now" class="currently">
+      <div class="section-meta"><span>② Now</span><span>— Feb 2026 → present · Complex</span></div>
+
+      <p>
+        <strong>Head of Product &amp; Creative Technologist</strong> (Commerce &amp; Media). Player-coach shipping production features end-to-end via spec-driven development with Claude Code and Codex. Authored a Jobs-to-Be-Done product strategy that was adopted as the basis for company OKRs.
+      </p>
+
+      <ul>
+        <li><span class="ix">01</span><span><strong>Editorial Poll &amp; Quiz Generator</strong> — agentic LangGraph workflow that drafts quizzes, fact-checks, and scores against Complex's editorial voice. Editors add interactive units to articles in minutes.</span></li>
+        <li><span class="ix">02</span><span><strong>Creative Pipeline</strong> — accelerates 0→1 initiatives via AI-assisted concept generation, research, moodboarding, design-system creation, and prototyping.</span></li>
+        <li><span class="ix">03</span><span><strong>Editorial features</strong> shipped this year lifted engagement <strong>+15%</strong> on the highest-revenue pages, went viral in the hip-hop community, and were featured on multiple influencer Twitch streams.</span></li>
+        <li><span class="ix">04</span><span><strong>Data-governance tool</strong> that retired stale documentation and migrated the data taxonomy from Confluence to GitHub.</span></li>
+      </ul>
+    </section>
+
+    <!-- WORK -->
+    <section id="work">
+      <div class="section-meta"><span>③ Work</span><span>— 2015 → 2026</span><span>— Selected</span></div>
+
+      <ul class="archive">
+
+        <li>
+          <div class="year">2024 — 2026</div>
+          <div class="row">
+            <div class="top">
+              <span class="co">Complex</span>
+              <span class="role-t">Director of Product · Commerce &amp; Mobile App</span>
+            </div>
+            <div class="headline"><span class="accent">▸</span>$3.7M → $30M GMV in twelve months.</div>
+            <ul class="bullets">
+              <li>0→1 launch of Complex Shop. Scaled via site optimization, A/B testing, and personalization.</li>
+              <li>0→1 launch of Complex App: 55K MAU, +15% AOV vs. web, 3× conversion. Top 50 US Shopping category.</li>
+              <li>+25% 7-day retention from an AI-powered personalization feed (OpenAI embeddings + Pinecone vector DB).</li>
+              <li>Managed two Senior PMs.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li>
+          <div class="year">2021 — 2024</div>
+          <div class="row">
+            <div class="top">
+              <span class="co">NTWRK</span>
+              <span class="role-t">Product Lead · Livestream Shopping &amp; Mobile App</span>
+            </div>
+            <div class="headline"><span class="accent">▸</span>Scaled a livestream marketplace to 2,000+ sellers and 30K MAU.</div>
+            <ul class="bullets">
+              <li>Launched NTWRK Live Marketplace &amp; Auctions — third-party sellers selling through fully shoppable livestreams.</li>
+              <li>Owned both the consumer app experience and merchant tooling.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li>
+          <div class="year">2020 — 2021</div>
+          <div class="row">
+            <div class="top">
+              <span class="co">Amazon</span>
+              <span class="role-t">Senior PM · Multichannel Fulfillment</span>
+            </div>
+            <div class="headline"><span class="accent">▸</span>Fulfillment tools used by 100K+ monthly global merchants.</div>
+            <ul class="bullets">
+              <li>Launched the Amazon Logistics Tracking API — Amazon Logistics' first public tracking API. Adopted by Etsy, eBay, Wish.</li>
+              <li>Built storage-optimization models with engineers, data scientists, and economists. Led COVID shipping ops.</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="compact">
+          <div class="year">2015 — 2019</div>
+          <div class="row">
+            <div class="top">
+              <span class="co">Levi Strauss &amp; Co.</span>
+              <span class="role-t">Senior PM · Omnichannel Retail &amp; Innovation</span>
+            </div>
+            <div class="one-line">
+              Shipped <b>Levi's first consumer mobile app</b> and an early-NLP fit &amp; style chatbot on Levi.com and Facebook Messenger.
+            </div>
+          </div>
+        </li>
+
+      </ul>
+
+      <!-- REC #2: visual evidence strip — stylized device frames -->
+      <div style="margin-top: 28px;">
+        <div class="section-meta" style="margin-bottom: 12px;">
+          <span>Evidence</span>
+          <span>— stylized — real screens redacted intentionally</span>
+        </div>
+
+        <div class="evidence" aria-label="abstract product evidence">
+          <!-- Complex Shop -->
+          <div class="frame" title="Complex Shop">
+            <div class="device">
+              <div class="surface" style="position: relative;">
+                <div class="row" style="margin-bottom: 4px;"><div class="bar" style="width: 40%;"></div><span style="margin-left:auto;">SHOP</span></div>
+                <div class="strip">
+                  <div class="tile"></div><div class="tile accent"></div><div class="tile"></div>
+                </div>
+                <div class="strip">
+                  <div class="tile"></div><div class="tile"></div><div class="tile"></div>
+                </div>
+                <div class="bar" style="width: 70%; margin-top: 6px;"></div>
+                <div class="bar" style="width: 50%;"></div>
+                <div class="price" style="margin-top: auto;">$30M<small>GMV</small></div>
+              </div>
+            </div>
+            <div class="label"><b>Complex Shop</b><span>2024 → 26</span></div>
+          </div>
+
+          <!-- Complex App -->
+          <div class="frame" title="Complex App">
+            <div class="device">
+              <div class="surface" style="position: relative;">
+                <div class="row" style="margin-bottom: 4px;"><div class="bar" style="width: 30%;"></div><span style="margin-left:auto;">APP</span></div>
+                <div class="row"><div class="tile" style="aspect-ratio: 4/3;"></div></div>
+                <div class="bar" style="width: 80%; margin-top: 6px;"></div>
+                <div class="bar" style="width: 60%;"></div>
+                <div class="bar" style="width: 40%;"></div>
+                <div class="row" style="margin-top: 6px; gap: 4px;">
+                  <div class="ticker" style="background: var(--accent);">FOR YOU</div>
+                  <div class="ticker" style="background: var(--bg-sub); color: var(--muted); border:1px solid var(--rule);">DROPS</div>
+                </div>
+                <div class="price" style="margin-top: auto;">55K<small>MAU</small></div>
+              </div>
+            </div>
+            <div class="label"><b>Complex App</b><span>2024 → 26</span></div>
+          </div>
+
+          <!-- NTWRK Live -->
+          <div class="frame" title="NTWRK Live">
+            <div class="device">
+              <div class="surface" style="position: relative;">
+                <div class="live">● LIVE</div>
+                <div class="row" style="margin-bottom: 4px;"><div class="bar" style="width: 30%;"></div></div>
+                <div class="tile" style="aspect-ratio: 16/12; background: var(--ink); position: relative;">
+                  <div style="position:absolute; bottom:4px; left:4px; right:4px; display:flex; justify-content:space-between; font-family:var(--mono); font-size:8px; color:var(--bg);">
+                    <span>↑ 1.2k</span><span>00:42</span>
+                  </div>
+                </div>
+                <div class="bar" style="width: 70%; margin-top: 6px;"></div>
+                <div class="bar" style="width: 90%;"></div>
+                <div class="price" style="margin-top: auto;">2K+<small>SELLERS</small></div>
+              </div>
+            </div>
+            <div class="label"><b>NTWRK Live</b><span>2021 → 24</span></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- STACK — 6 tools, disciplined (rec #4) -->
+    <section id="stack">
+      <div class="section-meta"><span>④ Stack</span><span>— What I build with</span></div>
+
+      <div class="stack">
+        <div class="tool"><span class="ix">01</span>Claude Code <span class="desc">spec-driven dev, full-stack</span></div>
+        <div class="tool"><span class="ix">02</span>Codex <span class="desc">parallel-pair work</span></div>
+        <div class="tool"><span class="ix">03</span>LangGraph <span class="desc">multi-agent workflows</span></div>
+        <div class="tool"><span class="ix">04</span>Braintrust <span class="desc">eval-first prompt ops</span></div>
+        <div class="tool"><span class="ix">05</span>Hermes <span class="desc">orchestration runtime</span></div>
+        <div class="tool"><span class="ix">06</span>OpenClaw <span class="desc">creative-pipeline harness</span></div>
+      </div>
+    </section>
+
+    <!-- INFLUENCES — 2-col grid (rec #4) -->
+    <section id="influences">
+      <div class="section-meta"><span>⑤ Influences</span><span>— What I read &amp; who I steal from</span></div>
+
+      <div class="influences">
+        <a href="https://brianlovin.com" class="inf" target="_blank" rel="noopener">
+          <div class="title">Brian Lovin <span class="arrow">↗</span></div>
+          <div class="by">senior design at GitHub — the permanent personal-site benchmark</div>
+        </a>
+        <a href="https://www.lennysnewsletter.com" class="inf" target="_blank" rel="noopener">
+          <div class="title">Lenny Rachitsky <span class="arrow">↗</span></div>
+          <div class="by">canonical PM newsletter, frameworks I actually use</div>
+        </a>
+        <a href="https://linear.app/blog" class="inf" target="_blank" rel="noopener">
+          <div class="title">Linear's blog <span class="arrow">↗</span></div>
+          <div class="by">how a serious product team writes about its own craft</div>
+        </a>
+        <a href="https://www.subtraction.com" class="inf" target="_blank" rel="noopener">
+          <div class="title">Khoi Vinh <span class="arrow">↗</span></div>
+          <div class="by">design + tech notes from a designer I trust</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="contact">
+      <div class="section-meta"><span>⑥ Contact</span><span>— Direct only · no forms</span></div>
+
+      <a class="big-email" href="mailto:hi@zackchang.com">hi@zackchang.com</a>
+
+      <div class="links">
+        <a href="#" target="_blank" rel="noopener">LinkedIn <span class="arrow">↗</span></a>
+        <a href="#" target="_blank" rel="noopener">GitHub <span class="arrow">↗</span></a>
+        <a href="#" target="_blank" rel="noopener">Twitter / X <span class="arrow">↗</span></a>
+        <a href="#" target="_blank" rel="noopener">Read.cv <span class="arrow">↗</span></a>
+      </div>
+
+      <p class="sign-off">
+        <b>Best way to reach me.</b> I respond within a few days.
+      </p>
+    </section>
+
+    <footer>
+      <span>© 2026 Zack Chang · NYC</span>
+      <span>Built by hand · Inter Tight + <em>Instrument Serif</em> + IBM Plex Mono · <b>30kb</b></span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  // hero name char stagger
+  (function staggerHero(){
+    const el = document.getElementById('hero-name');
+    if (!el) return;
+    const text = el.innerHTML;
+    el.innerHTML = text.replace(/(<span class="serif">.*?<\/span>|&nbsp;|.)/g, function(m){
+      if (m.startsWith('<') || m === ' ') return m;
+      if (m === '&nbsp;') return '<span class="ch" style="width:.3em;display:inline-block;"></span>';
+      return '<span class="ch">'+m+'</span>';
+    });
+    document.querySelectorAll('.hero h1 .ch').forEach((c, i) => {
+      c.style.animationDelay = (60 + i * 28) + 'ms';
+    });
+  })();
+
+  // reveal on scroll
+  (function revealOnScroll(){
+    const els = document.querySelectorAll('section, .archive li, .stack .tool, .influences .inf, .anchor, .evidence .frame');
+    els.forEach(el => el.classList.add('reveal'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -40px 0px', threshold: 0.06 });
+    els.forEach(el => io.observe(el));
+  })();
+
+  // live NYC clock
+  (function clock(){
+    function fmt(d){
+      let h = d.getHours(), m = d.getMinutes();
+      const ampm = h >= 12 ? 'pm' : 'am';
+      h = h % 12 || 12;
+      return h + ':' + (m < 10 ? '0' + m : m) + ampm;
+    }
+    function tick(){
+      const opt = { timeZone: 'America/New_York' };
+      const nyc = new Date(new Date().toLocaleString('en-US', opt));
+      const el = document.getElementById('clock');
+      if (el) el.textContent = fmt(nyc) + ' EST';
+    }
+    tick(); setInterval(tick, 30 * 1000);
+  })();
+
+  // updated stamp
+  (function updated(){
+    const d = new Date();
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const el = document.getElementById('updated');
+    if (el) el.textContent = months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  })();
+
+  // anchor counter
+  (function countNumber(){
+    const el = document.getElementById('big-num');
+    if (!el) return;
+    let started = false;
+    function run(){
+      if (started) return;
+      started = true;
+      let i = 3;
+      const max = 30;
+      function step(){
+        if (i >= max) { el.innerHTML = '<span class="currency">$</span>30M'; return; }
+        i++;
+        el.innerHTML = '<span class="currency">$</span>' + i + 'M';
+        setTimeout(step, 30);
+      }
+      el.innerHTML = '<span class="currency">$</span>3M';
+      setTimeout(step, 240);
+    }
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) { run(); io.disconnect(); }});
+    }, { threshold: .5 });
+    io.observe(el);
+  })();
+</script>
+
+</body>
+</html>
